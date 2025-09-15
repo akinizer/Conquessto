@@ -2,74 +2,19 @@
 <html>
 <head>
     <title>RTS Game</title>
-    <style>
-        body {
-            background-color: #333;
-            color: white;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        canvas {
-            background-color: #555;
-            border: 2px solid #fff;
-        }
-        #game-ui {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 200px;
-            background-color: #444;
-            border: 2px solid #fff;
-            padding: 10px;
-        }
-        #panel-status {
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        .tabs {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 10px;
-        }
-        .tab-button {
-            padding: 5px 10px;
-            cursor: pointer;
-            background-color: #666;
-            border: 1px solid #888;
-            border-bottom: none;
-        }
-        .tab-button.active {
-            background-color: #555;
-            border-color: #fff;
-            font-weight: bold;
-        }
-        #production-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-        .production-button {
-            padding: 10px;
-            background-color: #777;
-            text-align: center;
-            cursor: pointer;
-            border: 1px solid #999;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <div id="game-ui">
-        <div id="panel-status">Ready.</div>
-        <div class="tabs">
-            <div class="tab-button" data-tab="units">Units</div>
-            <div class="tab-button" data-tab="buildings">Buildings</div>
+    <div id="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="side-panel">
+            <div id="panel-status">Ready.</div>
+            <div class="tabs">
+                <div class="tab" data-tab="units">Units</div>
+                <div class="tab" data-tab="buildings">Buildings</div>
+            </div>
+            <div id="production-grid"></div>
         </div>
-        <div id="production-grid"></div>
     </div>
     <script type="module" src="main.js"></script>
     <script type="module" src="game-objects.js"></script>

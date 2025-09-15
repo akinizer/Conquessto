@@ -1,7 +1,7 @@
 // ui.js
 
 const productionGrid = document.getElementById('production-grid');
-const tabButtons = document.querySelectorAll('.tab-button');
+const tabButtons = document.querySelectorAll('.tab');
 
 export function initializeUI(gameManager, items) {
     tabButtons.forEach(button => {
@@ -12,14 +12,14 @@ export function initializeUI(gameManager, items) {
             renderProductionButtons(gameManager, items[tabType]);
         });
     });
-    document.querySelector('.tab-button[data-tab="units"]').click();
+    document.querySelector('.tab[data-tab="units"]').click();
 }
 
 export function renderProductionButtons(gameManager, items) {
     productionGrid.innerHTML = "";
     items.forEach(item => {
         const button = document.createElement('div');
-        button.className = 'production-button';
+        button.className = 'unit-button';
         button.textContent = item.name;
         
         button.onclick = () => {

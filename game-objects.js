@@ -23,6 +23,16 @@ export class Unit extends GameObject {
         this.attackRange = 40;
         this.damage = 0.5;
         this.attackTarget = null;
+        this.isSelected = false;
+        this.searchRange = 200; // <-- NEW: Unit will only search for enemies within this range
+    }
+
+    select() {
+        this.isSelected = true;
+    }
+
+    deselect() {
+        this.isSelected = false;
     }
 
     draw() {
@@ -33,6 +43,13 @@ export class Unit extends GameObject {
         ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
         ctx.fillStyle = color;
         ctx.fill();
+
+        if (this.isSelected) {
+            ctx.strokeStyle = "yellow";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
         const barWidth = 30;
         const barHeight = 5;
         ctx.fillStyle = "#555";
@@ -48,7 +65,27 @@ export class Unit extends GameObject {
         this.attackTarget = null;
     }
 
+    findClosestEnemy() {
+        let closestEnemy = null;
+        let minDistance = Infinity;
+
+        for (const id in this.gameManager.gameObjects) {
+            const obj = this.gameManager.gameObjects[id];
+            if (obj.team !== this.team) {
+                const distance = Math.sqrt(Math.pow(obj.x - this.x, 2) + Math.pow(obj.y - this.y, 2));
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestEnemy = obj;
+                }
+            }
+        }
+        
+        // Return the enemy only if it's within the unit's search range
+        return minDistance <= this.searchRange ? closestEnemy : null;
+    }
+
     update() {
+        // Attack-move logic
         if (this.attackTarget) {
             const distance = Math.sqrt(Math.pow(this.attackTarget.x - this.x, 2) + Math.pow(this.attackTarget.y - this.y, 2));
             if (distance > this.attackRange) {
@@ -57,16 +94,25 @@ export class Unit extends GameObject {
             } else {
                 this.attackTarget.health -= this.damage;
             }
-        } else if (this.x !== this.targetX || this.y !== this.targetY) {
-            const dx = this.targetX - this.x;
-            const dy = this.targetY - this.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            if (distance <= this.speed) {
-                this.x = this.targetX;
-                this.y = this.targetY;
-            } else {
-                this.x += (dx / distance) * this.speed;
-                this.y += (dy / distance) * this.speed;
+        } else {
+            const closestEnemy = this.findClosestEnemy();
+            if (closestEnemy) {
+                this.attackTarget = closestEnemy;
+                return;
+            }
+
+            // Move logic
+            if (this.x !== this.targetX || this.y !== this.targetY) {
+                const dx = this.targetX - this.x;
+                const dy = this.targetY - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance <= this.speed) {
+                    this.x = this.targetX;
+                    this.y = this.targetY;
+                } else {
+                    this.x += (dx / distance) * this.speed;
+                    this.y += (dy / distance) * this.speed;
+                }
             }
         }
     }
@@ -88,7 +134,7 @@ export class Building extends GameObject {
 export class ProductionBuilding extends Building {
     constructor(id, team, x, y, canvas, gameManager) {
         super(id, team, x, y, canvas, gameManager);
-        this.type = "ProductionBuilding"; // <-- ADD THIS LINE
+        this.type = "ProductionBuilding";
         this.productionQueue = [];
         this.isProducing = false;
         this.productionTime = 100;

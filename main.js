@@ -20,8 +20,10 @@ class RTSManager {
         this.nextObjectId = 0;
         this.pendingBuilding = null;
         this.productionBuilding = null;
+        this.selectedUnits = []; 
 
         this.canvas.addEventListener('mousedown', (event) => this.onCanvasClick(event));
+        this.canvas.addEventListener('contextmenu', (event) => this.onCanvasRightClick(event)); 
         
         initializeUI(this, PRODUCTION_ITEMS);
         this.gameLoop();
@@ -61,50 +63,77 @@ class RTSManager {
     }
 
     onCanvasClick(event) {
+        if (event.button !== 0) return; // <-- NEW: Only respond to left-clicks
+
         const rect = this.canvas.getBoundingClientRect();
         const mouseX = event.clientX - rect.left;
         const mouseY = event.clientY - rect.top;
         const clickedObject = this.getObjectAt(mouseX, mouseY);
 
-        console.log("Clicked Object:", clickedObject); // <-- ADD THIS LINE
-
-        // If we are in building placement mode, place the building.
         if (this.pendingBuilding) {
             const newBuilding = this.buildBuilding("friend", mouseX, mouseY);
-            // Automatically make the first building the primary one
             if (!this.productionBuilding) {
                 this.productionBuilding = newBuilding;
                 this.productionBuilding.select();
                 document.getElementById('panel-status').textContent = "Barracks placed. This is your primary barracks.";
             } else {
+                this.productionBuilding.deselect();
+                this.productionBuilding = newBuilding;
+                this.productionBuilding.select();
                 document.getElementById('panel-status').textContent = "Barracks placed. Click it to make it your primary.";
             }
             this.pendingBuilding = null;
             return;
         }
 
-        // Only change the primary building if a different one is clicked
-        if (clickedObject && clickedObject.type === "ProductionBuilding" && clickedObject !== this.productionBuilding) {
-            // Deselect the old one if it exists
+        if (clickedObject && clickedObject.type === "ProductionBuilding") {
             if (this.productionBuilding) {
                 this.productionBuilding.deselect();
             }
-            // Set the new one as primary and select it
             this.productionBuilding = clickedObject;
             this.productionBuilding.select();
             document.getElementById('panel-status').textContent = `Barracks ${this.productionBuilding.id} selected as primary.`;
+            return;
+        }
+
+        if (clickedObject && clickedObject.type === "Unit") {
+            this.selectedUnits.forEach(unit => unit.deselect());
+            this.selectedUnits = [clickedObject];
+            clickedObject.select();
+            document.getElementById('panel-status').textContent = `Unit ${clickedObject.id} selected.`;
+        }
+    }
+
+    onCanvasRightClick(event) {
+        event.preventDefault();
+        if (event.button !== 2) return; // <-- NEW: Only respond to right-clicks
+
+        const rect = this.canvas.getBoundingClientRect();
+        const mouseX = event.clientX - rect.left;
+        const mouseY = event.clientY - rect.top;
+
+        if (this.selectedUnits.length > 0) {
+            this.selectedUnits.forEach(unit => {
+                unit.moveTo(mouseX, mouseY);
+            });
+            document.getElementById('panel-status').textContent = "Unit(s) moving.";
+            return;
+        }
+
+        if (this.productionBuilding) {
+            this.productionBuilding.rallyPoint.x = mouseX;
+            this.productionBuilding.rallyPoint.y = mouseY;
+            document.getElementById('panel-status').textContent = "Rally point set.";
         }
     }
 
     getObjectAt(x, y) {
-        // Iterate through all game objects to find the one that was clicked
         for (const id in this.gameObjects) {
             const obj = this.gameObjects[id];
-            // Calculate the bounding box for buildings and check for a collision
-            const objWidth = 80; // Assuming size is 40 * 2 from game-objects.js draw()
-            const objHeight = 80;
-            if (x >= obj.x - objWidth / 2 && x <= obj.x + objWidth / 2 &&
-                y >= obj.y - objHeight / 2 && y <= obj.y + objHeight / 2) {
+            const distance = Math.sqrt(Math.pow(obj.x - x, 2) + Math.pow(obj.y - y, 2));
+            const hitRadius = (obj.type === "Unit") ? 15 : 40; 
+
+            if (distance < hitRadius) {
                 return obj;
             }
         }

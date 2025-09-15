@@ -81,24 +81,33 @@ canvas {
 #production-grid {
     flex-grow: 1;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 120px);
     gap: 15px;
     padding-top: 10px;
     overflow-y: auto;
+    justify-content: center;
 }
 
 .unit-button {
     background-color: #4a4a4a;
     border: 2px solid #5c5c5c;
     border-radius: 8px;
-    padding: 20px 10px;
     text-align: center;
     cursor: pointer;
     transition: background-color 0.2s ease, border-color 0.2s ease;
     font-weight: bold;
     color: #ddd;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+
+    /* --- FIX: ADDED FIXED SIZE AND CENTERING --- */
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* ------------------------------------------- */
 }
+
 
 .unit-button:hover {
     background-color: #6a6a6a;
