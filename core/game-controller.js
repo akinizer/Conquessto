@@ -52,77 +52,71 @@ export class GameController {
         }
     }
 
-    _isLocationClear(x, y, width, height) {
+    _isAreaClear(x, y, width, height, ignoreObject = null) {
+        const padding = 10;
+        const paddedWidth = width + padding * 2;
+        const paddedHeight = height + padding * 2;
+        
         for (const id in this.gameState.gameObjects) {
             const obj = this.gameState.gameObjects[id];
+            if (obj === ignoreObject) continue;
 
-            // Ignore the object that is being built
-            if (obj === this.gameState.pendingBuilding) continue;
-
-            // Check for collision based on object type
             if (obj.type === "Unit") {
-                // Unit-to-Building collision check (Circle-to-Rectangle)
-                const unitRadius = 15; // Assuming a standard unit radius of 15
+                const unitRadius = 15;
+                const closestX = Math.max(obj.x - unitRadius, Math.min(x, obj.x + unitRadius));
+                const closestY = Math.max(obj.y - unitRadius, Math.min(y, obj.y + unitRadius));
                 
-                // Find the closest point on the building's rect to the unit's center
-                const closestX = Math.max(x - width / 2, Math.min(obj.x, x + width / 2));
-                const closestY = Math.max(y - height / 2, Math.min(obj.y, y + height / 2));
+                const distance = Math.sqrt(Math.pow(closestX - x, 2) + Math.pow(closestY - y, 2));
 
-                // Calculate the distance between the closest point and the unit's center
-                const distance = Math.sqrt(Math.pow(obj.x - closestX, 2) + Math.pow(obj.y - closestY, 2));
-
-                if (distance < unitRadius) {
-                    return false; // Collision detected with a unit
+                if (distance < unitRadius + Math.min(paddedWidth, paddedHeight) / 2) {
+                    return false;
                 }
-
             } else {
-                // Standard Building-to-Building collision check (AABB)
                 const objLeft = obj.x - obj.width / 2;
                 const objRight = obj.x + obj.width / 2;
                 const objTop = obj.y - obj.height / 2;
                 const objBottom = obj.y + obj.height / 2;
-
-                const newObjLeft = x - width / 2;
-                const newObjRight = x + width / 2;
-                const newObjTop = y - height / 2;
-                const newObjBottom = y + height / 2;
-
+                
+                const newObjLeft = x - paddedWidth / 2;
+                const newObjRight = x + paddedWidth / 2;
+                const newObjTop = y - paddedHeight / 2;
+                const newObjBottom = y + paddedHeight / 2;
+    
                 if (newObjRight > objLeft && newObjLeft < objRight && newObjBottom > objTop && newObjTop < objBottom) {
-                    return false; // Collision detected with a building
+                    return false;
                 }
             }
         }
-        return true; // No collisions
+        return true;
     }
 
+    isLocationClearForUnit(x, y, ignoreObject = null) {
+        const unitWidth = 30;
+        const unitHeight = 30;
+        return this._isAreaClear(x, y, unitWidth, unitHeight, ignoreObject);
+    }
+    
     onCanvasClick(event) {
         if (event.button !== 0) return;
         const rect = this.canvas.getBoundingClientRect();
         const mouseX = event.clientX - rect.left;
         const mouseY = event.clientY - rect.top;
         const clickedObject = this.getObjectAt(mouseX, mouseY);
-
-        this.pendingBuildingCursorPosition.x = event.clientX - rect.left;
-        this.pendingBuildingCursorPosition.y = event.clientY - rect.top;
-
-        const isWithinCanvas = (
-            this.pendingBuildingCursorPosition.x - 40 >= 0 &&
-            this.pendingBuildingCursorPosition.x + 40 <= this.canvas.width &&
-            this.pendingBuildingCursorPosition.y - 40 >= 0 &&
-            this.pendingBuildingCursorPosition.y + 40 <= this.canvas.height
-        );
-
-        const isLocationClear = this._isLocationClear(
-            this.pendingBuildingCursorPosition.x,
-            this.pendingBuildingCursorPosition.y,
-            80, // Building width
-            80 // Building height
-        );
-
-        this.canPlaceBuilding = isWithinCanvas && isLocationClear;
         
         if (this.gameState.pendingBuilding) {
-            if (this.canPlaceBuilding) {
+            const buildingWidth = 80;
+            const buildingHeight = 80;
+            
+            const isLocationClear = this._isAreaClear(mouseX, mouseY, buildingWidth, buildingHeight);
+            
+            const isWithinCanvas = (
+                mouseX - buildingWidth / 2 >= 0 &&
+                mouseX + buildingWidth / 2 <= this.canvas.width &&
+                mouseY - buildingHeight / 2 >= 0 &&
+                mouseY + buildingHeight / 2 <= this.canvas.height
+            );
+
+            if (isLocationClear && isWithinCanvas) {
                 const newBuilding = this.buildBuilding("friend", mouseX, mouseY);
                 if (this.gameState.productionBuilding) {
                     this.gameState.productionBuilding.deselect();
@@ -207,26 +201,6 @@ export class GameController {
         const rect = this.canvas.getBoundingClientRect();
         this.pendingBuildingCursorPosition.x = event.clientX - rect.left;
         this.pendingBuildingCursorPosition.y = event.clientY - rect.top;
-        
-        // New boundary check logic
-        const buildingWidth = 80;
-        const buildingHeight = 80;
-
-        const isWithinCanvas = (
-            this.pendingBuildingCursorPosition.x - buildingWidth / 2 >= 0 &&
-            this.pendingBuildingCursorPosition.x + buildingWidth / 2 <= this.canvas.width &&
-            this.pendingBuildingCursorPosition.y - buildingHeight / 2 >= 0 &&
-            this.pendingBuildingCursorPosition.y + buildingHeight / 2 <= this.canvas.height
-        );
-
-        const isLocationClear = this._isLocationClear(
-            this.pendingBuildingCursorPosition.x,
-            this.pendingBuildingCursorPosition.y,
-            buildingWidth,
-            buildingHeight
-        );
-
-        this.canPlaceBuilding = isWithinCanvas && isLocationClear;
     }
 
     getObjectAt(x, y) {
@@ -258,6 +232,24 @@ export class GameController {
         }
 
         if (this.gameState.pendingBuilding) {
+            const buildingWidth = 80;
+            const buildingHeight = 80;
+
+            const isWithinCanvas = (
+                this.pendingBuildingCursorPosition.x - buildingWidth / 2 >= 0 &&
+                this.pendingBuildingCursorPosition.x + buildingWidth / 2 <= this.canvas.width &&
+                this.pendingBuildingCursorPosition.y - buildingHeight / 2 >= 0 &&
+                this.pendingBuildingCursorPosition.y + buildingHeight / 2 <= this.canvas.height
+            );
+
+            const isLocationClear = this._isAreaClear(
+                this.pendingBuildingCursorPosition.x,
+                this.pendingBuildingCursorPosition.y,
+                buildingWidth,
+                buildingHeight
+            );
+            this.canPlaceBuilding = isWithinCanvas && isLocationClear;
+            
             const silhouetteColor = this.canPlaceBuilding ? 'rgba(0, 255, 0, 0.5)' : 'rgba(255, 0, 0, 0.5)';
             const pendingBuilding = new ProductionBuilding(null, null, this.pendingBuildingCursorPosition.x, this.pendingBuildingCursorPosition.y, this.canvas, this);
             pendingBuilding.drawSilhouette(silhouetteColor);

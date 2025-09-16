@@ -15,7 +15,7 @@ export class ProductionBuilding {
         this.type = "ProductionBuilding";
         this.productionQueue = [];
         this.productionTime = 0;
-        this.rallyPoint = { x: x, y: y };
+        this.rallyPoint = { x: this.x, y: this.y + this.height / 2 + 10 }; //outside building
         this.maxHealth = 100;
         this.health = this.maxHealth;
         this.featureBarRect = null;
@@ -60,7 +60,6 @@ export class ProductionBuilding {
         }
     }
     
-    // New method to draw the building's silhouette
     drawSilhouette(color) {
         this.ctx.fillStyle = color;
         this.ctx.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
@@ -124,14 +123,17 @@ export class ProductionBuilding {
 
     update() {
         if (this.productionQueue.length > 0) {
-            this.productionTime++;
-            const itemToProduce = this.productionQueue[0];
-            if (this.productionTime >= itemToProduce.item.time) {
-                const spawnPoint = this._getClosestPointOnPerimeter(this.rallyPoint.x, this.rallyPoint.y);
-                const newUnit = this.gameController.spawnUnit(this.team, spawnPoint.x, spawnPoint.y);
-                newUnit.moveTo(this.rallyPoint.x, this.rallyPoint.y);
-                this.productionQueue.shift();
-                this.productionTime = 0;
+            const spawnPoint = this._getClosestPointOnPerimeter(this.rallyPoint.x, this.rallyPoint.y);
+            
+            if (this.gameController.isLocationClearForUnit(spawnPoint.x, spawnPoint.y, this)) {
+                 this.productionTime++;
+                const itemToProduce = this.productionQueue[0];
+                if (this.productionTime >= itemToProduce.item.time) {
+                    const newUnit = this.gameController.spawnUnit(this.team, spawnPoint.x, spawnPoint.y);
+                    newUnit.moveTo(this.rallyPoint.x, this.rallyPoint.y);
+                    this.productionQueue.shift();
+                    this.productionTime = 0;
+                }
             }
         }
     }
