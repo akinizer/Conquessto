@@ -15,16 +15,16 @@ window.onload = async () => {
     await dataManager.loadProductionData();
     const productionItems = dataManager.getProductionItems();
 
-    // First, create the UIController. We can pass a null reference initially
-    // and set it later to avoid a circular dependency.
-    uiController = new UIController(null, productionItems);
+    // 1. Create the UIController first, passing the loaded data.
+    uiController = new UIController(productionItems);
 
-    // Then, create the GameController, passing the uiController to it.
+    // 2. Then, create the GameController, passing the uiController to it.
     gameController = new GameController(canvas, uiController);
 
-    // Now, complete the circular reference by setting the gameController on the uiController.
+    // 3. Now, complete the circular reference by setting the gameController on the uiController.
+    // This must happen BEFORE initializeUI is called.
     uiController.gameController = gameController;
 
-    // Initialize the UI.
+    // 4. Initialize the UI. Now all the links are properly set.
     uiController.initializeUI();
 };

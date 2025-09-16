@@ -1,12 +1,12 @@
 // ui/ui-controller.js
 
 export class UIController {
-  constructor(gameController, productionItems) {
-    this.productionItems = productionItems;
-    this.productionGrid = document.getElementById('production-grid');
-    this.tabButtons = document.querySelectorAll('.tab');
-    this.panelStatus = document.getElementById('panel-status');
-    this.gameController = gameController; 
+  constructor(productionItems) {
+        this.productionItems = productionItems;
+        this.productionGrid = document.getElementById('production-grid');
+        this.tabButtons = document.querySelectorAll('.tab');
+        this.panelStatus = document.getElementById('panel-status');
+        this.gameController = null; // We'll set this during initialization
   }
 
   initializeUI() {

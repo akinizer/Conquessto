@@ -5,17 +5,16 @@ import { Unit } from '../game-objects/Unit.js';
 import { ProductionBuilding } from '../game-objects/ProductionBuilding.js';
 
 export class GameController {
-    constructor(canvas, uiManager) {
+    constructor(canvas, uiController) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
-        this.uiManager = uiManager;
+        this.uiController = uiController; // Corrected property name
         this.gameState = new GameState();
 
         this.canvas.addEventListener('mousedown', (event) => this.onCanvasClick(event));
         this.canvas.addEventListener('contextmenu', (event) => this.onCanvasRightClick(event));
 
-        // Let the UIManager handle its own initialization, without passing data.
-        this.uiManager.initializeUI(this);
+        this.uiController.initializeUI(this); // Corrected property access
         this.gameLoop();
     }
 
@@ -37,14 +36,14 @@ export class GameController {
     trainItem(item, button) {
         if (item.type === "Unit") {
             if (!this.gameState.productionBuilding) {
-                this.uiManager.setStatus("Select a barracks to train units!");
+                this.uiController.setStatus("Select a barracks to train units!"); // Corrected property access
                 return;
             }
             this.gameState.productionBuilding.productionQueue.push({ item: item, button: button });
-            this.uiManager.setStatus(`${item.name} added to queue.`);
+            this.uiController.setStatus(`${item.name} added to queue.`); // Corrected property access
         } else if (item.type === "Building") {
             this.gameState.pendingBuilding = item;
-            this.uiManager.setStatus(`Click on the map to place a ${item.name}.`);
+            this.uiController.setStatus(`Click on the map to place a ${item.name}.`); // Corrected property access
         }
     }
 
@@ -62,7 +61,7 @@ export class GameController {
             }
             this.gameState.productionBuilding = newBuilding;
             this.gameState.productionBuilding.select();
-            this.uiManager.setStatus("Barracks placed.");
+            this.uiController.setStatus("Barracks placed."); // Corrected property access
             this.gameState.pendingBuilding = null;
             return;
         }
@@ -73,7 +72,7 @@ export class GameController {
             }
             this.gameState.productionBuilding = clickedObject;
             this.gameState.productionBuilding.select();
-            this.uiManager.setStatus(`Barracks ${this.gameState.productionBuilding.id} selected as primary.`);
+            this.uiController.setStatus(`Barracks ${this.gameState.productionBuilding.id} selected as primary.`); // Corrected property access
             return;
         }
 
@@ -81,7 +80,7 @@ export class GameController {
             this.gameState.selectedUnits.forEach(unit => unit.deselect());
             this.gameState.selectedUnits = [clickedObject];
             clickedObject.select();
-            this.uiManager.setStatus(`Unit ${clickedObject.id} selected.`);
+            this.uiController.setStatus(`Unit ${clickedObject.id} selected.`); // Corrected property access
         }
     }
 
@@ -96,14 +95,14 @@ export class GameController {
             this.gameState.selectedUnits.forEach(unit => {
                 unit.moveTo(mouseX, mouseY);
             });
-            this.uiManager.setStatus("Unit(s) moving.");
+            this.uiController.setStatus("Unit(s) moving."); // Corrected property access
             return;
         }
 
         if (this.gameState.productionBuilding) {
             this.gameState.productionBuilding.rallyPoint.x = mouseX;
             this.gameState.productionBuilding.rallyPoint.y = mouseY;
-            this.uiManager.setStatus("Rally point set.");
+            this.uiController.setStatus("Rally point set."); // Corrected property access
         }
     }
 
