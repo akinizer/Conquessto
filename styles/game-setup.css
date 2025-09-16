@@ -1,0 +1,103 @@
+/* Game Setup Overlay */
+#game-setup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.game-setup-panel {
+    background-color: #2b2b2b;
+    color: #f0f0f0;
+    padding: 30px 40px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+
+.game-setup-panel h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 2em;
+    color: #1e90ff;
+}
+
+.setup-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.setup-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.game-setup-panel input[type="text"],
+.game-setup-panel input[type="number"],
+.game-setup-panel select {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    background-color: #444;
+    border: 1px solid #666;
+    color: #f0f0f0;
+    border-radius: 4px;
+}
+
+.game-setup-panel button {
+    width: 100%;
+    padding: 12px;
+    background-color: #1e90ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.game-setup-panel button:hover {
+    background-color: #007acd;
+}
+
+/* Color Picker */
+.color-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    padding: 5px 0;
+}
+
+.color-option {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+    justify-self: center;
+}
+
+.color-option:hover {
+    transform: scale(1.1);
+}
+
+.color-option.active {
+    border-color: #f0f0f0;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}

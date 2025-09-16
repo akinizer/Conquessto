@@ -1,8 +1,7 @@
-// main.js
-
 import { GameController } from './core/game-controller.js';
 import { UIController } from './ui/ui-controller.js';
 import { DataManager } from './core/data-manager.js';
+import { GameSetupUI } from './ui/game-setup-ui.js';
 
 let gameController;
 let uiController;
@@ -15,16 +14,22 @@ window.onload = async () => {
     await dataManager.loadProductionData();
     const productionItems = dataManager.getProductionItems();
 
-    // 1. Create the UIController first, passing the loaded data.
+    // Dynamically load the game setup HTML content
+    const setupMenuContainer = document.getElementById('setup-menu-container');
+    const response = await fetch('./ui/game-setup.html');
+    const setupHtml = await response.text();
+    setupMenuContainer.innerHTML = setupHtml;
+
+    // The rest of the setup logic
     uiController = new UIController(productionItems);
 
-    // 2. Then, create the GameController, passing the uiController to it.
-    gameController = new GameController(canvas, uiController);
+    const gameSetup = new GameSetupUI((settings) => {
+        console.log("Game settings:", settings);
 
-    // 3. Now, complete the circular reference by setting the gameController on the uiController.
-    // This must happen BEFORE initializeUI is called.
-    uiController.gameController = gameController;
+        gameController = new GameController(canvas, uiController);
+        uiController.gameController = gameController;
+        uiController.initializeUI();
+    });
 
-    // 4. Initialize the UI. Now all the links are properly set.
-    uiController.initializeUI();
+    gameSetup.show();
 };

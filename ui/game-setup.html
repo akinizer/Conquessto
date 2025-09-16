@@ -1,0 +1,31 @@
+<div id="game-setup-overlay" class="hidden">
+    <div class="game-setup-panel">
+        <h2>Game Setup</h2>
+        <div class="setup-group">
+            <label for="playerNameInput">Player Name:</label>
+            <input type="text" id="playerNameInput" value="Player 1">
+        </div>
+        <div class="setup-group">
+            <label>Player Color:</label>
+            <div id="playerColorPicker" class="color-picker-grid">
+                <div class="color-option active" data-color="#1e90ff" style="background-color: #1e90ff;"></div>
+                <div class="color-option" data-color="#32cd32" style="background-color: #32cd32;"></div>
+                <div class="color-option" data-color="#ff4500" style="background-color: #ff4500;"></div>
+                <div class="color-option" data-color="#ffd700" style="background-color: #ffd700;"></div>
+            </div>
+        </div>
+        <div class="setup-group">
+            <label for="enemyQuantityInput">Enemy Quantity:</label>
+            <input type="number" id="enemyQuantityInput" value="1" min="0" max="4">
+        </div>
+        <div class="setup-group">
+            <label for="mapSizeInput">Map Size:</label>
+            <select id="mapSizeInput">
+                <option value="small">Small</option>
+                <option value="medium" selected>Medium</option>
+                <option value="large">Large</option>
+            </select>
+        </div>
+        <button id="startGameButton">Start Game</button>
+    </div>
+</div>
