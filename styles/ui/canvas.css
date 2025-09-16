@@ -1,0 +1,9 @@
+/* styles/canvas.css */
+
+canvas {
+    background-color: #2e2e2e;
+    border: 2px solid #5c5c5c;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+}
