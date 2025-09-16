@@ -1,8 +1,24 @@
+// game-objects/Building.js
+
 import { GameObject } from './GameObject.js';
- 
+
 export class Building extends GameObject {
-    constructor(id, team, x, y, canvas, gameManager) {
-        super(id, "Building", team, x, y, canvas, gameManager);
+    constructor(id, team, x, y, canvas, gameController, tags = []) {
+        // We call super() with the 'Building' type and the tags
+        super(id, "Building", team, x, y, canvas, gameController, tags);
+        this.width = 80;
+        this.height = 80;
+        this.health = 1000;
+        this.maxHealth = 1000;
+        this.ctx = canvas.getContext('2d'); 
+    }
+    
+    select() {
+        this.selected = true;
+    }
+    
+    deselect() {
+        this.selected = false;
     }
 
     draw() {

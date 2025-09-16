@@ -1,8 +1,8 @@
 import { GameObject } from './GameObject.js';
 
 export class Unit extends GameObject {
-    constructor(id, team, x, y, canvas, gameManager) {
-        super(id, "Unit", team, x, y, canvas, gameManager);
+    constructor(id, team, x, y, canvas, gameController, tags = []) {
+        super(id, "Unit", team, x, y, canvas, gameController, tags);
         this.targetX = x;
         this.targetY = y;
         this.speed = 2;
@@ -11,6 +11,8 @@ export class Unit extends GameObject {
         this.attackTarget = null;
         this.isSelected = false;
         this.searchRange = 200;
+        this.gameController = gameController;
+        this.tags = tags;
     }
 
     select() {
@@ -55,8 +57,8 @@ export class Unit extends GameObject {
         let closestEnemy = null;
         let minDistance = Infinity;
 
-        for (const id in this.gameManager.gameObjects) {
-            const obj = this.gameManager.gameObjects[id];
+        for (const id in this.gameController.gameObjects) {
+            const obj = this.gameController.gameObjects[id];
             if (obj.team !== this.team) {
                 const distance = Math.sqrt(Math.pow(obj.x - this.x, 2) + Math.pow(obj.y - this.y, 2));
                 if (distance < minDistance) {

@@ -1,23 +1,14 @@
 // game-objects/ProductionBuilding.js
-
-export class ProductionBuilding {
+import { Building } from './Building.js'; // You need to import the parent class
+export class ProductionBuilding extends Building {
     constructor(id, team, x, y, canvas, gameController) {
-        this.id = id;
-        this.team = team;
-        this.x = x;
-        this.y = y;
-        this.canvas = canvas;
-        this.ctx = canvas.getContext('2d');
-        this.width = 80;
-        this.height = 80;
-        this.selected = false;
-        this.gameController = gameController;
+        // Pass common properties to the parent Building class
+        super(id, team, x, y, canvas, gameController, ['solid', 'structure']);
+
         this.type = "ProductionBuilding";
         this.productionQueue = [];
         this.productionTime = 0;
-        this.rallyPoint = { x: this.x, y: this.y + this.height / 2 + 10 }; //outside building
-        this.maxHealth = 100;
-        this.health = this.maxHealth;
+        this.rallyPoint = { x: this.x, y: this.y + this.height / 2 + 10 };
         this.featureBarRect = null;
     }
 
