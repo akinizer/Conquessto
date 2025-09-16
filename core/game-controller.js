@@ -105,8 +105,12 @@ export class GameController {
         this.pendingBuildingCursorPosition.x = event.clientX - rect.left;
         this.pendingBuildingCursorPosition.y = event.clientY - rect.top;
 
-        const isWithinCanvas = (this.pendingBuildingCursorPosition.x >= 0 && this.pendingBuildingCursorPosition.x <= this.canvas.width &&
-                               this.pendingBuildingCursorPosition.y >= 0 && this.pendingBuildingCursorPosition.y <= this.canvas.height);
+        const isWithinCanvas = (
+            this.pendingBuildingCursorPosition.x - 40 >= 0 &&
+            this.pendingBuildingCursorPosition.x + 40 <= this.canvas.width &&
+            this.pendingBuildingCursorPosition.y - 40 >= 0 &&
+            this.pendingBuildingCursorPosition.y + 40 <= this.canvas.height
+        );
 
         const isLocationClear = this._isLocationClear(
             this.pendingBuildingCursorPosition.x,
@@ -203,15 +207,23 @@ export class GameController {
         const rect = this.canvas.getBoundingClientRect();
         this.pendingBuildingCursorPosition.x = event.clientX - rect.left;
         this.pendingBuildingCursorPosition.y = event.clientY - rect.top;
+        
+        // New boundary check logic
+        const buildingWidth = 80;
+        const buildingHeight = 80;
 
-        const isWithinCanvas = (this.pendingBuildingCursorPosition.x >= 0 && this.pendingBuildingCursorPosition.x <= this.canvas.width &&
-                               this.pendingBuildingCursorPosition.y >= 0 && this.pendingBuildingCursorPosition.y <= this.canvas.height);
+        const isWithinCanvas = (
+            this.pendingBuildingCursorPosition.x - buildingWidth / 2 >= 0 &&
+            this.pendingBuildingCursorPosition.x + buildingWidth / 2 <= this.canvas.width &&
+            this.pendingBuildingCursorPosition.y - buildingHeight / 2 >= 0 &&
+            this.pendingBuildingCursorPosition.y + buildingHeight / 2 <= this.canvas.height
+        );
 
         const isLocationClear = this._isLocationClear(
             this.pendingBuildingCursorPosition.x,
             this.pendingBuildingCursorPosition.y,
-            80, // Building width
-            80 // Building height
+            buildingWidth,
+            buildingHeight
         );
 
         this.canPlaceBuilding = isWithinCanvas && isLocationClear;
