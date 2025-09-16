@@ -1,6 +1,6 @@
 {
   "units": [
-    { "name": "Infantry", "type": "Unit", "cost": 50, "time": 200, "icon": "" }
+    { "name": "Infantry", "type": "Unit", "cost": 50, "time": 200, "icon": "", "width": 30, "height": 30  }
   ],
   "buildings": [
     { "name": "Barracks", "type": "Building", "cost": 200, "time": 500, "icon": "" }

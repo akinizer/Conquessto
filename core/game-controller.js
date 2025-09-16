@@ -3,13 +3,20 @@
 import { GameState } from './game-state.js';
 import { Unit } from '../game-objects/Unit.js';
 import { ProductionBuilding } from '../game-objects/ProductionBuilding.js';
-
+import { DataManager } from './data-manager.js';
 export class GameController {
     constructor(canvas, uiController) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.uiController = uiController;
         this.gameState = new GameState();
+
+        this.dataManager = new DataManager();
+        this.dataManager.loadProductionData().then(() => {
+            console.log('Game data is ready.');
+        }).catch(error => {
+            console.error('Failed to load game data:', error);
+        });
 
         this.canvas.addEventListener('mousedown', (event) => this.onCanvasClick(event));
         this.canvas.addEventListener('contextmenu', (event) => this.onCanvasRightClick(event));
@@ -31,9 +38,9 @@ export class GameController {
         return building;
     }
 
-    spawnUnit(team, x, y) {
+    spawnUnit(team, x, y, width, height) {
         const id = this.gameState.getNextId();
-        const unit = new Unit(id, team, x, y, this.canvas, this);
+        const unit = new Unit(id, team, x, y, width, height, this.canvas, this);
         this.gameState.addObject(unit);
         return unit;
     }
@@ -44,8 +51,22 @@ export class GameController {
                 this.uiController.setStatus("Select a barracks to train units!");
                 return;
             }
-            this.gameState.productionBuilding.productionQueue.push({ item: item, button: button });
-            this.uiController.setStatus(`${item.name} added to queue.`);
+
+            // 🔑 Get the full production data from the DataManager
+            const productionData = this.dataManager.getProductionItems();
+            
+            // 🔑 Find the specific unit in the loaded data using its name
+            const itemToQueue = productionData.units.find(unit => unit.name === item.name);
+            
+            if (!itemToQueue) {
+                console.error(`Error: Unit "${item.name}" not found in production data.`);
+                this.uiController.setStatus("Invalid unit type.");
+                return;
+            }
+            
+            // Push the fully populated item with dimensions to the queue
+            this.gameState.productionBuilding.productionQueue.push({ item: itemToQueue, button: button });
+            this.uiController.setStatus(`${itemToQueue.name} added to queue.`);
         } else if (item.type === "Building") {
             this.gameState.pendingBuilding = item;
             this.uiController.setStatus(`Click on the map to place a ${item.name}.`);
@@ -94,6 +115,56 @@ export class GameController {
         const unitWidth = 30;
         const unitHeight = 30;
         return this._isAreaClear(x, y, unitWidth, unitHeight, ignoreObject);
+    }
+
+    isLocationClear(x, y, dimensions, ignoreObject = null) {
+        const tempUnit = {
+            x: x,
+            y: y,
+            width: dimensions.width,
+            height: dimensions.height
+        };
+        const unitRadius = tempUnit.width / 2;
+        
+        for (const objId in this.gameState.gameObjects) {
+            const otherObj = this.gameState.gameObjects[objId];
+            
+            // Skip ignored object (the building itself) or non-solid objects
+            if (otherObj === ignoreObject || !otherObj.tags.includes('solid')) {
+                continue;
+            }
+
+            // Check for collision based on the other object's shape
+            if (otherObj.tags.includes('structure')) {
+                // Circle-to-Rectangle collision check
+                const distX = Math.abs(tempUnit.x - otherObj.x);
+                const distY = Math.abs(tempUnit.y - otherObj.y);
+
+                const halfOtherWidth = otherObj.width / 2;
+                const halfOtherHeight = otherObj.height / 2;
+
+                if (distX > (halfOtherWidth + unitRadius) || distY > (halfOtherHeight + unitRadius)) {
+                    continue; // No collision
+                }
+                if (distX <= halfOtherWidth || distY <= halfOtherHeight) {
+                    return false; // Collision
+                }
+
+                const dx = distX - halfOtherWidth;
+                const dy = distY - halfOtherHeight;
+                if ((dx * dx + dy * dy) <= (unitRadius * unitRadius)) {
+                    return false; // Collision at the corner
+                }
+            } else {
+                // Circle-to-Circle collision check
+                const distance = Math.sqrt(Math.pow(tempUnit.x - otherObj.x, 2) + Math.pow(tempUnit.y - otherObj.y, 2));
+                const otherRadius = otherObj.width / 2;
+                if (distance < unitRadius + otherRadius) {
+                    return false; // Collision
+                }
+            }
+        }
+        return true; // No collisions found
     }
     
     onCanvasClick(event) {

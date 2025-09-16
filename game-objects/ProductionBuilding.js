@@ -20,36 +20,44 @@ export class ProductionBuilding extends Building {
         this.selected = false;
     }
     
-    _getClosestPointOnPerimeter(targetX, targetY) {
+   _getClosestPointOnPerimeter(targetX, targetY, unitWidth, unitHeight) {
         const halfWidth = this.width / 2;
         const halfHeight = this.height / 2;
-        const top = { x: this.x, y: this.y - halfHeight };
-        const bottom = { x: this.x, y: this.y + halfHeight };
-        const left = { x: this.x - halfWidth, y: this.y };
-        const right = { x: this.x + halfWidth, y: this.y };
+        const padding = Math.max(unitWidth, unitHeight) / 2 + 5;
+        
+        // Find the closest point on the rectangle (including corners) to the rally point
+        const closestX = Math.max(this.x - halfWidth, Math.min(targetX, this.x + halfWidth));
+        const closestY = Math.max(this.y - halfHeight, Math.min(targetY, this.y + halfHeight));
 
-        const distances = {
-            top: Math.sqrt(Math.pow(top.x - targetX, 2) + Math.pow(top.y - targetY, 2)),
-            bottom: Math.sqrt(Math.pow(bottom.x - targetX, 2) + Math.pow(bottom.y - targetY, 2)),
-            left: Math.sqrt(Math.pow(left.x - targetX, 2) + Math.pow(left.y - targetY, 2)),
-            right: Math.sqrt(Math.pow(right.x - targetX, 2) + Math.pow(right.y - targetY, 2))
-        };
-        
-        const minDistance = Math.min(...Object.values(distances));
-        
-        switch(minDistance) {
-            case distances.top:
-                return { x: this.x, y: this.y - halfHeight, side: 'top' };
-            case distances.bottom:
-                return { x: this.x, y: this.y + halfHeight, side: 'bottom' };
-            case distances.left:
-                return { x: this.x - halfWidth, y: this.y, side: 'left' };
-            case distances.right:
-                return { x: this.x + halfWidth, y: this.y, side: 'right' };
-            default:
-                return { x: this.x, y: this.y };
+        let normalX = targetX - closestX;
+        let normalY = targetY - closestY;
+
+        // Handle the edge case where the rally point is exactly on the perimeter
+        if (normalX === 0 && normalY === 0) {
+            // If it's on the edge, push it out from the center
+            normalX = targetX - this.x;
+            normalY = targetY - this.y;
         }
+        
+        const distance = Math.sqrt(normalX * normalX + normalY * normalY);
+        
+        if (distance === 0) {
+            // If rally point is at the center, default to spawning on the right side
+            normalX = 1;
+            normalY = 0;
+        } else {
+            // Normalize the vector
+            normalX /= distance;
+            normalY /= distance;
+        }
+        
+        // Calculate the final spawn point by projecting outward from the closest point
+        const spawnX = closestX + normalX * padding;
+        const spawnY = closestY + normalY * padding;
+        
+        return { x: spawnX, y: spawnY };
     }
+
     
     drawSilhouette(color) {
         this.ctx.fillStyle = color;
@@ -95,7 +103,10 @@ export class ProductionBuilding extends Building {
             }
             
             // Draw the dynamic spawn exit point
-            const spawnPoint = this._getClosestPointOnPerimeter(this.rallyPoint.x, this.rallyPoint.y);
+            const unitWidth = this.productionQueue[0]?.item?.width || 30;
+            const unitHeight = this.productionQueue[0]?.item?.height || 30;
+
+            const spawnPoint = this._getClosestPointOnPerimeter(this.rallyPoint.x, this.rallyPoint.y, unitWidth, unitHeight);
             this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
             this.ctx.beginPath();
             this.ctx.arc(spawnPoint.x, spawnPoint.y, 5, 0, Math.PI * 2);
@@ -113,19 +124,46 @@ export class ProductionBuilding extends Building {
     }
 
     update() {
-        if (this.productionQueue.length > 0) {
-            const spawnPoint = this._getClosestPointOnPerimeter(this.rallyPoint.x, this.rallyPoint.y);
-            
-            if (this.gameController.isLocationClearForUnit(spawnPoint.x, spawnPoint.y, this)) {
-                 this.productionTime++;
-                const itemToProduce = this.productionQueue[0];
-                if (this.productionTime >= itemToProduce.item.time) {
-                    const newUnit = this.gameController.spawnUnit(this.team, spawnPoint.x, spawnPoint.y);
-                    newUnit.moveTo(this.rallyPoint.x, this.rallyPoint.y);
-                    this.productionQueue.shift();
-                    this.productionTime = 0;
-                }
+        // Case 1: The production queue is unexpectedly empty
+        if (this.productionQueue.length === 0) {
+            return; // Nothing to do
+        }
+        
+        const itemToProduce = this.productionQueue[0];
+        
+        // Case 2: The item in the queue is missing required data
+        if (!itemToProduce || !itemToProduce.item || !itemToProduce.item.width || !itemToProduce.item.height) {
+            console.error("Error: Item in production queue is malformed or missing dimensions.");
+            return;
+        }
+        
+        const unitWidth = itemToProduce.item.width;
+        const unitHeight = itemToProduce.item.height;
+        
+        // Case 3: The rally point is not set
+        if (!this.rallyPoint || typeof this.rallyPoint.x === 'undefined') {
+            console.error("Error: Rally point is not set for the building.");
+            return;
+        }
+
+        const spawnPoint = this._getClosestPointOnPerimeter(this.rallyPoint.x, this.rallyPoint.y, unitWidth, unitHeight);
+
+        if (this.gameController.isLocationClear(spawnPoint.x, spawnPoint.y, { width: unitWidth, height: unitHeight }, this)) {
+            this.productionTime++;
+            if (this.productionTime >= itemToProduce.item.time) {
+                
+                // Log successful spawn
+                console.log("Unit spawned successfully!");
+                const newUnit = this.gameController.spawnUnit(this.team, spawnPoint.x, spawnPoint.y);
+                newUnit.moveTo(this.rallyPoint.x, this.rallyPoint.y);
+                
+                this.productionQueue.shift();
+                this.productionTime = 0;
             }
+        } else {
+            // Case 4: The most common failure point - the location is blocked
+            console.error("Spawn location blocked. Production timer reset.");
+            this.productionTime = 0;
         }
     }
 }
