@@ -1,27 +1,26 @@
 // ui/ui-controller.js
-
 export class UIController {
-  constructor(productionItems) {
+    constructor(productionItems) {
         this.productionItems = productionItems;
         this.productionGrid = document.getElementById('production-grid');
         this.tabButtons = document.querySelectorAll('.tab');
         this.panelStatus = document.getElementById('panel-status');
-        this.gameController = null; // We'll set this during initialization
-  }
+        this.gameController = null;
+    }
 
-  initializeUI() {
-    this.tabButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        this.tabButtons.forEach(btn => btn.classList.remove('active'));
-        button.classList.add('active');
-        const tabType = button.getAttribute('data-tab');
-        this.renderProductionButtons(this.productionItems[tabType]);
-      });
-    });
-    document.querySelector('.tab[data-tab="units"]').click();
-    this.setStatus("Ready.");
-  }
-    // New method containing the rendering logic
+    initializeUI() {
+        this.tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                this.tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                const tabType = button.getAttribute('data-tab');
+                this.renderProductionButtons(this.productionItems[tabType]);
+            });
+        });
+        document.querySelector('.tab[data-tab="units"]').click();
+        this.setStatus("Ready.");
+    }
+
     renderProductionButtons(items) {
         this.productionGrid.innerHTML = '';
         items.forEach(item => {
@@ -41,6 +40,10 @@ export class UIController {
     }
 
     clearProductionPanel() {
-        this.productionPanel.innerHTML = '';
+        const productionPanel = document.getElementById('production-grid');
+        if (productionPanel) {
+            productionPanel.innerHTML = '';
+        }
     }
+
 }
