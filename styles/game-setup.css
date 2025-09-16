@@ -5,11 +5,12 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.75);
+    background-color: rgba(0, 0, 0, 0.85); /* Darker overlay for more focus */
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern font */
 }
 
 .hidden {
@@ -17,87 +18,168 @@
 }
 
 .game-setup-panel {
-    background-color: #2b2b2b;
-    color: #f0f0f0;
-    padding: 30px 40px;
-    border-radius: 8px;
+    background: linear-gradient(145deg, #2a2a2a, #1a1a1a); /* Subtle gradient for depth */
+    color: #e0e0e0;
+    padding: 35px 50px; /* More padding */
+    border-radius: 12px; /* Softer rounded corners */
     border: 1px solid #444;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7); /* More pronounced shadow */
     text-align: center;
-    max-width: 400px;
+    max-width: 450px; /* Slightly wider */
     width: 90%;
+    animation: fadeIn 0.5s ease-out; /* Fade-in animation */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .game-setup-panel h2 {
     margin-top: 0;
-    margin-bottom: 20px;
-    font-size: 2em;
-    color: #1e90ff;
+    margin-bottom: 30px; /* More space below title */
+    font-size: 2.5em; /* Larger title */
+    color: #4CAF50; /* A fresh green for the title */
+    text-shadow: 0 2px 8px rgba(0, 255, 0, 0.3); /* Subtle glow for title */
 }
 
 .setup-group {
-    margin-bottom: 15px;
+    margin-bottom: 25px; /* More space between groups */
     text-align: left;
 }
 
 .setup-group label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+    margin-bottom: 8px; /* Space between label and input */
+    font-weight: 600; /* Bolder label text */
+    font-size: 1.1em;
+    color: #a0a0a0; /* Slightly lighter gray for labels */
 }
 
+/* Input and Selector Styling */
 .game-setup-panel input[type="text"],
 .game-setup-panel input[type="number"],
 .game-setup-panel select {
     width: 100%;
-    padding: 8px;
+    padding: 12px 15px; /* More padding for a larger touch area */
     box-sizing: border-box;
-    background-color: #444;
-    border: 1px solid #666;
-    color: #f0f0f0;
-    border-radius: 4px;
+    background-color: #3a3a3a; /* Darker input background */
+    border: 1px solid #555; /* Refined border */
+    color: #e0e0e0;
+    border-radius: 6px; /* Softer input corners */
+    font-size: 1.05em;
+    transition: all 0.3s ease; /* Smooth transition for focus */
 }
 
+.game-setup-panel input[type="text"]:focus,
+.game-setup-panel input[type="number"]:focus,
+.game-setup-panel select:focus {
+    border-color: #4CAF50; /* Highlight border on focus */
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.4); /* Green glow on focus */
+    outline: none; /* Remove default outline */
+}
+
+/* Custom dropdown arrow for select */
+.game-setup-panel select {
+    -webkit-appearance: none; /* Remove default arrow on WebKit browsers */
+    -moz-appearance: none; /* Remove default arrow on Firefox */
+    appearance: none; /* Remove default arrow */
+    background-image: url('data:image/svg+xml;utf8,<svg fill="#e0e0e0" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); /* Custom SVG arrow */
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px; /* Make space for the custom arrow */
+}
+
+
+/* Button Styling */
 .game-setup-panel button {
     width: 100%;
-    padding: 12px;
-    background-color: #1e90ff;
+    padding: 15px; /* More vertical padding for a substantial button */
+    background-color: #4CAF50; /* Matching the title's green */
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 1.1em;
+    font-size: 1.2em; /* Larger font for the main action button */
     font-weight: bold;
-    transition: background-color 0.2s;
+    letter-spacing: 0.5px; /* Slightly more spaced letters */
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    margin-top: 20px; /* Space above button */
+    box-shadow: 0 4px 15px rgba(0, 255, 0, 0.3); /* Initial subtle shadow */
 }
 
 .game-setup-panel button:hover {
-    background-color: #007acd;
+    background-color: #43A047; /* Slightly darker green on hover */
+    transform: translateY(-2px); /* Lift effect on hover */
+    box-shadow: 0 6px 20px rgba(0, 255, 0, 0.4); /* Enhanced shadow on hover */
 }
+
+.game-setup-panel button:active {
+    transform: translateY(0); /* Press effect */
+    box-shadow: 0 2px 10px rgba(0, 255, 0, 0.2); /* Reduced shadow on click */
+}
+
 
 /* Color Picker */
 .color-picker-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    display: flex; /* Use flexbox for more control */
+    justify-content: space-around; /* Distributes items evenly */
+    gap: 10px; /* Gap between color options */
     padding: 5px 0;
+    margin-top: 10px;
 }
 
 .color-option {
-    width: 35px;
-    height: 35px;
+    width: 40px; /* Slightly larger color swatches */
+    height: 40px;
     border-radius: 50%;
-    border: 2px solid transparent;
+    border: 3px solid transparent; /* Thicker border for selection */
     cursor: pointer;
-    transition: transform 0.2s, border-color 0.2s;
-    justify-self: center;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4); /* Subtle initial shadow */
 }
 
 .color-option:hover {
-    transform: scale(1.1);
+    transform: scale(1.15); /* More pronounced hover effect */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
 }
 
 .color-option.active {
-    border-color: #f0f0f0;
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+    border-color: #4CAF50; /* Active border color matching theme */
+    box-shadow: 0 0 0 2px #4CAF50, 0 0 15px rgba(76, 175, 80, 0.7); /* Double border and strong glow */
+    transform: scale(1.1); /* Slightly enlarged when active */
+}
+
+/* Map Size Grid */
+.map-size-grid {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.map-size-option {
+    flex: 1;
+    padding: 15px 10px;
+    background-color: #3a3a3a;
+    border: 1px solid #555;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    font-size: 1em;
+    font-weight: 600;
+    color: #b0b0b0;
+}
+
+.map-size-option:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    background-color: #444;
+}
+
+.map-size-option.active {
+    border-color: #4CAF50;
+    background-color: #324a35;
+    box-shadow: 0 0 0 2px #4CAF50, 0 0 10px rgba(76, 175, 80, 0.5);
+    color: #e0e0e0;
 }

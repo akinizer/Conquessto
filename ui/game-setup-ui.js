@@ -1,53 +1,104 @@
 export class GameSetupUI {
     constructor(onStartGame) {
-        this.overlay = document.getElementById('game-setup-overlay');
-        this.startButton = document.getElementById('startGameButton');
-        this.playerNameInput = document.getElementById('playerNameInput');
-        this.playerColorPicker = document.getElementById('playerColorPicker');
-        this.enemyQuantityInput = document.getElementById('enemyQuantityInput');
-        this.mapSizeInput = document.getElementById('mapSizeInput');
-        this.onStartGame = onStartGame; // Callback to run when the game starts
-        this.selectedColor = '#1e90ff';
+        this.config = {
+            colors: ['#1e90ff', '#32cd32', '#ff4500', '#ffd700'],
+            mapSizes: ['small', 'medium', 'large']
+        };
 
+        this.onStartGame = onStartGame;
+        this.elements = {};
+        this.selectedColor = this.config.colors[0];
+        this.selectedMapSize = this.config.mapSizes[1]; // Default to 'medium'
+
+        this.init();
+    }
+
+    init() {
+        this.cacheElements();
+        this.renderColorPicker();
         this.setupEventListeners();
     }
 
+    cacheElements() {
+        this.elements.overlay = document.getElementById('game-setup-overlay');
+        this.elements.form = document.getElementById('gameSetupForm');
+        this.elements.playerNameInput = document.getElementById('playerNameInput');
+        this.elements.playerColorPicker = document.getElementById('playerColorPicker');
+        this.elements.enemyQuantitySlider = document.getElementById('enemyQuantitySlider');
+        this.elements.enemyQuantityValue = document.getElementById('enemyQuantityValue');
+        this.elements.mapSizeGrid = document.getElementById('mapSizeGrid');
+    }
+
+    renderColorPicker() {
+        this.config.colors.forEach((color, index) => {
+            const div = document.createElement('div');
+            div.className = 'color-option';
+            div.style.backgroundColor = color;
+            div.dataset.color = color;
+            if (index === 0) {
+                div.classList.add('active');
+            }
+            this.elements.playerColorPicker.appendChild(div);
+        });
+    }
+
     setupEventListeners() {
-        this.startButton.addEventListener('click', () => {
+        this.elements.form.addEventListener('submit', (e) => {
+            e.preventDefault();
             this.hide();
             const settings = this.getSettings();
             this.onStartGame(settings);
         });
 
-        this.playerColorPicker.querySelectorAll('.color-option').forEach(colorOption => {
-            colorOption.addEventListener('click', () => {
+        this.elements.playerColorPicker.addEventListener('click', (e) => {
+            const colorOption = e.target.closest('.color-option');
+            if (colorOption) {
                 this.selectColor(colorOption);
-            });
+            }
+        });
+
+        this.elements.enemyQuantitySlider.addEventListener('input', (e) => {
+            this.elements.enemyQuantityValue.textContent = e.target.value;
+        });
+
+        this.elements.mapSizeGrid.addEventListener('click', (e) => {
+            const sizeOption = e.target.closest('.map-size-option');
+            if (sizeOption) {
+                this.selectMapSize(sizeOption);
+            }
         });
     }
 
     selectColor(selectedOption) {
-        this.playerColorPicker.querySelectorAll('.color-option').forEach(option => {
+        this.elements.playerColorPicker.querySelectorAll('.color-option').forEach(option => {
             option.classList.remove('active');
         });
         selectedOption.classList.add('active');
-        this.selectedColor = selectedOption.getAttribute('data-color');
+        this.selectedColor = selectedOption.dataset.color;
+    }
+
+    selectMapSize(selectedOption) {
+        this.elements.mapSizeGrid.querySelectorAll('.map-size-option').forEach(option => {
+            option.classList.remove('active');
+        });
+        selectedOption.classList.add('active');
+        this.selectedMapSize = selectedOption.dataset.size;
     }
 
     show() {
-        this.overlay.classList.remove('hidden');
+        this.elements.overlay.classList.remove('hidden');
     }
 
     hide() {
-        this.overlay.classList.add('hidden');
+        this.elements.overlay.classList.add('hidden');
     }
 
     getSettings() {
         return {
-            playerName: this.playerNameInput.value,
+            playerName: this.elements.playerNameInput.value,
             playerColor: this.selectedColor,
-            enemyQuantity: parseInt(this.enemyQuantityInput.value, 10),
-            mapSize: this.mapSizeInput.value
+            enemyQuantity: parseInt(this.elements.enemyQuantitySlider.value, 10),
+            mapSize: this.selectedMapSize // Retrieve the selected map size
         };
     }
 }

@@ -1,31 +1,33 @@
 <div id="game-setup-overlay" class="hidden">
-    <div class="game-setup-panel">
+    <form class="game-setup-panel" id="gameSetupForm">
         <h2>Game Setup</h2>
         <div class="setup-group">
-            <label for="playerNameInput">Player Name:</label>
-            <input type="text" id="playerNameInput" value="Player 1">
+            <label for="playerNameInput">Player Name</label>
+            <input type="text" id="playerNameInput" name="playerName" value="Player 1">
         </div>
         <div class="setup-group">
-            <label>Player Color:</label>
-            <div id="playerColorPicker" class="color-picker-grid">
-                <div class="color-option active" data-color="#1e90ff" style="background-color: #1e90ff;"></div>
-                <div class="color-option" data-color="#32cd32" style="background-color: #32cd32;"></div>
-                <div class="color-option" data-color="#ff4500" style="background-color: #ff4500;"></div>
-                <div class="color-option" data-color="#ffd700" style="background-color: #ffd700;"></div>
+            <label>Player Color</label>
+            <div class="color-picker-grid" id="playerColorPicker">
+                </div>
+        </div>
+        <div class="setup-group">
+            <label for="enemyQuantitySlider">Enemy Quantity: <span id="enemyQuantityValue">1</span></label>
+            <input type="range" id="enemyQuantitySlider" name="enemyQuantity" min="1" max="8" value="1">
+        </div>
+        <div class="setup-group">
+            <label>Map Size</label>
+            <div class="map-size-grid" id="mapSizeGrid">
+                <div class="map-size-option active" data-size="small">
+                    Small
+                </div>
+                <div class="map-size-option" data-size="medium">
+                    Medium
+                </div>
+                <div class="map-size-option" data-size="large">
+                    Large
+                </div>
             </div>
         </div>
-        <div class="setup-group">
-            <label for="enemyQuantityInput">Enemy Quantity:</label>
-            <input type="number" id="enemyQuantityInput" value="1" min="0" max="4">
-        </div>
-        <div class="setup-group">
-            <label for="mapSizeInput">Map Size:</label>
-            <select id="mapSizeInput">
-                <option value="small">Small</option>
-                <option value="medium" selected>Medium</option>
-                <option value="large">Large</option>
-            </select>
-        </div>
-        <button id="startGameButton">Start Game</button>
-    </div>
+        <button type="submit" id="startGameButton">Start Game</button>
+    </form>
 </div>
