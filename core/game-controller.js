@@ -13,10 +13,14 @@ export class GameController {
 
         this.canvas.addEventListener('mousedown', (event) => this.onCanvasClick(event));
         this.canvas.addEventListener('contextmenu', (event) => this.onCanvasRightClick(event));
+        this.canvas.addEventListener('mousemove', (event) => this.onCanvasMouseMove(event)); // New listener deployed
 
         this.uiController.gameController = this;
         this.uiController.initializeUI();
         
+        this.pendingBuildingCursorPosition = { x: 0, y: 0 }; // New state property
+        this.canPlaceBuilding = true; // New state property
+
         this.gameLoop();
     }
 
@@ -56,19 +60,23 @@ export class GameController {
         const clickedObject = this.getObjectAt(mouseX, mouseY);
         
         if (this.gameState.pendingBuilding) {
-            const newBuilding = this.buildBuilding("friend", mouseX, mouseY);
-            if (this.gameState.productionBuilding) {
-                this.gameState.productionBuilding.deselect();
+            // New check: only place if the location is valid
+            if (this.canPlaceBuilding) {
+                const newBuilding = this.buildBuilding("friend", mouseX, mouseY);
+                if (this.gameState.productionBuilding) {
+                    this.gameState.productionBuilding.deselect();
+                }
+                this.gameState.productionBuilding = newBuilding;
+                this.gameState.productionBuilding.select();
+                this.uiController.setStatus("Barracks placed.");
+                this.gameState.pendingBuilding = null;
+            } else {
+                this.uiController.setStatus("Cannot place building here.");
             }
-            this.gameState.productionBuilding = newBuilding;
-            this.gameState.productionBuilding.select();
-            this.uiController.setStatus("Barracks placed.");
-            this.gameState.pendingBuilding = null;
             return;
         }
 
         if (clickedObject && clickedObject.type === "ProductionBuilding") {
-            // New protocol: Deselect all units before selecting the building
             this.gameState.selectedUnits.forEach(unit => unit.deselect());
             this.gameState.selectedUnits = [];
             
@@ -112,6 +120,13 @@ export class GameController {
         if (mouseX < 0 || mouseX > this.canvas.width || mouseY < 0 || mouseY > this.canvas.height) {
             return;
         }
+        
+        // Protocol: Cancel pending building with right-click
+        if (this.gameState.pendingBuilding) {
+            this.gameState.pendingBuilding = null;
+            this.uiController.setStatus("Building placement cancelled.");
+            return;
+        }
 
         if (this.gameState.selectedUnits.length > 0) {
             this.gameState.selectedUnits.forEach(unit => {
@@ -126,6 +141,16 @@ export class GameController {
             this.gameState.productionBuilding.rallyPoint.y = mouseY;
             this.uiController.setStatus("Rally point set.");
         }
+    }
+
+    onCanvasMouseMove(event) {
+        const rect = this.canvas.getBoundingClientRect();
+        this.pendingBuildingCursorPosition.x = event.clientX - rect.left;
+        this.pendingBuildingCursorPosition.y = event.clientY - rect.top;
+
+        // Determine if the building can be placed
+        this.canPlaceBuilding = (this.pendingBuildingCursorPosition.x >= 0 && this.pendingBuildingCursorPosition.x <= this.canvas.width &&
+                               this.pendingBuildingCursorPosition.y >= 0 && this.pendingBuildingCursorPosition.y <= this.canvas.height);
     }
 
     getObjectAt(x, y) {
@@ -154,6 +179,13 @@ export class GameController {
             const obj = this.gameState.gameObjects[id];
             if (obj.update) obj.update();
             if (obj.draw) obj.draw();
+        }
+
+        // Render the pending building silhouette
+        if (this.gameState.pendingBuilding) {
+            const silhouetteColor = this.canPlaceBuilding ? 'rgba(0, 255, 0, 0.5)' : 'rgba(255, 0, 0, 0.5)';
+            const pendingBuilding = new ProductionBuilding(null, null, this.pendingBuildingCursorPosition.x, this.pendingBuildingCursorPosition.y, this.canvas, this);
+            pendingBuilding.drawSilhouette(silhouetteColor);
         }
 
         const livingObjects = {};

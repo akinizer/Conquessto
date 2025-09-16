@@ -29,7 +29,6 @@ export class ProductionBuilding {
         this.selected = false;
     }
     
-    // New helper method to get the closest point on the building's perimeter
     _getClosestPointOnPerimeter(targetX, targetY) {
         const halfWidth = this.width / 2;
         const halfHeight = this.height / 2;
@@ -57,8 +56,14 @@ export class ProductionBuilding {
             case distances.right:
                 return { x: this.x + halfWidth, y: this.y, side: 'right' };
             default:
-                return { x: this.x, y: this.y }; // Fallback
+                return { x: this.x, y: this.y };
         }
+    }
+    
+    // New method to draw the building's silhouette
+    drawSilhouette(color) {
+        this.ctx.fillStyle = color;
+        this.ctx.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
     }
 
     draw() {
@@ -66,7 +71,6 @@ export class ProductionBuilding {
         this.ctx.fillStyle = this.team === "friend" ? '#555555' : '#882222';
         this.ctx.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
 
-        // All of the following visuals only appear if the building is selected.
         if (this.selected) {
             // Draw a green outline
             this.ctx.strokeStyle = '#00ff00';
@@ -82,7 +86,6 @@ export class ProductionBuilding {
             this.ctx.fillStyle = 'rgba(30, 30, 30, 0.9)';
             this.ctx.fillRect(barX, barY, barWidth, barHeight);
             
-            // Store the dimensions of the features bar
             this.featureBarRect = {
                 x: barX,
                 y: barY,
@@ -124,7 +127,6 @@ export class ProductionBuilding {
             this.productionTime++;
             const itemToProduce = this.productionQueue[0];
             if (this.productionTime >= itemToProduce.item.time) {
-                // Get the dynamic spawn point
                 const spawnPoint = this._getClosestPointOnPerimeter(this.rallyPoint.x, this.rallyPoint.y);
                 const newUnit = this.gameController.spawnUnit(this.team, spawnPoint.x, spawnPoint.y);
                 newUnit.moveTo(this.rallyPoint.x, this.rallyPoint.y);
