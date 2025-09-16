@@ -24,7 +24,7 @@ export class Unit extends GameObject {
         this.damage = 0.5;
         this.attackTarget = null;
         this.isSelected = false;
-        this.searchRange = 200; // <-- NEW: Unit will only search for enemies within this range
+        this.searchRange = 200;
     }
 
     select() {
@@ -80,12 +80,10 @@ export class Unit extends GameObject {
             }
         }
         
-        // Return the enemy only if it's within the unit's search range
         return minDistance <= this.searchRange ? closestEnemy : null;
     }
 
     update() {
-        // Attack-move logic
         if (this.attackTarget) {
             const distance = Math.sqrt(Math.pow(this.attackTarget.x - this.x, 2) + Math.pow(this.attackTarget.y - this.y, 2));
             if (distance > this.attackRange) {
@@ -101,7 +99,6 @@ export class Unit extends GameObject {
                 return;
             }
 
-            // Move logic
             if (this.x !== this.targetX || this.y !== this.targetY) {
                 const dx = this.targetX - this.x;
                 const dy = this.targetY - this.y;
@@ -141,6 +138,7 @@ export class ProductionBuilding extends Building {
         this.productionTimer = 0;
         this.rallyPoint = { x: this.x + 80, y: this.y };
         this.isSelected = false;
+        this.currentProductionItem = null;
     }
 
     select() {
@@ -181,17 +179,30 @@ export class ProductionBuilding extends Building {
     update() {
         if (this.productionQueue.length > 0 && !this.isProducing) {
             this.isProducing = true;
-            this.productionTimer = this.productionQueue[0].time;
+            this.currentProductionItem = this.productionQueue[0];
+            this.productionTimer = this.currentProductionItem.item.time;
+            
+            // <-- NEW: Calculate and set animation duration based on production time
+            const durationInSeconds = this.productionTimer / 60; // Assuming 60 game ticks per second
+            this.currentProductionItem.button.style.setProperty('--production-duration', `${durationInSeconds}s`);
+            
+            if (this.currentProductionItem.button) {
+                this.currentProductionItem.button.classList.add('loading');
+            }
         }
         if (this.isProducing) {
             this.productionTimer--;
             if (this.productionTimer <= 0) {
-                const itemToSpawn = this.productionQueue.shift();
-                if (itemToSpawn.type === "Unit") {
+                const finishedItem = this.productionQueue.shift();
+                if (finishedItem.item.type === "Unit") {
                     const newUnit = this.gameManager.spawnUnit(this.team, this.x, this.y);
                     newUnit.moveTo(this.rallyPoint.x, this.rallyPoint.y);
                 }
                 this.isProducing = false;
+                if (finishedItem.button) {
+                    finishedItem.button.classList.remove('loading');
+                }
+                this.currentProductionItem = null;
             }
         }
     }

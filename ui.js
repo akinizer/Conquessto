@@ -23,7 +23,7 @@ export function renderProductionButtons(gameManager, items) {
         button.textContent = item.name;
         
         button.onclick = () => {
-            gameManager.trainItem(item);
+            gameManager.trainItem(item, button); // <-- NEW: Pass the button to the game manager
         };
         
         productionGrid.appendChild(button);
@@ -33,4 +33,11 @@ export function renderProductionButtons(gameManager, items) {
 export function clearProductionPanel() {
     productionGrid.innerHTML = "";
     document.getElementById('panel-status').textContent = "Ready.";
+}
+
+export function resetProductionButtons() {
+    const buttons = document.querySelectorAll('.unit-button');
+    buttons.forEach(button => {
+        button.classList.remove('loading');
+    });
 }

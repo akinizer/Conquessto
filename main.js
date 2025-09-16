@@ -48,14 +48,15 @@ class RTSManager {
         return unit;
     }
 
-    trainItem(item) {
+    trainItem(item, button) { // <-- NEW: Accept the button as an argument
         if (item.type === "Unit") {
             if (!this.productionBuilding) {
                 document.getElementById('panel-status').textContent = "Select a barracks to train units!";
                 return;
             }
-            this.productionBuilding.productionQueue.push(item);
-            document.getElementById('panel-status').textContent = `Infantry added to queue.`;
+            // <-- NEW: Store both the item data and the button element
+            this.productionBuilding.productionQueue.push({ item: item, button: button });
+            document.getElementById('panel-status').textContent = `${item.name} added to queue.`;
         } else if (item.type === "Building") {
             this.pendingBuilding = item;
             document.getElementById('panel-status').textContent = `Click on the map to place a ${item.name}.`;
@@ -63,7 +64,7 @@ class RTSManager {
     }
 
     onCanvasClick(event) {
-        if (event.button !== 0) return; // <-- NEW: Only respond to left-clicks
+        if (event.button !== 0) return;
 
         const rect = this.canvas.getBoundingClientRect();
         const mouseX = event.clientX - rect.left;
@@ -106,7 +107,7 @@ class RTSManager {
 
     onCanvasRightClick(event) {
         event.preventDefault();
-        if (event.button !== 2) return; // <-- NEW: Only respond to right-clicks
+        if (event.button !== 2) return;
 
         const rect = this.canvas.getBoundingClientRect();
         const mouseX = event.clientX - rect.left;
