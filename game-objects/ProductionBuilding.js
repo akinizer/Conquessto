@@ -18,7 +18,7 @@ export class ProductionBuilding {
         this.rallyPoint = { x: x, y: y };
         this.maxHealth = 100;
         this.health = this.maxHealth;
-        this.featureBarRect = null; // New property to store bar dimensions
+        this.featureBarRect = null;
     }
 
     select() {
@@ -27,6 +27,38 @@ export class ProductionBuilding {
 
     deselect() {
         this.selected = false;
+    }
+    
+    // New helper method to get the closest point on the building's perimeter
+    _getClosestPointOnPerimeter(targetX, targetY) {
+        const halfWidth = this.width / 2;
+        const halfHeight = this.height / 2;
+        const top = { x: this.x, y: this.y - halfHeight };
+        const bottom = { x: this.x, y: this.y + halfHeight };
+        const left = { x: this.x - halfWidth, y: this.y };
+        const right = { x: this.x + halfWidth, y: this.y };
+
+        const distances = {
+            top: Math.sqrt(Math.pow(top.x - targetX, 2) + Math.pow(top.y - targetY, 2)),
+            bottom: Math.sqrt(Math.pow(bottom.x - targetX, 2) + Math.pow(bottom.y - targetY, 2)),
+            left: Math.sqrt(Math.pow(left.x - targetX, 2) + Math.pow(left.y - targetY, 2)),
+            right: Math.sqrt(Math.pow(right.x - targetX, 2) + Math.pow(right.y - targetY, 2))
+        };
+        
+        const minDistance = Math.min(...Object.values(distances));
+        
+        switch(minDistance) {
+            case distances.top:
+                return { x: this.x, y: this.y - halfHeight, side: 'top' };
+            case distances.bottom:
+                return { x: this.x, y: this.y + halfHeight, side: 'bottom' };
+            case distances.left:
+                return { x: this.x - halfWidth, y: this.y, side: 'left' };
+            case distances.right:
+                return { x: this.x + halfWidth, y: this.y, side: 'right' };
+            default:
+                return { x: this.x, y: this.y }; // Fallback
+        }
     }
 
     draw() {
@@ -68,12 +100,19 @@ export class ProductionBuilding {
                 const slotY = barY + (barHeight - slotSize) / 2;
                 this.ctx.fillRect(slotX, slotY, slotSize, slotSize);
             }
+            
+            // Draw the dynamic spawn exit point
+            const spawnPoint = this._getClosestPointOnPerimeter(this.rallyPoint.x, this.rallyPoint.y);
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            this.ctx.beginPath();
+            this.ctx.arc(spawnPoint.x, spawnPoint.y, 5, 0, Math.PI * 2);
+            this.ctx.fill();
 
             // Draw rally point line
             this.ctx.strokeStyle = '#ffffff';
             this.ctx.setLineDash([5, 5]);
             this.ctx.beginPath();
-            this.ctx.moveTo(this.x, this.y);
+            this.ctx.moveTo(spawnPoint.x, spawnPoint.y);
             this.ctx.lineTo(this.rallyPoint.x, this.rallyPoint.y);
             this.ctx.stroke();
             this.ctx.setLineDash([]);
@@ -85,7 +124,9 @@ export class ProductionBuilding {
             this.productionTime++;
             const itemToProduce = this.productionQueue[0];
             if (this.productionTime >= itemToProduce.item.time) {
-                const newUnit = this.gameController.spawnUnit(this.team, this.x, this.y);
+                // Get the dynamic spawn point
+                const spawnPoint = this._getClosestPointOnPerimeter(this.rallyPoint.x, this.rallyPoint.y);
+                const newUnit = this.gameController.spawnUnit(this.team, spawnPoint.x, spawnPoint.y);
                 newUnit.moveTo(this.rallyPoint.x, this.rallyPoint.y);
                 this.productionQueue.shift();
                 this.productionTime = 0;

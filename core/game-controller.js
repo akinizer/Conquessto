@@ -68,6 +68,10 @@ export class GameController {
         }
 
         if (clickedObject && clickedObject.type === "ProductionBuilding") {
+            // New protocol: Deselect all units before selecting the building
+            this.gameState.selectedUnits.forEach(unit => unit.deselect());
+            this.gameState.selectedUnits = [];
+            
             if (this.gameState.productionBuilding) {
                 this.gameState.productionBuilding.deselect();
             }
@@ -79,6 +83,10 @@ export class GameController {
 
         if (clickedObject && clickedObject.type === "Unit") {
             this.gameState.selectedUnits.forEach(unit => unit.deselect());
+            if (this.gameState.productionBuilding) {
+                this.gameState.productionBuilding.deselect();
+            }
+            this.gameState.productionBuilding = null;
             this.gameState.selectedUnits = [clickedObject];
             clickedObject.select();
             this.uiController.setStatus(`Unit ${clickedObject.id} selected.`);
@@ -121,7 +129,6 @@ export class GameController {
     }
 
     getObjectAt(x, y) {
-        // First, check if a production building's feature bar was clicked
         if (this.gameState.productionBuilding && this.gameState.productionBuilding.selected) {
             const rect = this.gameState.productionBuilding.featureBarRect;
             if (rect && x >= rect.x && x <= rect.x + rect.width && y >= rect.y && y <= rect.y + rect.height) {
@@ -129,7 +136,6 @@ export class GameController {
             }
         }
         
-        // Then, check for any other game object
         for (const id in this.gameState.gameObjects) {
             const obj = this.gameState.gameObjects[id];
             const distance = Math.sqrt(Math.pow(obj.x - x, 2) + Math.pow(obj.y - y, 2));
