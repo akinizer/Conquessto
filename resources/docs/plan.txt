@@ -24,6 +24,10 @@ Unit List: Infantry, Vehicle, Aircraft, Naval
 
 * Building Types
 Building List: Barracks, Hangar, Radar, HQ, Corporation, Dock, Airbase
+
+* Mechanics
+Map Panning: Middle Button Press, Screen Edge Cursor Push 
+
 === IN-PROGRESS ===
 * Mechanics
 Shortest Path Algorithm: Collided Units
