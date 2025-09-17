@@ -1,0 +1,88 @@
+=== IMPLEMENTED ===
+Game Setup: Player Name, Player Color, Enemy Quantity, Map Size
+Game Canvas: Place Building
+Production Panel: Train Building, Train Unit
+Unit: Move, Collide
+Building: Spawn Unit Trained by Production Panel
+Placement Indicator: Placeable, Not Placeable
+
+=== IN-PROGRESS ===
+* Mechanics
+Shortest Path Algorithm: Collided Units
+Game Setup: Functionality
+Production: More Units and Buildings
+Battle Currency: 
+    Battle Only: Meta Credits, Energy
+    Counts Toward Global Currency: Nutritions, Metal
+Rewards:
+    Nutritions, Metal gained during battles (giftboxes, npc in a random civlian structure)
+    Global currencies, achievements, scores, points as battlefield win / loss rewards
+    Multiplier: 1.1 to 1.8 (enemy quantity)
+    Larger map = more encounters 
+Restrictions:
+    No enemy building capture, they can be infiltrated by Doubleagent and have to be destroyed
+    Resources have to farmed in field
+    If human player is defeated, it is a loss. If all enemies are defeated it is a win
+    Global currencies gained during battles are guaranteed acquisition
+    Battle end rewards are based on success criteria, number of enemies defeated x win / loss multiplier (1, 0.3) and activities during battles
+    Max energy, buildings and units cost battle currencies
+    Terrain based movement speed and limitations: water areas, passages, choke points, bumps
+    Map layout based restrictions: trees, bridges, civilian structures and more
+    Map types: team lands, city, desert, mars 
+    Fog of war, line of sight (probably at end of plan)
+    Buildings can be placed near HQ building, forward base or a captured territory building
+* Units
+Unit-Behaviors: Change Direction on Collision, Attack Enemy Units, Terrain Movement, Garrison, Group Select
+Tags: Ground, Water, Air; Phasing, Solid
+* Faction
+Team: Friend, Enemy, Neutral
+* Design
+Terrain: Grass, Snow, Sand, Water, Mars
+* Map
+Map Generation: Base Locations, Enemy Generation, Giftboxes
+* Unit Types
+Unit List: Infantry, Vehicle, Aircraft, Naval
+    Infantry: Guerilla, Rifler, Heavy Duty, Rocketeer, Tesla, Commando; Fixer, Apothecrist, Tinkerer
+    
+    Offensive Vehicle: Basic Tank, Medium Tank, Heavy Tank
+    Transport Vehicle: IFC, APC
+    Support Vehicle: Volatile, Disruptor
+    Entrench Vehicle: Anti-Air, Anti-Vehicle, Anti-Unit, Voyager, Mobile Radar
+
+    Aircraft: Anti-Air, Bomber, Helix, Kamikaze, Scout Drone
+
+    Naval: Submarine, Cannoneer, Missile Platform, Anti-Air, Navigator
+
+    Super Unit: Super Commando, Super Tank, Super Airship, Super Cruiser
+* Building Types
+Building List: Barracks, Hangar, Radar, HQ, Corporation, Dock, Airbase
+* Neutral
+Capturable (Abandoned Facility, Abandoned Tech Center, Abandoned Generator, Abandoned Hangar, Abandoned Airbase, Huntables)
+Production (Metal Mines, Farmlands)
+Units (Huntables, Civilians, Rebel)
+Civilian (Cosmetic, NPC Spawn, Giftbox Spawn)
+Giftboxes (Unit spawn friendly / enemy, unit boost, self-destruct, global / battle currency, all unit heal)
+* Researches
+Abilities: Nuke, Teleport, Lightning, Earthquake, Shockwave, Orbital Strike, Convert / Doubleagent
+Doctrines: Nanorepair, Passive Income, Armor Boost, Speed Boost, Industrial Discount, Faster Training
+Techs: Production Techs, Unit Techs, Building Techs, Unit Special Unlock, Building Tiers & Unlocks, Super Unit Training Program
+Stolen Techs: 
+    Unit: Super Units
+    Building: Global Radar, Rapid Deployment Point, Field Repair Bay, Healing Camp
+    Hidden Techs: All unit buff, All building buff, Currency gain boost, Increase max energy
+    Single Use Ability
+* Game Modes
+Canvas Maps: 
+    Production Fields: Player uses earned currencies to build, upgrade and expand passive earning and tech tree structurs
+    Battlefield: Player can challenge in stages in RTS style to earn currencies, doctrine points, achievements. Player Color, Enemy Quantity (AI), Map Size
+    Bazaar: Place for limited items, equippables
+* RPG Equip System
+Equippables & Slots:
+    Tank Slots: Barrel, Engine, Plating, Fuel; Accessories, Addons
+    Infantry Slots: Ammo, Magazine, Scope, Barrel; Accessories, Addons; Uniform, Bag, Visor, Survival Kit (Combat Knife, Stims, Inhibitors, Neural Activator, Detonator)
+    Aircraft Slots
+    Transport Slots
+    Naval Slots
+* Visuals:
+    Radar Map, Building Info Panel & Features, Unit / Building Hover Info, Notification; VFX, SFX; Game State Panel (Restart, Quit, Pause / Play)
+* Player Data (Name, Level, XP, Currencies, Achievements, Profile, Command Rank - Rookie to Grand Marshall), Autosave (Settings, Battle Results, Production Field States) ...
