@@ -19,18 +19,37 @@ export class GameController {
             console.error('Failed to load game data:', error);
         });
 
-        this.canvas.addEventListener('mousedown', (event) => this.onCanvasClick(event));
+        this.canvas.addEventListener('mousedown', (event) => this.handleMouseDown(event));
+        this.canvas.addEventListener('mouseup', (event) => this.handleMouseUp(event)); 
         this.canvas.addEventListener('contextmenu', (event) => this.onCanvasRightClick(event));
         this.canvas.addEventListener('mousemove', (event) => this.onCanvasMouseMove(event));
+        this.canvas.addEventListener('mouseleave', () => this.canvas.style.cursor = 'default');
 
+        document.addEventListener('pointerlockchange', () => this.onPointerLockChange());
+        document.addEventListener('mousemove', (event) => this.handlePointerLockMove(event));
+        document.addEventListener('mousemove', (event) => this.handleMouseMove(event));
+        
         this.uiController.gameController = this;
         this.uiController.initializeUI();
         
         this.pendingBuildingCursorPosition = { x: 0, y: 0 };
         this.canPlaceBuilding = true;
 
+         // World dimensions (4x the canvas size)
+        this.WORLD_WIDTH = this.canvas.width * 4;
+        this.WORLD_HEIGHT = this.canvas.height * 4;
+
+        // Initialize the viewport (camera)
+        this.viewport = {
+            x: 0,
+            y: 0
+        };
+
+        // Add event listeners for mouse movement
         this.gameLoop();
     }
+
+    // MECHANISMS //
 
     buildBuilding(team, x, y, itemData) {
         const id = this.gameState.getNextId();
@@ -75,6 +94,7 @@ export class GameController {
         this.uiController.setStatus("Unknown item type.");
     }
 
+    // BUILDING PLACEMENT //
 
     _isAreaClear(x, y, width, height) {
         // The padding is a fixed value, but this function will now work with the scaled coordinates.
@@ -162,6 +182,8 @@ export class GameController {
         }
         return true; // No collisions found
     }
+
+    // MOUSE EVENTS //
     
     onCanvasClick(event) {
         if (event.button !== 0) return;
@@ -268,22 +290,26 @@ export class GameController {
     }
 
     onCanvasMouseMove(event) {
-        // Use the new getMousePos function
+        if (document.pointerLockElement === this.canvas) { return; }
+
         const mousePos = this.getMousePos(event);
-        this.pendingBuildingCursorPosition.x = mousePos.x;
-        this.pendingBuildingCursorPosition.y = mousePos.y;
+        this.pendingBuildingCursorPosition = mousePos;
+    }
+
+    onPointerLockChange() {
+        if (document.pointerLockElement === this.canvas) { console.log('The pointer is locked.'); } 
+        else { console.log('The pointer is unlocked.'); }
     }
 
     // New function to correctly calculate mouse position relative to the scaled canvas
-    getMousePos(event) {
+     getMousePos(event) {
         const rect = this.canvas.getBoundingClientRect();
-        const scaleX = this.canvas.width / rect.width;
-        const scaleY = this.canvas.height / rect.height;
-
-        const mouseX = (event.clientX - rect.left) * scaleX;
-        const mouseY = (event.clientY - rect.top) * scaleY;
+        // Get the mouse position relative to the canvas
+        const mouseX = (event.clientX - rect.left);
+        const mouseY = (event.clientY - rect.top);
         
-        return { x: mouseX, y: mouseY };
+        // Return the world coordinates, which include the viewport offset
+        return { x: mouseX + this.viewport.x, y: mouseY + this.viewport.y };
     }
 
     getObjectAt(x, y) {
@@ -305,14 +331,95 @@ export class GameController {
         return null;
     }
 
+    handleMouseMove(event) {
+        const panSpeed = 10;
+        const edgeMargin = 50;
+        let newCursor = 'default';
+
+        // Check for edge panning and set the cursor
+        if (event.clientX < edgeMargin && event.clientY < edgeMargin) {
+            this.viewport.x = Math.max(0, this.viewport.x - panSpeed);
+            this.viewport.y = Math.max(0, this.viewport.y - panSpeed);
+            newCursor = 'nw-resize';
+        } else if (event.clientX > window.innerWidth - edgeMargin && event.clientY < edgeMargin) {
+            this.viewport.x = Math.min(this.WORLD_WIDTH - this.canvas.width, this.viewport.x + panSpeed);
+            this.viewport.y = Math.max(0, this.viewport.y - panSpeed);
+            newCursor = 'ne-resize';
+        } else if (event.clientX > window.innerWidth - edgeMargin && event.clientY > window.innerHeight - edgeMargin) {
+            this.viewport.x = Math.min(this.WORLD_WIDTH - this.canvas.width, this.viewport.x + panSpeed);
+            this.viewport.y = Math.min(this.WORLD_HEIGHT - this.canvas.height, this.viewport.y + panSpeed);
+            newCursor = 'se-resize';
+        } else if (event.clientX < edgeMargin && event.clientY > window.innerHeight - edgeMargin) {
+            this.viewport.x = Math.max(0, this.viewport.x - panSpeed);
+            this.viewport.y = Math.min(this.WORLD_HEIGHT - this.canvas.height, this.viewport.y + panSpeed);
+            newCursor = 'sw-resize';
+        } else if (event.clientX < edgeMargin) {
+            this.viewport.x = Math.max(0, this.viewport.x - panSpeed);
+            newCursor = 'w-resize';
+        } else if (event.clientX > window.innerWidth - edgeMargin) {
+            this.viewport.x = Math.min(this.WORLD_WIDTH - this.canvas.width, this.viewport.x + panSpeed);
+            newCursor = 'e-resize';
+        } else if (event.clientY < edgeMargin) {
+            this.viewport.y = Math.max(0, this.viewport.y - panSpeed);
+            newCursor = 'n-resize';
+        } else if (event.clientY > window.innerHeight - edgeMargin) {
+            this.viewport.y = Math.min(this.WORLD_HEIGHT - this.canvas.height, this.viewport.y + panSpeed);
+            newCursor = 's-resize';
+        }
+
+        this.canvas.style.cursor = newCursor;
+
+    }
+
+    handlePointerLockMove(event) {
+        if (document.pointerLockElement !== this.canvas) {
+            return;
+        }
+
+        const panSpeed = 1.5;
+        this.viewport.x += event.movementX * panSpeed;
+        this.viewport.y += event.movementY * panSpeed;
+
+        // Add boundary checks
+        this.viewport.x = Math.max(0, Math.min(this.WORLD_WIDTH - this.canvas.width, this.viewport.x));
+        this.viewport.y = Math.max(0, Math.min(this.WORLD_HEIGHT - this.canvas.height, this.viewport.y));
+    }
+
+    handleMouseDown(event) {
+        // Left click for selecting/placing buildings
+        if (event.button === 0) {
+            this.onCanvasClick(event);
+        }
+        // Middle click to toggle pointer lock for panning
+        else if (event.button === 1) {
+            event.preventDefault(); // Prevents default browser behavior like auto-scroll
+            this.canvas.requestPointerLock();
+        }
+    }
+
+    handleMouseUp(event) {
+        // Exit pointer lock when middle button is released
+        if (event.button === 1) {
+            document.exitPointerLock(); // <-- ADD THIS METHOD
+        }
+    }
+
+    // MAIN GAME PROCESS ///
+
     gameLoop() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Apply translation to the canvas context
+        this.ctx.save();
+        this.ctx.translate(-this.viewport.x, -this.viewport.y);
 
         for (const id in this.gameState.gameObjects) {
             const obj = this.gameState.gameObjects[id];
             if (obj.update) obj.update();
             if (obj.draw) obj.draw();
         }
+
+        this.ctx.restore();
 
         if (this.gameState.pendingBuilding) {
             // ✅ Get the specific width and height for the building being placed
