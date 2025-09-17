@@ -1,4 +1,5 @@
 === IMPLEMENTED ===
+* Basic
 Game Setup: Player Name, Player Color, Enemy Quantity, Map Size
 Game Canvas: Place Building
 Production Panel: Train Building, Train Unit
@@ -6,6 +7,23 @@ Unit: Move, Collide
 Building: Spawn Unit Trained by Production Panel
 Placement Indicator: Placeable, Not Placeable
 
+* Unit Types
+Unit List: Infantry, Vehicle, Aircraft, Naval
+    Infantry: Guerilla, Rifler, Heavy Duty, Rocketeer, Tesla, Commando; Fixer, Apothecrist, Tinkerer
+    
+    Offensive Vehicle: Basic Tank, Medium Tank, Heavy Tank
+    Transport Vehicle: IFC, APC, Hovercraft
+    Support Vehicle: Volatile, Disruptor
+    Entrench Vehicle: Anti-Air, Anti-Vehicle, Anti-Unit, Voyager, Mobile Radar
+
+    Aircraft: Anti-Air, Bomber, Helix, Kamikaze, Scout Drone
+
+    Naval: Submarine, Cannoneer, Missile Platform, Anti-Air, Navigator
+
+    Super Unit: Super Commando, Super Tank, Super Airship, Super Cruiser
+
+* Building Types
+Building List: Barracks, Hangar, Radar, HQ, Corporation, Dock, Airbase
 === IN-PROGRESS ===
 * Mechanics
 Shortest Path Algorithm: Collided Units
@@ -33,29 +51,14 @@ Restrictions:
     Buildings can be placed near HQ building, forward base or a captured territory building
 * Units
 Unit-Behaviors: Change Direction on Collision, Attack Enemy Units, Terrain Movement, Garrison, Group Select
-Tags: Ground, Water, Air; Phasing, Solid
+Tags: Ground, Water, Air, Amphibious; Phasing, Solid
 * Faction
 Team: Friend, Enemy, Neutral
 * Design
 Terrain: Grass, Snow, Sand, Water, Mars
 * Map
 Map Generation: Base Locations, Enemy Generation, Giftboxes
-* Unit Types
-Unit List: Infantry, Vehicle, Aircraft, Naval
-    Infantry: Guerilla, Rifler, Heavy Duty, Rocketeer, Tesla, Commando; Fixer, Apothecrist, Tinkerer
-    
-    Offensive Vehicle: Basic Tank, Medium Tank, Heavy Tank
-    Transport Vehicle: IFC, APC
-    Support Vehicle: Volatile, Disruptor
-    Entrench Vehicle: Anti-Air, Anti-Vehicle, Anti-Unit, Voyager, Mobile Radar
 
-    Aircraft: Anti-Air, Bomber, Helix, Kamikaze, Scout Drone
-
-    Naval: Submarine, Cannoneer, Missile Platform, Anti-Air, Navigator
-
-    Super Unit: Super Commando, Super Tank, Super Airship, Super Cruiser
-* Building Types
-Building List: Barracks, Hangar, Radar, HQ, Corporation, Dock, Airbase
 * Neutral
 Capturable (Abandoned Facility, Abandoned Tech Center, Abandoned Generator, Abandoned Hangar, Abandoned Airbase, Huntables)
 Production (Metal Mines, Farmlands)

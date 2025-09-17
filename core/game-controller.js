@@ -31,12 +31,13 @@ export class GameController {
         this.gameLoop();
     }
 
-    buildBuilding(team, x, y) {
+    buildBuilding(team, x, y, itemData) {
         const id = this.gameState.getNextId();
-        const building = new ProductionBuilding(id, team, x, y, this.canvas, this);
+        const building = new ProductionBuilding(id, team, x, y, this.canvas, this, itemData);
         this.gameState.addObject(building);
         return building;
     }
+
 
     spawnUnit(team, x, y, width, height) {
         const id = this.gameState.getNextId();
@@ -46,32 +47,34 @@ export class GameController {
     }
 
     trainItem(item, button) {
-        if (item.type === "Unit") {
+        const units = this.dataManager.getProductionItems().units;
+        const buildings = this.dataManager.getProductionItems().buildings;
+
+        // ✅ check if it's a unit
+        if (units.some(u => u.name === item.name)) {
             if (!this.gameState.productionBuilding) {
-                this.uiController.setStatus("Select a barracks to train units!");
+                this.uiController.setStatus("Select a production building to train units!");
                 return;
             }
 
-            // 🔑 Get the full production data from the DataManager
-            const productionData = this.dataManager.getProductionItems();
-            
-            // 🔑 Find the specific unit in the loaded data using its name
-            const itemToQueue = productionData.units.find(unit => unit.name === item.name);
-            
-            if (!itemToQueue) {
-                console.error(`Error: Unit "${item.name}" not found in production data.`);
-                this.uiController.setStatus("Invalid unit type.");
-                return;
-            }
-            
-            // Push the fully populated item with dimensions to the queue
+            const itemToQueue = units.find(u => u.name === item.name);
             this.gameState.productionBuilding.productionQueue.push({ item: itemToQueue, button: button });
             this.uiController.setStatus(`${itemToQueue.name} added to queue.`);
-        } else if (item.type === "Building") {
+            return;
+        }
+
+        // ✅ check if it's a building
+        if (buildings.some(b => b.name === item.name)) {
             this.gameState.pendingBuilding = item;
             this.uiController.setStatus(`Click on the map to place a ${item.name}.`);
+            return;
         }
+
+        // ❌ fallback
+        this.uiController.setStatus("Unknown item type.");
     }
+
+
 
     _isAreaClear(x, y, width, height, ignoreObject = null) {
         const padding = 10;
@@ -112,9 +115,8 @@ export class GameController {
     }
 
     isLocationClearForUnit(x, y, ignoreObject = null) {
-        const unitWidth = 30;
-        const unitHeight = 30;
-        return this._isAreaClear(x, y, unitWidth, unitHeight, ignoreObject);
+        const { width, height } = this.dataManager.getProductionItems().units[0]; 
+        return this._isAreaClear(x, y, width, height, ignoreObject);
     }
 
     isLocationClear(x, y, dimensions, ignoreObject = null) {
@@ -175,9 +177,8 @@ export class GameController {
         const clickedObject = this.getObjectAt(mouseX, mouseY);
         
         if (this.gameState.pendingBuilding) {
-            const buildingWidth = 80;
-            const buildingHeight = 80;
-            
+            const { width: buildingWidth, height: buildingHeight } = this.gameState.pendingBuilding;
+
             const isLocationClear = this._isAreaClear(mouseX, mouseY, buildingWidth, buildingHeight);
             
             const isWithinCanvas = (
@@ -188,13 +189,13 @@ export class GameController {
             );
 
             if (isLocationClear && isWithinCanvas) {
-                const newBuilding = this.buildBuilding("friend", mouseX, mouseY);
+                const newBuilding = this.buildBuilding("friend", mouseX, mouseY, this.gameState.pendingBuilding);
                 if (this.gameState.productionBuilding) {
                     this.gameState.productionBuilding.deselect();
                 }
                 this.gameState.productionBuilding = newBuilding;
                 this.gameState.productionBuilding.select();
-                this.uiController.setStatus("Barracks placed.");
+                this.uiController.setStatus(`${this.gameState.pendingBuilding.name} placed.`);
                 this.gameState.pendingBuilding = null;
             } else {
                 this.uiController.setStatus("Cannot place building here.");
@@ -211,7 +212,8 @@ export class GameController {
             }
             this.gameState.productionBuilding = clickedObject;
             this.gameState.productionBuilding.select();
-            this.uiController.setStatus(`Barracks ${this.gameState.productionBuilding.id} selected as primary.`);
+            this.uiController.setStatus(`${this.gameState.productionBuilding.name} ${this.gameState.productionBuilding.id} selected as primary.`);
+
             return;
         }
 
@@ -303,8 +305,7 @@ export class GameController {
         }
 
         if (this.gameState.pendingBuilding) {
-            const buildingWidth = 80;
-            const buildingHeight = 80;
+            const { width: buildingWidth, height: buildingHeight } = this.gameState.pendingBuilding;
 
             const isWithinCanvas = (
                 this.pendingBuildingCursorPosition.x - buildingWidth / 2 >= 0 &&
@@ -319,11 +320,18 @@ export class GameController {
                 buildingWidth,
                 buildingHeight
             );
+
             this.canPlaceBuilding = isWithinCanvas && isLocationClear;
-            
-            const silhouetteColor = this.canPlaceBuilding ? 'rgba(0, 255, 0, 0.5)' : 'rgba(255, 0, 0, 0.5)';
-            const pendingBuilding = new ProductionBuilding(null, null, this.pendingBuildingCursorPosition.x, this.pendingBuildingCursorPosition.y, this.canvas, this);
-            pendingBuilding.drawSilhouette(silhouetteColor);
+            const silhouetteColor = this.canPlaceBuilding ? 'rgba(0,255,0,0.4)' : 'rgba(255,0,0,0.4)';
+
+            // 🟩 draw silhouette
+            this.ctx.fillStyle = silhouetteColor;
+            this.ctx.fillRect(
+                this.pendingBuildingCursorPosition.x - buildingWidth / 2,
+                this.pendingBuildingCursorPosition.y - buildingHeight / 2,
+                buildingWidth,
+                buildingHeight
+            );
         }
 
         const livingObjects = {};
