@@ -26,6 +26,11 @@ window.onload = async () => {
     const gameSetup = new GameSetupUI((settings) => {
         console.log("Game settings:", settings);
 
+        // 🎯 Set the canvas drawing size to match its display size
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+
         gameController = new GameController(canvas, uiController);
         uiController.gameController = gameController;
         uiController.initializeUI();

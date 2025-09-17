@@ -4,6 +4,7 @@ import { GameState } from './game-state.js';
 import { Unit } from '../game-objects/Unit.js';
 import { ProductionBuilding } from '../game-objects/ProductionBuilding.js';
 import { DataManager } from './data-manager.js';
+
 export class GameController {
     constructor(canvas, uiController) {
         this.canvas = canvas;
@@ -75,47 +76,40 @@ export class GameController {
     }
 
 
-
-    _isAreaClear(x, y, width, height, ignoreObject = null) {
+    _isAreaClear(x, y, width, height) {
+        // The padding is a fixed value, but this function will now work with the scaled coordinates.
         const padding = 10;
         const paddedWidth = width + padding * 2;
         const paddedHeight = height + padding * 2;
-        
+
+        const newObjLeft = x - paddedWidth / 2;
+        const newObjRight = x + paddedWidth / 2;
+        const newObjTop = y - paddedHeight / 2;
+        const newObjBottom = y + paddedHeight / 2;
+
         for (const id in this.gameState.gameObjects) {
             const obj = this.gameState.gameObjects[id];
-            if (obj === ignoreObject) continue;
 
-            if (obj.type === "Unit") {
-                const unitRadius = 15;
-                const closestX = Math.max(obj.x - unitRadius, Math.min(x, obj.x + unitRadius));
-                const closestY = Math.max(obj.y - unitRadius, Math.min(y, obj.y + unitRadius));
-                
-                const distance = Math.sqrt(Math.pow(closestX - x, 2) + Math.pow(closestY - y, 2));
+            // Calculate existing object's bounding box
+            const objLeft = obj.x - obj.width / 2;
+            const objRight = obj.x + obj.width / 2;
+            const objTop = obj.y - obj.height / 2;
+            const objBottom = obj.y + obj.height / 2;
 
-                if (distance < unitRadius + Math.min(paddedWidth, paddedHeight) / 2) {
-                    return false;
-                }
-            } else {
-                const objLeft = obj.x - obj.width / 2;
-                const objRight = obj.x + obj.width / 2;
-                const objTop = obj.y - obj.height / 2;
-                const objBottom = obj.y + obj.height / 2;
-                
-                const newObjLeft = x - paddedWidth / 2;
-                const newObjRight = x + paddedWidth / 2;
-                const newObjTop = y - paddedHeight / 2;
-                const newObjBottom = y + paddedHeight / 2;
-    
-                if (newObjRight > objLeft && newObjLeft < objRight && newObjBottom > objTop && newObjTop < objBottom) {
-                    return false;
-                }
+            if (
+                newObjRight > objLeft &&
+                newObjLeft < objRight &&
+                newObjBottom > objTop &&
+                newObjTop < objBottom
+            ) {
+                return false; // Collision detected
             }
         }
-        return true;
+        return true; // No collisions found
     }
 
     isLocationClearForUnit(x, y, ignoreObject = null) {
-        const { width, height } = this.dataManager.getProductionItems().units[0]; 
+        const { width, height } = this.dataManager.getProductionItems().units[0];
         return this._isAreaClear(x, y, width, height, ignoreObject);
     }
 
@@ -171,9 +165,12 @@ export class GameController {
     
     onCanvasClick(event) {
         if (event.button !== 0) return;
-        const rect = this.canvas.getBoundingClientRect();
-        const mouseX = event.clientX - rect.left;
-        const mouseY = event.clientY - rect.top;
+        
+        // Use the new getMousePos function
+        const mousePos = this.getMousePos(event);
+        const mouseX = mousePos.x;
+        const mouseY = mousePos.y;
+        
         const clickedObject = this.getObjectAt(mouseX, mouseY);
         
         if (this.gameState.pendingBuilding) {
@@ -271,9 +268,22 @@ export class GameController {
     }
 
     onCanvasMouseMove(event) {
+        // Use the new getMousePos function
+        const mousePos = this.getMousePos(event);
+        this.pendingBuildingCursorPosition.x = mousePos.x;
+        this.pendingBuildingCursorPosition.y = mousePos.y;
+    }
+
+    // New function to correctly calculate mouse position relative to the scaled canvas
+    getMousePos(event) {
         const rect = this.canvas.getBoundingClientRect();
-        this.pendingBuildingCursorPosition.x = event.clientX - rect.left;
-        this.pendingBuildingCursorPosition.y = event.clientY - rect.top;
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+
+        const mouseX = (event.clientX - rect.left) * scaleX;
+        const mouseY = (event.clientY - rect.top) * scaleY;
+        
+        return { x: mouseX, y: mouseY };
     }
 
     getObjectAt(x, y) {
@@ -305,18 +315,22 @@ export class GameController {
         }
 
         if (this.gameState.pendingBuilding) {
+            // ✅ Get the specific width and height for the building being placed
             const { width: buildingWidth, height: buildingHeight } = this.gameState.pendingBuilding;
 
+            const mouseX = this.pendingBuildingCursorPosition.x;
+            const mouseY = this.pendingBuildingCursorPosition.y;
+
             const isWithinCanvas = (
-                this.pendingBuildingCursorPosition.x - buildingWidth / 2 >= 0 &&
-                this.pendingBuildingCursorPosition.x + buildingWidth / 2 <= this.canvas.width &&
-                this.pendingBuildingCursorPosition.y - buildingHeight / 2 >= 0 &&
-                this.pendingBuildingCursorPosition.y + buildingHeight / 2 <= this.canvas.height
+                mouseX - buildingWidth / 2 >= 0 &&
+                mouseX + buildingWidth / 2 <= this.canvas.width &&
+                mouseY - buildingHeight / 2 >= 0 &&
+                mouseY + buildingHeight / 2 <= this.canvas.height
             );
 
             const isLocationClear = this._isAreaClear(
-                this.pendingBuildingCursorPosition.x,
-                this.pendingBuildingCursorPosition.y,
+                mouseX,
+                mouseY,
                 buildingWidth,
                 buildingHeight
             );
@@ -324,11 +338,11 @@ export class GameController {
             this.canPlaceBuilding = isWithinCanvas && isLocationClear;
             const silhouetteColor = this.canPlaceBuilding ? 'rgba(0,255,0,0.4)' : 'rgba(255,0,0,0.4)';
 
-            // 🟩 draw silhouette
+            // 🟩 Draw the silhouette using the correct dimensions
             this.ctx.fillStyle = silhouetteColor;
             this.ctx.fillRect(
-                this.pendingBuildingCursorPosition.x - buildingWidth / 2,
-                this.pendingBuildingCursorPosition.y - buildingHeight / 2,
+                mouseX - buildingWidth / 2,
+                mouseY - buildingHeight / 2,
                 buildingWidth,
                 buildingHeight
             );

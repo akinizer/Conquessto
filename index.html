@@ -1,5 +1,4 @@
 <!-- index.html -->
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -14,19 +13,21 @@
 </head>
 <body>
     <div id="game-container">
-        <canvas id="gameCanvas" width="800" height="600" style="grid-column: 1; grid-row: 1;"></canvas>
-        <div id="command-bar" style="grid-column: 1; grid-row: 2;">
-            <div class="command-group">
-                <span id="resource-status">Resources: 1500</span>
-            </div>
-            <div class="command-group">
-                <span id="game-time">Time: 00:00</span>
-            </div>
-            <div class="command-group">
-                <span id="selected-unit-status">Unit: None Selected</span>
+        <div id="main-area">
+            <canvas id="gameCanvas"></canvas>
+            <div id="command-bar">
+                <div class="command-group">
+                    <span id="resource-status">Resources: 1500</span>
+                </div>
+                <div class="command-group">
+                    <span id="game-time">Time: 00:00</span>
+                </div>
+                <div class="command-group">
+                    <span id="selected-unit-status">Unit: None Selected</span>
+                </div>
             </div>
         </div>
-        <div id="side-panel" style="grid-column: 2; grid-row: 1 / span 2;">
+        <div id="side-panel">
             <div class="radar-module">
                 <canvas class="radar-canvas" width="150" height="150"></canvas>
             </div>
@@ -37,9 +38,9 @@
             </div>
             <div id="production-grid"></div>
         </div>
-        <div id="crosshair"></div>
     </div>
     <div id="setup-menu-container"></div>
+    <div id="crosshair"></div>
     <script type="module" src="main.js"></script>
 </body>
 </html>
