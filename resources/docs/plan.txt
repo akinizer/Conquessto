@@ -26,7 +26,7 @@ Unit List: Infantry, Vehicle, Aircraft, Naval
 Building List: Barracks, Hangar, Radar, HQ, Corporation, Dock, Airbase
 
 * Mechanics
-Map Panning: Middle Button Press, Screen Edge Cursor Push 
+Map Panning: WASD / Arrow Key, Screen Edge Cursor Push 
 
 === IN-PROGRESS ===
 * Mechanics
