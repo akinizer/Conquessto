@@ -38,18 +38,18 @@
     { "name": "Super Airship", "type": "Super Unit", "cost": 800, "time": 1500, "icon": "", "tags": ["Air", "Phasing"], "width": 75, "height": 75 },
     { "name": "Super Cruiser", "type": "Super Unit", "cost": 900, "time": 1800, "icon": "", "tags": ["Water", "Solid"], "width": 80, "height": 80 }
   ],
-  "buildings": [
-    { "name": "Barracks", "type": "Building", "cost": 200, "time": 500, "icon": "", "tags": ["Solid"], "subtype": "Production", "width": 80, "height": 80,
+   "buildings": [
+    { "name": "Barracks", "type": "Production", "cost": 200, "time": 500, "icon": "", "tags": ["Solid"], "width": 80, "height": 80,
       "produces": ["Guerilla", "Rifler", "Heavy Duty", "Rocketeer", "Tesla", "Commando", "Fixer", "Apothecrist", "Tinkerer"] },
-    { "name": "Hangar", "type": "Building", "cost": 500, "time": 700, "icon": "", "tags": ["Solid"], "subtype": "Production", "width": 100, "height": 100,
+    { "name": "Hangar", "type": "Production", "cost": 500, "time": 700, "icon": "", "tags": ["Solid"], "width": 100, "height": 100,
       "produces": ["Anti-Air", "Bomber", "Helix", "Kamikaze", "Scout Drone"] },
-    { "name": "Radar", "type": "Building", "cost": 300, "time": 400, "icon": "", "tags": ["Solid"], "subtype": "Production", "width": 70, "height": 70 },
-    { "name": "HQ", "type": "Building", "cost": 1000, "time": 1000, "icon": "", "tags": ["Solid"], "subtype": "Command", "width": 120, "height": 120 },
-    { "name": "Corporation", "type": "Building", "cost": 600, "time": 800, "icon": "", "tags": ["Solid"], "subtype": "Other", "width": 90, "height": 90 },
-    { "name": "Refinery", "type": "Building", "cost": 400, "time": 600, "icon": "", "tags": ["Solid"], "subtype": "Economic", "width": 80, "height": 80 },
-    { "name": "Dock", "type": "Building", "cost": 500, "time": 700, "icon": "", "tags": ["Solid"], "subtype": "Production", "width": 100, "height": 100,
+    { "name": "Radar", "type": "Other", "cost": 300, "time": 400, "icon": "", "tags": ["Solid"], "width": 70, "height": 70 },
+    { "name": "HQ", "type": "Command", "cost": 1000, "time": 1000, "icon": "", "tags": ["Solid"], "width": 120, "height": 120 },
+    { "name": "Corporation", "type": "Other", "cost": 600, "time": 800, "icon": "", "tags": ["Solid"], "width": 90, "height": 90 },
+    { "name": "Refinery", "type": "Economic", "cost": 400, "time": 600, "icon": "", "tags": ["Solid"], "width": 80, "height": 80 },
+    { "name": "Dock", "type": "Production", "cost": 500, "time": 700, "icon": "", "tags": ["Solid"], "width": 100, "height": 100,
       "produces": ["Submarine", "Cannoneer", "Missile Platform", "Anti-Air", "Navigator"] },
-    { "name": "Airbase", "type": "Building", "cost": 800, "time": 900, "icon": "", "tags": ["Solid"], "subtype": "Production", "width": 110, "height": 110,
+    { "name": "Airbase", "type": "Production", "cost": 800, "time": 900, "icon": "", "tags": ["Solid"], "width": 110, "height": 110,
       "produces": ["Super Airship"] }
   ]
 }

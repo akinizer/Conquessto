@@ -1,6 +1,9 @@
 import { GameState } from './game-state.js';
 import { Unit } from '../game-objects/Unit.js';
 import { ProductionBuilding } from '../game-objects/ProductionBuilding.js';
+import { CommandBuilding } from '../game-objects/CommandBuilding.js';
+import { EconomicBuilding } from '../game-objects/EconomicBuilding.js';
+import { OtherBuilding } from '../game-objects/OtherBuilding.js';
 import { DataManager } from './data-manager.js';
 
 export class GameController {
@@ -48,13 +51,27 @@ export class GameController {
     }
 
     // MECHANISMS //
-
     buildBuilding(team, x, y, itemData) {
-        const id = this.gameState.getNextId();
-        const building = new ProductionBuilding(id, team, x, y, this.canvas, this, itemData);
-        this.gameState.addObject(building);
-        return building;
+    const id = this.gameState.getNextId();
+    let building;
+
+    // FIX: Check the itemData type to create the correct building object.
+    if (itemData.type === "Production") {
+        building = new ProductionBuilding(id, team, x, y, this.canvas, this, itemData);
+    } else if (itemData.type === "Command") {
+        building = new CommandBuilding(id, team, x, y, this.canvas, this, itemData);
+    } else if (itemData.type === "Economic") {
+        // NEW: Instantiate an EconomicBuilding for economic types.
+        building = new EconomicBuilding(id, team, x, y, this.canvas, this, itemData);
+    } else {
+        // Default to the specific OtherBuilding class for other types.
+        building = new OtherBuilding(id, team, x, y, this.canvas, this, itemData);
     }
+
+    this.gameState.addObject(building);
+    return building;
+}
+
 
 
     spawnUnit(team, x, y, width, height) {
@@ -164,7 +181,7 @@ export class GameController {
         
         for (const objId in this.gameState.gameObjects) {
             const otherObj = this.gameState.gameObjects[objId];
-            
+
             // Skip ignored object (the building itself) or non-solid objects
             if (otherObj === ignoreObject || !otherObj.tags.includes('solid')) {
                 continue;
@@ -213,6 +230,8 @@ export class GameController {
         const mouseY = mousePos.y;
         
         const clickedObject = this.getObjectAt(mouseX, mouseY);
+
+        
         
         if (this.gameState.pendingBuilding) {
             const { width: buildingWidth, height: buildingHeight } = this.gameState.pendingBuilding;
@@ -228,11 +247,7 @@ export class GameController {
 
             if (isLocationClear && isWithinCanvas) {
                 const newBuilding = this.buildBuilding("friend", mouseX, mouseY, this.gameState.pendingBuilding);
-                if (this.gameState.productionBuilding) {
-                    this.gameState.productionBuilding.deselect();
-                }
-                this.gameState.productionBuilding = newBuilding;
-                this.gameState.productionBuilding.select();
+                this._selectObject(newBuilding);
                 this.uiController.setStatus(`${this.gameState.pendingBuilding.name} placed.`);
                 this.gameState.pendingBuilding = null;
             } else {
@@ -241,41 +256,40 @@ export class GameController {
             return;
         }
 
-        if (clickedObject && clickedObject.type === "ProductionBuilding") {
-            this.gameState.selectedUnits.forEach(unit => unit.deselect());
-            this.gameState.selectedUnits = [];
-            
-            if (this.gameState.productionBuilding) {
-                this.gameState.productionBuilding.deselect();
-            }
-            this.gameState.productionBuilding = clickedObject;
-            this.gameState.productionBuilding.select();
-            this.uiController.setStatus(`${this.gameState.productionBuilding.name} ${this.gameState.productionBuilding.id} selected as primary.`);
-            
-            this.gameState.productionBuilding.rallyPoint.x = mouseX;
-            this.gameState.productionBuilding.rallyPoint.y = mouseY;
-            return;
-        }
+        // Use the new, centralized selection method
+        console.log(clickedObject)
+        this._selectObject(clickedObject);
+    }
 
-        if (clickedObject && clickedObject.type === "Unit") {
-            this.gameState.selectedUnits.forEach(unit => unit.deselect());
-            if (this.gameState.productionBuilding) {
-                this.gameState.productionBuilding.deselect();
-            }
-            this.gameState.productionBuilding = null;
-            this.gameState.selectedUnits = [clickedObject];
-            clickedObject.select();
-            this.uiController.setStatus(`Unit ${clickedObject.id} selected.`);
-            return;
-        }
-        
+    _selectObject(object) {
+        // Deselect everything first to ensure a clean state
         this.gameState.selectedUnits.forEach(unit => unit.deselect());
+        this.gameState.selectedUnits = [];
         if (this.gameState.productionBuilding) {
             this.gameState.productionBuilding.deselect();
+            this.gameState.productionBuilding = null;
         }
-        this.gameState.selectedUnits = [];
-        this.gameState.productionBuilding = null;
-        this.uiController.setStatus("Ready.");
+
+        // Handle selection based on the object type
+        if (object) {
+            if (object.type === "ProductionBuilding") {
+                this.gameState.productionBuilding = object;
+                this.gameState.productionBuilding.select();
+                this.uiController.setStatus(`${this.gameState.productionBuilding.name} ${this.gameState.productionBuilding.id} selected as primary.`);
+                this.gameState.productionBuilding.rallyPoint.x = object.x;
+                this.gameState.productionBuilding.rallyPoint.y = object.y;
+                console.log('Building selected:', this.gameState.productionBuilding.name, this.gameState.productionBuilding.id);
+            } else if (object.type === "Unit") {
+                this.gameState.selectedUnits.push(object);
+                object.select();
+                this.uiController.setStatus(`Unit ${object.id} selected.`);
+                console.log('Unit selected:', object.id);
+            }
+        } else {
+            // Nothing was clicked, so deselect everything
+            this.uiController.setStatus("Ready.");
+            console.log('Nothing selected. All objects deselected.');
+        }
     }
 
     onCanvasRightClick(event) {
