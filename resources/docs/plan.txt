@@ -1,13 +1,19 @@
 === IMPLEMENTED ===
-* Basic
-Game Setup: Player Name, Player Color, Enemy Quantity, Map Size
-Game Canvas: Place Building
+* Mechanics
+Command Bar
 Production Panel: Train Building, Train Unit
+Map Canvas: Place Building, Select Building, Select Unit, Move Unit, Set Rally Point / Waypoint
+    Placement Indicator: Placeable, Not Placeable
+    Map Panning: WASD / Arrow Key, Screen Edge Cursor Push 
+    Production Building Quick Action Buttons
 Unit: Move, Collide
 Building: Spawn Unit Trained by Production Panel
-Placement Indicator: Placeable, Not Placeable
 
-* Unit Types
+* Setup
+Setup UI: Player Name, Player Color, Enemy Quantity, Map Size
+Building: HQ
+
+* Units
 Unit List: Infantry, Vehicle, Aircraft, Naval
     Infantry: Guerilla, Rifler, Heavy Duty, Rocketeer, Tesla, Commando; Fixer, Apothecrist, Tinkerer
     
@@ -22,17 +28,18 @@ Unit List: Infantry, Vehicle, Aircraft, Naval
 
     Super Unit: Super Commando, Super Tank, Super Airship, Super Cruiser
 
-* Building Types
-Building List: Barracks, Hangar, Radar, HQ, Corporation, Dock, Airbase
+Unit Tags: Ground, Amphibious, Water, Air; Solid
 
-* Mechanics
-Map Panning: WASD / Arrow Key, Screen Edge Cursor Push 
+* Buildings
+Building List: Barracks, Hangar, Radar, HQ, Corporation, Dock, Airbase
+Building Types: Production, Economic, Command, Other
+Building Tags: Solid
+Prodcues: units producable for a building
 
 === IN-PROGRESS ===
 * Mechanics
 Shortest Path Algorithm: Collided Units
 Game Setup: Functionality
-Production: More Units and Buildings
 Battle Currency: 
     Battle Only: Meta Credits, Energy
     Counts Toward Global Currency: Nutritions, Metal
