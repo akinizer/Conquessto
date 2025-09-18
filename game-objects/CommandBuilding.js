@@ -5,6 +5,7 @@ export class CommandBuilding extends Building {
         // Pass the correct tags as an array to the parent constructor.
         // The itemData is passed as the final argument.
         super(id, team, x, y, canvas, gameController, ['solid', 'structure', 'command'], itemData);
+        this.type = "CommandBuilding";
 
         // The width and height are now correctly inherited from the itemData property via the parent class.
     }

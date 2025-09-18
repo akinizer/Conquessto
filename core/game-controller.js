@@ -257,12 +257,11 @@ export class GameController {
         }
 
         // Use the new, centralized selection method
-        console.log(clickedObject)
         this._selectObject(clickedObject);
     }
 
     _selectObject(object) {
-        // Deselect everything first to ensure a clean state
+        // Deselect all previous objects
         this.gameState.selectedUnits.forEach(unit => unit.deselect());
         this.gameState.selectedUnits = [];
         if (this.gameState.productionBuilding) {
@@ -270,28 +269,39 @@ export class GameController {
             this.gameState.productionBuilding = null;
         }
 
-        // Handle selection based on the object type
         if (object) {
-            if (object.type === "ProductionBuilding") {
-                this.gameState.productionBuilding = object;
-                this.gameState.productionBuilding.select();
-                this.uiController.setStatus(`${this.gameState.productionBuilding.name} ${this.gameState.productionBuilding.id} selected as primary.`);
-                this.gameState.productionBuilding.rallyPoint.x = object.x;
-                this.gameState.productionBuilding.rallyPoint.y = object.y;
-                console.log('Building selected:', this.gameState.productionBuilding.name, this.gameState.productionBuilding.id);
-            } else if (object.type === "Unit") {
-                this.gameState.selectedUnits.push(object);
-                object.select();
-                this.uiController.setStatus(`Unit ${object.id} selected.`);
-                console.log('Unit selected:', object.id);
+            // Log the entire object's data for debugging
+            console.log(`Selected object data:`, object);
+
+            switch (object.type) {
+                case "ProductionBuilding":
+                    this.gameState.productionBuilding = object;
+                    this.gameState.productionBuilding.select();
+                    this.uiController.setStatus(`${object.name} ${object.id} selected as primary.`);
+                    this.gameState.productionBuilding.rallyPoint.x = object.x;
+                    this.gameState.productionBuilding.rallyPoint.y = object.y;
+                    break;
+                case "CommandBuilding":
+                    this.uiController.setStatus(`Command Building ${object.id} selected.`);
+                    break;
+                case "EconomicBuilding":
+                    this.uiController.setStatus(`Economic Building ${object.id} selected.`);
+                    break;
+                case "Unit":
+                    this.gameState.selectedUnits.push(object);
+                    object.select();
+                    this.uiController.setStatus(`Unit ${object.id} selected.`);
+                    break;
+                default:
+                    this.uiController.setStatus(`Other object selected: ${object.id}`);
+                    break;
             }
         } else {
-            // Nothing was clicked, so deselect everything
-            this.uiController.setStatus("Ready.");
+            // Log for deselection
             console.log('Nothing selected. All objects deselected.');
+            this.uiController.setStatus("Ready.");
         }
     }
-
     onCanvasRightClick(event) {
         event.preventDefault();
         if (event.button !== 2) return;
