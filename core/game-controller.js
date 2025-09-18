@@ -1,5 +1,3 @@
-// core/game-controller.js
-
 import { GameState } from './game-state.js';
 import { Unit } from '../game-objects/Unit.js';
 import { ProductionBuilding } from '../game-objects/ProductionBuilding.js';
@@ -65,6 +63,28 @@ export class GameController {
         this.gameState.addObject(unit);
         return unit;
     }
+    
+    // 🛠️ NEW: A new method to place a building on the map.
+    // This is called from main.js to place the starting HQ.
+    placeBuilding(itemData, team, x, y) {
+        // Build the building and add it to the game state.
+        const newBuilding = this.buildBuilding(team, x, y, itemData);
+        
+        // Deselect any previous building to avoid conflicts.
+        if (this.gameState.productionBuilding) {
+            this.gameState.productionBuilding.deselect();
+        }
+        
+        // Make the newly placed building the primary production building.
+        this.gameState.productionBuilding = newBuilding;
+        
+        // Select the new building so the UI immediately reflects its production options.
+        this.gameState.productionBuilding.select();
+        
+        this.uiController.setStatus(`${itemData.name} placed successfully.`);
+        return newBuilding;
+    }
+
 
     trainItem(item, button) {
         const units = this.dataManager.getProductionItems().units;

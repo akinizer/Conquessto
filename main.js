@@ -12,7 +12,11 @@ window.onload = async () => {
     dataManager = new DataManager();
 
     await dataManager.loadProductionData();
-    const productionItems = dataManager.getProductionItems();
+    // 🛠️ FIX: Get the original structured object.
+    const productionData = dataManager.getProductionItems();
+    
+    // We can still create a combined array for other parts of the game.
+    const productionItems = [...productionData.units, ...productionData.buildings];
 
     // Dynamically load the game setup HTML content
     const setupMenuContainer = document.getElementById('setup-menu-container');
@@ -21,7 +25,8 @@ window.onload = async () => {
     setupMenuContainer.innerHTML = setupHtml;
 
     // The rest of the setup logic
-    uiController = new UIController(productionItems);
+    // 🛠️ FIX: Pass the structured productionData object.
+    uiController = new UIController(productionData);
 
     const gameSetup = new GameSetupUI((settings) => {
         console.log("Game settings:", settings);
@@ -31,9 +36,20 @@ window.onload = async () => {
         canvas.width = rect.width;
         canvas.height = rect.height;
 
-        gameController = new GameController(canvas, uiController);
+        gameController = new GameController(canvas, uiController, productionItems);
         uiController.gameController = gameController;
         uiController.initializeUI();
+
+        // 🛠️ NEW: Place the HQ building at the start of the game.
+        const hqItem = productionItems.find(item => item.name === "HQ");
+        if (hqItem) {
+            // Place the HQ for the player's team at a default location.
+            const spawnX = canvas.width * 0.25;
+            const spawnY = canvas.height * 0.5;
+            gameController.placeBuilding(hqItem, "friend", spawnX, spawnY);
+        } else {
+            console.error("HQ item data not found in production data.");
+        }
     });
 
     gameSetup.show();
