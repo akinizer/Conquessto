@@ -14,30 +14,58 @@ Setup UI: Player Name, Player Color, Enemy Quantity, Map Size
 Building: HQ
 
 * Units
-Unit List: Infantry, Vehicle, Aircraft, Naval
-    Infantry: Guerilla, Rifler, Heavy Duty, Rocketeer, Tesla, Commando; Fixer, Apothecrist, Tinkerer
+Unit List: Infantry, Vehicle, Aircraft, Naval, Terrashift
+    Infantry: Guerilla, Hunter, Heavy Duty, Rocketeer, Tesla, Commando, Hunt Wolf; Fixer, Apothecrist, Tinkerer
     
-    Offensive Vehicle: Basic Tank, Medium Tank, Heavy Tank
-    Transport Vehicle: IFC, APC, Hovercraft
+    Offensive Vehicle: Basic Tank, Medium Tank, Heavy Tank, Panterra
+    Transport Vehicle: IFC, APC, Sea Dragon, Leviathan
     Support Vehicle: Volatile, Disruptor
-    Entrench Vehicle: Anti-Air, Anti-Vehicle, Anti-Unit, Voyager, Mobile Radar
+    Entrench Vehicle: Flak Cannon, Baneblade, Sentry, Voyager, Mobile Radar
 
-    Aircraft: Anti-Air, Bomber, Helix, Kamikaze, Scout Drone
+    Drpnes: Scout Drone, Spotter, Talon, Striker Drone
 
-    Naval: Submarine, Cannoneer, Missile Platform, Anti-Air, Navigator
+    Aircraft: Interceptor, Bomber, Helix, Kamikaze, Griffon Rider
+
+    Naval: Submarine, Phantom, Manta, Cannoneer, Missile Platform, Guardian, Navigator
 
     Super Unit: Super Commando, Super Tank, Super Airship, Super Cruiser
 
-Unit Tags: Ground, Amphibious, Water, Air; Solid
+    Terrashift: Manta, Panterra
+
+Unit Tags: Ground, Amphibious, Water, Air; Solid, Phasing
 
 * Buildings
-Building List: Barracks, Hangar, Radar, HQ, Corporation, Dock, Airbase
+Building List: Barracks, Vehicle Factory, Hangar, Dock, Airbase, Genesis Workshop, HQ, Refinery, Radar
 Building Types: Production, Economic, Command, Other
 Building Tags: Solid
 Produces: units producable for production buildings, buildings producable for command buildings
+    Barracks: Infantry units
+    Vehicle Factory: Offensive Vehicles, Transport Vehicles, Entrench Vehicles, Support Vehicles
+    Hangar: Aircraft
+    Dock: Naval units
+    Airbase: Drones
+    Genesis Workshop: Super Units
+    HQ: Production Buildings
+
+* UI
+Building Shapes: 
+    Select: Green border 
+    Production, Economic, Other: Gray background 
+    Command: Green background
+
+Unit Shapes:
+    Infantry: Blue Circle
+    Ground Vehicle: Blue Square
+    Aircraft Vehicle: Blue Triangle
+    Naval Vehicle: Blue Hexagon
+    Amphibious Vehicle: Blue Diamond  
+
+Hover Plate:
+    Unit and Building: Name, Energy Use, Type
 
 === IN-PROGRESS ===
 * Mechanics
+Terrashift: it has multiple forms and a base form
 Shortest Path Algorithm: Collided Units
 Game Setup: Functionality
 Battle Currency: 
@@ -107,3 +135,28 @@ Equippables & Slots:
     Shooting, Training, Warning (Credits, Energy)
 
 * Player Data (Name, Level, XP, Currencies, Achievements, Profile, Command Rank - Rookie to Grand Marshall), Autosave (Settings, Battle Results, Production Field States) ...
+
+
+
+=============BUGFIX-PLAN=======================
+
+*GameController.js
+
+### **Flawed Selection Logic**
+- **Function:** `_selectObject`
+- **Code Part:** This bug is found in the large `if (!isSameProductionBuilding)` block at the beginning. This logic is designed to deselect all objects before selecting a new one, which prevents multi-selection.
+
+---
+
+### **Collision Logic Mismatch**
+- **Function:** `isLocationClear`
+- **Code Part:** The bug is within the `if (otherObj.tags.includes('structure'))` block. The code inside this section uses circle-to-rectangle and circle-to-circle collision checks, which is inconsistent with how your game objects are defined as rectangles.
+
+---
+
+### **Redundant Code**
+- **Function:** `handleMouseDown`
+- **Code Part:** This function is redundant because it simply calls another function, `onCanvasClick`. The logic for a left-click should be moved directly into `handleMouseDown`.
+
+- **Function:** `handleMouseMove`
+- **Code Part:** The entire `handleMouseMove` function is a duplicate of `onCanvasMouseMove` and is never called by any event listener, making it dead code.

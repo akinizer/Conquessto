@@ -467,45 +467,6 @@ export class GameController {
         return null;
     }
 
-    handleMouseMove(event) {
-        const panSpeed = 10;
-        const edgeMargin = 50;
-        let newCursor = 'default';
-
-        // Check for edge panning and set the cursor
-        if (event.clientX < edgeMargin && event.clientY < edgeMargin) {
-            this.viewport.x = Math.max(0, this.viewport.x - panSpeed);
-            this.viewport.y = Math.max(0, this.viewport.y - panSpeed);
-            newCursor = 'nw-resize';
-        } else if (event.clientX > window.innerWidth - edgeMargin && event.clientY < edgeMargin) {
-            this.viewport.x = Math.min(this.WORLD_WIDTH - this.canvas.width, this.viewport.x + panSpeed);
-            this.viewport.y = Math.max(0, this.viewport.y - panSpeed);
-            newCursor = 'ne-resize';
-        } else if (event.clientX > window.innerWidth - edgeMargin && event.clientY > window.innerHeight - edgeMargin) {
-            this.viewport.x = Math.min(this.WORLD_WIDTH - this.canvas.width, this.viewport.x + panSpeed);
-            this.viewport.y = Math.min(this.WORLD_HEIGHT - this.canvas.height, this.viewport.y + panSpeed);
-            newCursor = 'se-resize';
-        } else if (event.clientX < edgeMargin && event.clientY > window.innerHeight - edgeMargin) {
-            this.viewport.x = Math.max(0, this.viewport.x - panSpeed);
-            this.viewport.y = Math.min(this.WORLD_HEIGHT - this.canvas.height, this.viewport.y + panSpeed);
-            newCursor = 'sw-resize';
-        } else if (event.clientX < edgeMargin) {
-            this.viewport.x = Math.max(0, this.viewport.x - panSpeed);
-            newCursor = 'w-resize';
-        } else if (event.clientX > window.innerWidth - edgeMargin) {
-            this.viewport.x = Math.min(this.WORLD_WIDTH - this.canvas.width, this.viewport.x + panSpeed);
-            newCursor = 'e-resize';
-        } else if (event.clientY < edgeMargin) {
-            this.viewport.y = Math.max(0, this.viewport.y - panSpeed);
-            newCursor = 'n-resize';
-        } else if (event.clientY > window.innerHeight - edgeMargin) {
-            this.viewport.y = Math.min(this.WORLD_HEIGHT - this.canvas.height, this.viewport.y + panSpeed);
-            newCursor = 's-resize';
-        }
-
-        this.canvas.style.cursor = newCursor;
-    }
-
     // New: Handle keyboard input for camera movement
     handleKeyboardInput() {
         const panSpeed = 10;
