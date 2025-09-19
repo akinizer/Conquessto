@@ -61,7 +61,8 @@ Restrictions:
     Fog of war, line of sight (probably at end of plan)
     Buildings can be placed near HQ building, forward base or a captured territory building
 * Units
-Unit-Behaviors: Change Direction on Collision, Attack Enemy Units, Terrain Movement, Garrison, Group Select
+Unit-Behaviors: Change Direction on Collision, Attack Enemy Units - Shooting Mechanic, Terrain Movement, Garrison, Group Select
+    Filtering by Production Building
 Tags: Ground, Water, Air, Amphibious; Phasing, Solid
 * Faction
 Team: Friend, Enemy, Neutral
@@ -99,4 +100,10 @@ Equippables & Slots:
     Naval Slots
 * Visuals:
     Radar Map, Building Info Panel & Features, Unit / Building Hover Info, Notification; VFX, SFX; Game State Panel (Restart, Quit, Pause / Play)
+
+    Unit Shape, Building Shape, Rally Point Icon
+    Range
+* VFX
+    Shooting, Training, Warning (Credits, Energy)
+
 * Player Data (Name, Level, XP, Currencies, Achievements, Profile, Command Rank - Rookie to Grand Marshall), Autosave (Settings, Battle Results, Production Field States) ...

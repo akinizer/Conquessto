@@ -57,7 +57,8 @@
     { "name": "Airbase", "type": "Production", "cost": 800, "time": 900, "icon": "", "tags": ["Solid"], "width": 110, "height": 110,
       "produces": ["Super Airship"] },
 
-    { "name": "HQ", "type": "Command", "cost": 1000, "time": 1000, "icon": "", "tags": ["Solid"], "width": 120, "height": 120 },
+    { "name": "HQ", "type": "Command", "cost": 1000, "time": 1000, "icon": "", "tags": ["Solid"], "width": 120, "height": 120,
+      "produces": ["Barracks", "Vehicle Factory", "Hangar", "Dock", "Airbase", "Refinery", "Radar", "Genesis Workshop"] },
     { "name": "Refinery", "type": "Economic", "cost": 400, "time": 600, "icon": "", "tags": ["Solid"], "width": 80, "height": 80 },
     { "name": "Radar", "type": "Other", "cost": 300, "time": 400, "icon": "", "tags": ["Solid"], "width": 70, "height": 70 },
     { "name": "Genesis Workshop", "type": "Other", "cost": 600, "time": 800, "icon": "", "tags": ["Solid"], "width": 90, "height": 90 }

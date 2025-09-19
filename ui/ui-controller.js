@@ -23,19 +23,23 @@ export class UIController {
         this.productionGrid.innerHTML = '';
     }
 
-    // This is the core function for rendering buttons.
-    // It is called by the GameController on object selection.
     fillProducesTab(selectedObject) {
         this.productionGrid.innerHTML = ''; // Clear previous buttons
 
-        if (selectedObject) {
-            let itemsToDisplay = [];
-            
-            if (selectedObject.type === "ProductionBuilding") {
-                itemsToDisplay = this.productionItems.units;
-            } else if (selectedObject.type === "CommandBuilding") {
-                itemsToDisplay = this.productionItems.buildings;
+        if (selectedObject && selectedObject.itemData) {
+            // ✅ Use a new variable to hold the full list of potential items.
+            let allPossibleItems = [];
+            const itemType = selectedObject.itemData.type;
+
+            if (itemType === "Production") {
+                allPossibleItems = this.productionItems.units;
+            } else if (itemType === "Command") {
+                allPossibleItems = this.productionItems.buildings;
             }
+
+            // 🎯 The crucial step: Filter the list based on the 'produces' array.
+            const producesList = selectedObject.itemData.produces || [];
+            const itemsToDisplay = allPossibleItems.filter(item => producesList.includes(item.name));
             
             if (itemsToDisplay.length > 0) {
                 itemsToDisplay.forEach(item => {
@@ -49,7 +53,6 @@ export class UIController {
                     
                     this.productionGrid.appendChild(button);
                 });
-                // 🐛 FIX: Use selectedObject.itemData.name instead of selectedObject.name
                 this.setStatus(`${selectedObject.itemData.name} produces tab updated.`);
             } else {
                 this.productionGrid.innerHTML = '<p>This building produces nothing.</p>';
