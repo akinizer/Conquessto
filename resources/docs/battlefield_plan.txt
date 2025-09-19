@@ -1,4 +1,7 @@
 === IMPLEMENTED ===
+1.Battlefield
+* This content is now a page
+
 * Mechanics
 Command Bar
 Production Panel:  Produces Tab (Train Building, Train Unit), list filtered by building
@@ -22,7 +25,7 @@ Unit List: Infantry, Vehicle, Aircraft, Naval, Terrashift
     Support Vehicle: Volatile, Disruptor
     Entrench Vehicle: Flak Cannon, Baneblade, Sentry, Voyager, Mobile Radar
 
-    Drpnes: Scout Drone, Spotter, Talon, Striker Drone
+    Drones: Scout Drone, Spotter, Talon, Striker Drone
 
     Aircraft: Interceptor, Bomber, Helix, Kamikaze, Griffon Rider
 

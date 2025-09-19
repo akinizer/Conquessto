@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Conquessto</title>
+    <link rel="stylesheet" href="./src/ui/styles/base.css">
+    <link rel="stylesheet" href="./src/ui/styles/canvas.css">
+    <link rel="stylesheet" href="./src/ui/styles/side-panel.css">
+    <link rel="stylesheet" href="./src/ui/styles/buttons.css">
+    <link rel="stylesheet" href="./src/ui/styles/game-setup.css">
+    <link rel="stylesheet" href="./src/ui/styles/radar.css">
+    <link rel="stylesheet" href="./src/ui/styles/command-bar.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="main-area">
+            <canvas id="gameCanvas"></canvas>
+            <div id="command-bar">
+                <div class="command-group">
+                    <span id="resource-status">Resources: 1500</span>
+                </div>
+                <div class="command-group">
+                    <span id="game-time">Time: 00:00</span>
+                </div>
+                <div class="command-group">
+                    <span id="selected-unit-status">Unit: None Selected</span>
+                </div>
+            </div>
+        </div>
+        <div id="side-panel">
+            <div class="radar-module">
+                <canvas class="radar-canvas" width="150" height="150"></canvas>
+            </div>
+            <div id="panel-status">Ready.</div>
+            <div class="tabs">
+                <div class="tab" data-tab="produces">Produces</div>
+            </div>
+            <div id="production-grid"></div>
+        </div>
+    </div>
+    <div id="setup-menu-container"></div>
+    <div id="crosshair"></div>
+    <script type="module" src="main.js"></script>
+</body>
+</html>
