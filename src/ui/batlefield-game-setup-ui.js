@@ -13,7 +13,7 @@ export class GameSetupUI {
         this.init();
     }
 
-    init() {
+    init() { 
         this.cacheElements();
         this.renderColorPicker();
         this.setupEventListeners();

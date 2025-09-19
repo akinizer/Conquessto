@@ -7,7 +7,8 @@ export class DataManager {
 
   async loadProductionData() {
     try {
-      const response = await fetch('data/production-items.json');
+      const response = await fetch('src/data/production-items.json');
+      console.log("The current page's URL is:", window.location.href);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

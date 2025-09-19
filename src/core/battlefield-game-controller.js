@@ -1,10 +1,10 @@
-import { GameState } from './game-state.js';
-import { Unit } from '../game-objects/Unit.js';
-import { ProductionBuilding } from '../game-objects/ProductionBuilding.js';
-import { CommandBuilding } from '../game-objects/CommandBuilding.js';
-import { EconomicBuilding } from '../game-objects/EconomicBuilding.js';
-import { OtherBuilding } from '../game-objects/OtherBuilding.js';
-import { DataManager } from './data-manager.js';
+import { GameState } from './battlefield-game-state.js';
+import { Unit } from '../entities/Unit.js';
+import { ProductionBuilding } from '../entities/ProductionBuilding.js';
+import { CommandBuilding } from '../entities/CommandBuilding.js';
+import { EconomicBuilding } from '../entities/EconomicBuilding.js';
+import { OtherBuilding } from '../entities/OtherBuilding.js';
+import { DataManager } from './battlefield-data-manager.js';
 
 export class GameController {
     constructor(canvas, uiController) {
