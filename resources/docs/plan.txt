@@ -1,7 +1,7 @@
 === IMPLEMENTED ===
 * Mechanics
 Command Bar
-Production Panel:  Produces Tab (Train Building, Train Unit)
+Production Panel:  Produces Tab (Train Building, Train Unit), list filtered by building
 Map Canvas: Place Building, Select Building, Select Unit, Move Unit, Set Rally Point / Waypoint
     Placement Indicator: Placeable, Not Placeable
     Map Panning: WASD / Arrow Key, Screen Edge Cursor Push 
