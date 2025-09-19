@@ -5,15 +5,26 @@ export class UIController {
         this.tabButtons = document.querySelectorAll('.tab');
         this.panelStatus = document.getElementById('panel-status');
         this.gameController = null;
+
+        // NEW: Create and style the hover popup element
+        this.hoverPopup = document.createElement('div');
+        this.hoverPopup.id = 'hover-popup';
+        document.body.appendChild(this.hoverPopup);
+
+        // Apply basic inline styles for the popup
+        this.hoverPopup.style.position = 'absolute';
+        this.hoverPopup.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+        this.hoverPopup.style.color = 'white';
+        this.hoverPopup.style.padding = '5px';
+        this.hoverPopup.style.border = '1px solid white';
+        this.hoverPopup.style.borderRadius = '3px';
+        this.hoverPopup.style.display = 'none'; // Initially hidden
+        this.hoverPopup.style.pointerEvents = 'none'; // Prevents it from interfering with mouse events
     }
 
-    // Since there is only one tab, this method is simplified.
     initializeUI() {
         this.setStatus("Ready.");
     }
-
-    // This method is now redundant and can be removed.
-    // updateProductionQueueDisplay() { ... }
 
     setStatus(message) {
         this.panelStatus.textContent = message;
@@ -27,7 +38,6 @@ export class UIController {
         this.productionGrid.innerHTML = ''; // Clear previous buttons
 
         if (selectedObject && selectedObject.itemData) {
-            // ✅ Use a new variable to hold the full list of potential items.
             let allPossibleItems = [];
             const itemType = selectedObject.itemData.type;
 
@@ -37,7 +47,6 @@ export class UIController {
                 allPossibleItems = this.productionItems.buildings;
             }
 
-            // 🎯 The crucial step: Filter the list based on the 'produces' array.
             const producesList = selectedObject.itemData.produces || [];
             const itemsToDisplay = allPossibleItems.filter(item => producesList.includes(item.name));
             
@@ -60,6 +69,23 @@ export class UIController {
             }
         } else {
             this.productionGrid.innerHTML = '';
+        }
+    }
+
+    // NEW: Method to update the hover popup
+    updateHoverPopup(gameObject, clientX, clientY) {
+        if (gameObject) {
+            this.hoverPopup.innerHTML = `
+                <strong>${gameObject.itemData.name}</strong><br>
+                Health: ${gameObject.health || 'N/A'}/${gameObject.itemData.maxHealth || 'N/A'}<br>
+                Type: ${gameObject.itemData.type}
+            `;
+            // Position the popup slightly offset from the cursor
+            this.hoverPopup.style.left = `${clientX + 15}px`;
+            this.hoverPopup.style.top = `${clientY + 15}px`;
+            this.hoverPopup.style.display = 'block';
+        } else {
+            this.hoverPopup.style.display = 'none';
         }
     }
 }

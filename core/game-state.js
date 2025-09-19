@@ -7,6 +7,10 @@ export class GameState {
         this.pendingBuilding = null;
         this.productionBuilding = null;
         this.selectedUnits = [];
+
+        // Hover Label
+        this.hoveredObject = null;
+        this.hoverTimeoutId = null; 
     }
 
     getNextId() {

@@ -24,7 +24,7 @@ export class GameController {
         this.canvas.addEventListener('mousedown', (event) => this.handleMouseDown(event));
         this.canvas.addEventListener('contextmenu', (event) => this.onCanvasRightClick(event));
         this.canvas.addEventListener('mousemove', (event) => this.onCanvasMouseMove(event));
-        this.canvas.addEventListener('mouseleave', () => this.canvas.style.cursor = 'default');
+        this.canvas.addEventListener('mouseleave', () => this.onCanvasMouseLeave());
 
         // New keyboard listeners for camera control
         this.keys = {};
@@ -359,8 +359,72 @@ export class GameController {
         }
     }
     onCanvasMouseMove(event) {
-        const mousePos = this.getMousePos(event);
-        this.pendingBuildingCursorPosition = mousePos;
+        try {
+            // --- Part 1: Edge Panning & Cursor Change ---
+            const panSpeed = 10;
+            const edgeMargin = 50;
+            let newCursor = 'default';
+
+            if (event.clientX < edgeMargin) {
+                this.viewport.x = Math.max(0, this.viewport.x - panSpeed);
+                newCursor = 'w-resize';
+            } else if (event.clientX > window.innerWidth - edgeMargin) {
+                this.viewport.x = Math.min(this.WORLD_WIDTH - this.canvas.width, this.viewport.x + panSpeed);
+                newCursor = 'e-resize';
+            }
+
+            if (event.clientY < edgeMargin) {
+                this.viewport.y = Math.max(0, this.viewport.y - panSpeed);
+                newCursor = newCursor === 'w-resize' ? 'nw-resize' : (newCursor === 'e-resize' ? 'ne-resize' : 'n-resize');
+            } else if (event.clientY > window.innerHeight - edgeMargin) {
+                this.viewport.y = Math.min(this.WORLD_HEIGHT - this.canvas.height, this.viewport.y + panSpeed);
+                newCursor = newCursor === 'w-resize' ? 'sw-resize' : (newCursor === 'e-resize' ? 'se-resize' : 's-resize');
+            }
+
+            this.canvas.style.cursor = newCursor;
+
+            // --- Part 2: Building Placement Cursor ---
+            this.pendingBuildingCursorPosition = this.getMousePos(event);
+
+            // --- Part 3: Delayed Hover Logic ---
+            const mousePos = this.getMousePos(event);
+            const objectUnderMouse = this.getObjectAt(mousePos.x, mousePos.y);
+
+            const rect = this.canvas.getBoundingClientRect();
+            const clientX = event.clientX;
+            const clientY = event.clientY;
+
+            if (objectUnderMouse) {
+                console.log("Hover: Object detected:", objectUnderMouse.itemData.name);
+            } else {
+                console.log("Hover: No object detected.");
+            }
+
+            if (objectUnderMouse !== this.gameState.hoveredObject) {
+                this.gameState.hoveredObject = objectUnderMouse;
+                clearTimeout(this.gameState.hoverTimeoutId);
+
+                if (objectUnderMouse) {
+                    this.gameState.hoverTimeoutId = setTimeout(() => {
+                        if (this.gameState.hoveredObject === objectUnderMouse) {
+                            this.uiController.updateHoverPopup(objectUnderMouse, clientX, clientY);
+                        }
+                    }, 1000);
+                } else {
+                    this.uiController.updateHoverPopup(null, 0, 0);
+                }
+            }
+        } catch (error) {
+            console.error("An error occurred in onCanvasMouseMove:", error);
+        }
+    }
+
+    onCanvasMouseLeave() {
+        // This is crucial for stopping the timer and hiding the popup
+        clearTimeout(this.gameState.hoverTimeoutId);
+        this.gameState.hoveredObject = null;
+        this.uiController.updateHoverPopup(null, 0, 0); 
+        this.canvas.style.cursor = 'default';
     }
 
     // New function to correctly calculate mouse position relative to the scaled canvas
