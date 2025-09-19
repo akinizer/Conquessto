@@ -56,6 +56,15 @@ export class UIController {
                     button.textContent = item.name;
                     button.className = 'produces-button';
 
+                    // NEW: Add mouseover and mouseout event listeners
+                    button.addEventListener('mouseover', (e) => {
+                        this.showProductionPopup(item, e.clientX, e.clientY);
+                    });
+
+                    button.addEventListener('mouseout', () => {
+                        this.hideProductionPopup();
+                    });
+
                     button.onclick = () => {
                         this.gameController.trainItem(item, button);
                     };
@@ -70,6 +79,24 @@ export class UIController {
         } else {
             this.productionGrid.innerHTML = '';
         }
+    }
+
+    // UPDATED: Method to show the hover popup with description, cost, and time
+    showProductionPopup(item, clientX, clientY) {
+        this.hoverPopup.innerHTML = `
+            <strong>${item.name}</strong><br>
+            ${item.description || 'No description available.'}<br>
+            Cost: ${item.cost}<br>
+            Time: ${item.time}s
+        `;
+        this.hoverPopup.style.left = `${clientX + 15}px`;
+        this.hoverPopup.style.top = `${clientY + 15}px`;
+        this.hoverPopup.style.display = 'block';
+    }
+
+    // NEW: Method to hide the hover popup
+    hideProductionPopup() {
+        this.hoverPopup.style.display = 'none';
     }
 
     // NEW: Method to update the hover popup

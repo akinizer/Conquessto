@@ -33,6 +33,7 @@ Unit List: Infantry, Vehicle, Aircraft, Naval, Terrashift
     Terrashift: Manta, Panterra
 
 Unit Tags: Ground, Amphibious, Water, Air; Solid, Phasing
+Unit Descriptions
 
 * Buildings
 Building List: Barracks, Vehicle Factory, Hangar, Dock, Airbase, Genesis Workshop, HQ, Refinery, Radar
@@ -46,6 +47,8 @@ Produces: units producable for production buildings, buildings producable for co
     Airbase: Drones
     Genesis Workshop: Super Units
     HQ: Production Buildings
+
+Building Descriptions
 
 * UI
 Building Shapes: 
@@ -61,7 +64,8 @@ Unit Shapes:
     Amphibious Vehicle: Blue Diamond  
 
 Hover Plate:
-    Unit and Building: Name, Energy Use, Type
+    Unit and Building Objects: Name, Energy Use, Type
+    Produces: Name, Description, Cost, Train Time
 
 === IN-PROGRESS ===
 * Mechanics
