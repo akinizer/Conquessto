@@ -1,10 +1,10 @@
 import { GameObject } from './GameObject.js';
 
 export class Unit extends GameObject {
-    constructor(id, team, x, y, width, height, canvas, gameController, tags = []) {
+    constructor(id, team, x, y, width, height, canvas, gameController, itemData, tags = []) {
         super(id, "Unit", team, x, y, canvas, gameController, tags);
 
-            // 🔑 Set the width and height from the constructor parameters
+        // 🔑 Set the width and height from the constructor parameters
         this.width = width;
         this.height = height;
 
@@ -18,17 +18,19 @@ export class Unit extends GameObject {
         this.searchRange = 200;
         this.gameController = gameController;
         this.tags = tags;
+
+        this.itemData = itemData; // 👈 Add this line
     }
 
-    select() {
+    select = () => {
         this.isSelected = true;
     }
 
-    deselect() {
+    deselect = () => {
         this.isSelected = false;
     }
 
-    draw() {
+    draw = () => {
         const ctx = this.canvas.getContext('2d');
         const size = 15;
         const color = this.team === "friend" ? "blue" : "red";
@@ -52,31 +54,34 @@ export class Unit extends GameObject {
         ctx.fillRect(this.x - barWidth / 2, this.y - 25, healthWidth, barHeight);
     }
     
-    moveTo(destX, destY) {
+    moveTo = (destX, destY) => {
         this.targetX = destX;
         this.targetY = destY;
         this.attackTarget = null;
     }
 
-    findClosestEnemy() {
+    findClosestEnemy = () => {
         let closestEnemy = null;
         let minDistance = Infinity;
 
-        for (const id in this.gameController.gameObjects) {
-            const obj = this.gameController.gameObjects[id];
-            if (obj.team !== this.team) {
-                const distance = Math.sqrt(Math.pow(obj.x - this.x, 2) + Math.pow(obj.y - this.y, 2));
+        // ✅ This code should now work without an error
+        for (const id in this.gameController.gameState.gameObjects) {
+            const obj = this.gameController.gameState.gameObjects[id];
+
+            // Ensure the object is an enemy and not the unit itself
+            if (obj.team !== this.team && obj.id !== this.id) {
+                const distance = Math.hypot(this.x - obj.x, this.y - obj.y);
+
                 if (distance < minDistance) {
                     minDistance = distance;
                     closestEnemy = obj;
                 }
             }
         }
-        
-        return minDistance <= this.searchRange ? closestEnemy : null;
+        return closestEnemy;
     }
 
-    _checkCollision(newX, newY, ignoreObject = null) {
+    _checkCollision = (newX, newY, ignoreObject = null) => {
         const tempUnit = {
             id: this.id,
             x: newX,
@@ -127,7 +132,7 @@ export class Unit extends GameObject {
         return false;
     }
 
-    update() {
+    update = () => {
         if (this.attackTarget) {
             const distance = Math.sqrt(Math.pow(this.attackTarget.x - this.x, 2) + Math.pow(this.attackTarget.y - this.y, 2));
             if (distance > this.attackRange) {

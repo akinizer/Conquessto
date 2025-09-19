@@ -7,80 +7,56 @@ export class UIController {
         this.gameController = null;
     }
 
+    // Since there is only one tab, this method is simplified.
     initializeUI() {
-        this.tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                this.tabButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                const tabType = button.getAttribute('data-tab');
-                
-                if (tabType === 'produces') {
-                    this.updateProductionQueueDisplay();
-                } else {
-                    this.renderProductionButtons(this.productionItems[tabType]);
-                }
-            });
-        });
-        document.querySelector('.tab[data-tab="units"]').click();
         this.setStatus("Ready.");
     }
 
-    renderProductionButtons(items) {
-        this.productionGrid.innerHTML = '';
-        items.forEach(item => {
-            const button = document.createElement('div');
-            button.className = 'unit-button';
-            button.textContent = item.name;
-
-            button.onclick = () => {
-                this.gameController.trainItem(item, button);
-            };
-            this.productionGrid.appendChild(button);
-        });
-    }
-    
-    // NEW: Function to display items based on selected building's subtype
-    updateProductionQueueDisplay() {
-        this.productionGrid.innerHTML = '';
-        const building = this.gameController.gameState.productionBuilding;
-        if (!building) {
-            this.setStatus("No production building selected.");
-            return;
-        }
-
-        const buildingType = building.itemData.subtype;
-        let itemsToDisplay = [];
-        let statusMessage = "Displaying produces items.";
-
-        if (buildingType === 'Production') {
-            itemsToDisplay = this.productionItems.units;
-        } else if (buildingType === 'Command') {
-            itemsToDisplay = this.productionItems.buildings;
-        } else {
-            this.setStatus("This building does not produce anything.");
-            return;
-        }
-
-        // If no items are available for the type
-        if (itemsToDisplay.length === 0) {
-            this.setStatus("No items to display for this building type.");
-            return;
-        }
-
-        // Reuse the existing rendering function
-        this.renderProductionButtons(itemsToDisplay);
-        this.setStatus(statusMessage);
-    }
+    // This method is now redundant and can be removed.
+    // updateProductionQueueDisplay() { ... }
 
     setStatus(message) {
         this.panelStatus.textContent = message;
     }
 
     clearProductionPanel() {
-        const productionPanel = document.getElementById('production-grid');
-        if (productionPanel) {
-            productionPanel.innerHTML = '';
-        }
+        this.productionGrid.innerHTML = '';
     }
 
+    // This is the core function for rendering buttons.
+    // It is called by the GameController on object selection.
+    fillProducesTab(selectedObject) {
+        this.productionGrid.innerHTML = ''; // Clear previous buttons
+
+        if (selectedObject) {
+            let itemsToDisplay = [];
+            
+            if (selectedObject.type === "ProductionBuilding") {
+                itemsToDisplay = this.productionItems.units;
+            } else if (selectedObject.type === "CommandBuilding") {
+                itemsToDisplay = this.productionItems.buildings;
+            }
+            
+            if (itemsToDisplay.length > 0) {
+                itemsToDisplay.forEach(item => {
+                    const button = document.createElement('button');
+                    button.textContent = item.name;
+                    button.className = 'produces-button';
+
+                    button.onclick = () => {
+                        this.gameController.trainItem(item, button);
+                    };
+                    
+                    this.productionGrid.appendChild(button);
+                });
+                // 🐛 FIX: Use selectedObject.itemData.name instead of selectedObject.name
+                this.setStatus(`${selectedObject.itemData.name} produces tab updated.`);
+            } else {
+                this.productionGrid.innerHTML = '<p>This building produces nothing.</p>';
+                this.setStatus("Nothing to produce.");
+            }
+        } else {
+            this.productionGrid.innerHTML = '';
+        }
+    }
 }

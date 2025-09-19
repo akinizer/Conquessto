@@ -1,9 +1,9 @@
 // game-objects/ProductionBuilding.js
 import { Building } from './Building.js'; // You need to import the parent class
 export class ProductionBuilding extends Building {
-    constructor(id, team, x, y, canvas, gameController) {
-        // Pass common properties to the parent Building class
-        super(id, team, x, y, canvas, gameController, ['solid', 'structure']);
+    constructor(id, team, x, y, canvas, gameController, itemData) {
+        // 2. Pass 'itemData' to the parent 'super' constructor
+        super(id, team, x, y, canvas, gameController, ['solid', 'structure'], itemData);
 
         this.type = "ProductionBuilding";
         this.productionQueue = [];
@@ -154,7 +154,7 @@ export class ProductionBuilding extends Building {
                 
                 // Log successful spawn
                 console.log("Unit spawned successfully!");
-                const newUnit = this.gameController.spawnUnit(this.team, spawnPoint.x, spawnPoint.y);
+                const newUnit = this.gameController.spawnUnit(this.team, spawnPoint.x, spawnPoint.y, itemToProduce.item);
                 newUnit.moveTo(this.rallyPoint.x, this.rallyPoint.y);
                 
                 this.productionQueue.shift();

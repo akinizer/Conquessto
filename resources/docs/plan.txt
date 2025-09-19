@@ -1,13 +1,13 @@
 === IMPLEMENTED ===
 * Mechanics
 Command Bar
-Production Panel: Train Building, Train Unit
+Production Panel:  Produces Tab (Train Building, Train Unit)
 Map Canvas: Place Building, Select Building, Select Unit, Move Unit, Set Rally Point / Waypoint
     Placement Indicator: Placeable, Not Placeable
     Map Panning: WASD / Arrow Key, Screen Edge Cursor Push 
     Production Building Quick Action Buttons
-Unit: Move, Collide
-Building: Spawn Unit Trained by Production Panel
+Unit: Move, Collide, Train
+Building: Spawn Units Trained by Production Panel, Rally Point
 
 * Setup
 Setup UI: Player Name, Player Color, Enemy Quantity, Map Size
@@ -34,7 +34,7 @@ Unit Tags: Ground, Amphibious, Water, Air; Solid
 Building List: Barracks, Hangar, Radar, HQ, Corporation, Dock, Airbase
 Building Types: Production, Economic, Command, Other
 Building Tags: Solid
-Prodcues: units producable for a building
+Produces: units producable for production buildings, buildings producable for command buildings
 
 === IN-PROGRESS ===
 * Mechanics

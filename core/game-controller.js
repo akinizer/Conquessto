@@ -52,31 +52,35 @@ export class GameController {
 
     // MECHANISMS //
     buildBuilding(team, x, y, itemData) {
-    const id = this.gameState.getNextId();
-    let building;
+        const id = this.gameState.getNextId();
+        let building;
 
-    // FIX: Check the itemData type to create the correct building object.
-    if (itemData.type === "Production") {
-        building = new ProductionBuilding(id, team, x, y, this.canvas, this, itemData);
-    } else if (itemData.type === "Command") {
-        building = new CommandBuilding(id, team, x, y, this.canvas, this, itemData);
-    } else if (itemData.type === "Economic") {
-        // NEW: Instantiate an EconomicBuilding for economic types.
-        building = new EconomicBuilding(id, team, x, y, this.canvas, this, itemData);
-    } else {
-        // Default to the specific OtherBuilding class for other types.
-        building = new OtherBuilding(id, team, x, y, this.canvas, this, itemData);
+        // FIX: Check the itemData type to create the correct building object.
+        if (itemData.type === "Production") {
+            building = new ProductionBuilding(id, team, x, y, this.canvas, this, itemData);
+        } else if (itemData.type === "Command") {
+            building = new CommandBuilding(id, team, x, y, this.canvas, this, itemData);
+        } else if (itemData.type === "Economic") {
+            // NEW: Instantiate an EconomicBuilding for economic types.
+            building = new EconomicBuilding(id, team, x, y, this.canvas, this, itemData);
+        } else {
+            // Default to the specific OtherBuilding class for other types.
+            building = new OtherBuilding(id, team, x, y, this.canvas, this, itemData);
+        }
+
+        this.gameState.addObject(building);
+        return building;
     }
 
-    this.gameState.addObject(building);
-    return building;
-}
 
 
-
-    spawnUnit(team, x, y, width, height) {
+    spawnUnit(team, x, y, itemData) {
         const id = this.gameState.getNextId();
-        const unit = new Unit(id, team, x, y, width, height, this.canvas, this);
+        // Pass the entire itemData object to the Unit constructor
+        console.log(itemData)
+        const unitWidth = itemData.width || 30;
+        const unitHeight = itemData.height || 30;
+        const unit = new Unit(id, team, x, y, unitWidth, unitHeight, this.canvas, this, itemData);
         this.gameState.addObject(unit);
         return unit;
     }
@@ -169,7 +173,6 @@ export class GameController {
         const { width, height } = this.dataManager.getProductionItems().units[0];
         return this._isAreaClear(x, y, width, height, ignoreObject);
     }
-
     isLocationClear(x, y, dimensions, ignoreObject = null) {
         const tempUnit = {
             x: x,
@@ -181,9 +184,11 @@ export class GameController {
         
         for (const objId in this.gameState.gameObjects) {
             const otherObj = this.gameState.gameObjects[objId];
+            console.log(otherObj)
 
             // Skip ignored object (the building itself) or non-solid objects
-            if (otherObj === ignoreObject || !otherObj.tags.includes('solid')) {
+            if (otherObj === ignoreObject) continue;
+            if (!Array.isArray(otherObj.tags) || !otherObj.tags.includes('solid')) {
                 continue;
             }
 
@@ -219,6 +224,7 @@ export class GameController {
         }
         return true; // No collisions found
     }
+
 
     // MOUSE EVENTS //
     
@@ -261,45 +267,64 @@ export class GameController {
     }
 
     _selectObject(object) {
-        // Deselect all previous objects
-        this.gameState.selectedUnits.forEach(unit => unit.deselect());
-        this.gameState.selectedUnits = [];
-        if (this.gameState.productionBuilding) {
-            this.gameState.productionBuilding.deselect();
-            this.gameState.productionBuilding = null;
+        // Check if the selected object is the current production building
+        const isSameProductionBuilding = this.gameState.productionBuilding && (object === this.gameState.productionBuilding);
+
+        // If a different object is selected, deselect everything
+        if (!isSameProductionBuilding) {
+            this.gameState.selectedUnits.forEach(unit => unit.deselect());
+            this.gameState.selectedUnits = [];
+            if (this.gameState.productionBuilding) {
+                this.gameState.productionBuilding.deselect();
+                this.gameState.productionBuilding = null;
+            }
         }
 
-        if (object) {
-            // Log the entire object's data for debugging
+        if (object && object.itemData) {
             console.log(`Selected object data:`, object);
 
-            switch (object.type) {
-                case "ProductionBuilding":
-                    this.gameState.productionBuilding = object;
-                    this.gameState.productionBuilding.select();
-                    this.uiController.setStatus(`${object.name} ${object.id} selected as primary.`);
-                    this.gameState.productionBuilding.rallyPoint.x = object.x;
-                    this.gameState.productionBuilding.rallyPoint.y = object.y;
+            switch (object.itemData.type) {
+                case "Production":
+                    // If it's the same production building, don't re-select it or reset the rally point.
+                    if (!isSameProductionBuilding) {
+                        this.gameState.productionBuilding = object;
+                        this.gameState.productionBuilding.select();
+                        this.uiController.setStatus(`${object.itemData.name} selected as primary.`);
+                        
+                        // Initialize rally point if it doesn't exist
+                        if (!this.gameState.productionBuilding.rallyPoint) {
+                            this.gameState.productionBuilding.rallyPoint = { x: object.x, y: object.y };
+                        }
+                    }
+                    this.uiController.fillProducesTab(object);
                     break;
-                case "CommandBuilding":
-                    this.uiController.setStatus(`Command Building ${object.id} selected.`);
+                case "Command":
+                case "Economic":
+                    this.uiController.setStatus(`${object.itemData.name} selected.`);
+                    this.uiController.fillProducesTab(object);
                     break;
-                case "EconomicBuilding":
-                    this.uiController.setStatus(`Economic Building ${object.id} selected.`);
-                    break;
-                case "Unit":
+                case "Infantry":
+                case "Offensive Vehicle":
+                case "Transport Vehicle":
+                case "Support Vehicle":
+                case "Entrench Vehicle":
+                case "Aircraft":
+                case "Naval":
+                case "Super Unit":
                     this.gameState.selectedUnits.push(object);
                     object.select();
-                    this.uiController.setStatus(`Unit ${object.id} selected.`);
+                    this.uiController.setStatus(`Unit ${object.itemData.name} selected.`);
+                    this.uiController.fillProducesTab(null);
                     break;
                 default:
-                    this.uiController.setStatus(`Other object selected: ${object.id}`);
+                    this.uiController.setStatus(`${object.itemData.name} selected.`);
+                    this.uiController.fillProducesTab(null);
                     break;
             }
         } else {
-            // Log for deselection
             console.log('Nothing selected. All objects deselected.');
             this.uiController.setStatus("Ready.");
+            this.uiController.fillProducesTab(null);
         }
     }
     onCanvasRightClick(event) {
@@ -316,21 +341,23 @@ export class GameController {
             return;
         }
 
+        // This is the correct logical flow.
+        // Check if any units are selected first.
         if (this.gameState.selectedUnits.length > 0) {
             this.gameState.selectedUnits.forEach(unit => {
                 unit.moveTo(mouseX, mouseY);
             });
             this.uiController.setStatus("Unit(s) moving.");
-            return;
-        }
-
+            return; // ✅ Crucial: Exit the function after handling unit movement.
+        } 
+        
+        // Only if no units are selected, check for a production building to set a rally point.
         if (this.gameState.productionBuilding) {
             this.gameState.productionBuilding.rallyPoint.x = mouseX;
             this.gameState.productionBuilding.rallyPoint.y = mouseY;
             this.uiController.setStatus("Rally point set.");
         }
     }
-
     onCanvasMouseMove(event) {
         const mousePos = this.getMousePos(event);
         this.pendingBuildingCursorPosition = mousePos;
@@ -345,22 +372,34 @@ export class GameController {
         return { x: mouseX + this.viewport.x, y: mouseY + this.viewport.y };
     }
 
+   // Replace your existing getObjectAt function with this revised version
     getObjectAt(x, y) {
-        if (this.gameState.productionBuilding && this.gameState.productionBuilding.selected) {
-            const rect = this.gameState.productionBuilding.featureBarRect;
-            if (rect && x >= rect.x && x <= rect.x + rect.width && y >= rect.y && y <= rect.y + rect.height) {
-                return this.gameState.productionBuilding;
-            }
-        }
-        
-        for (const id in this.gameState.gameObjects) {
-            const obj = this.gameState.gameObjects[id];
-            const distance = Math.sqrt(Math.pow(obj.x - x, 2) + Math.pow(obj.y - y, 2));
-            const hitRadius = (obj.type === "Unit") ? 15 : 40;
-            if (distance < hitRadius) {
+        // Loop through game objects in reverse order to check top-most objects first
+        // (This is useful if you have a drawing order where units are drawn on top of buildings)
+        const objectIds = Object.keys(this.gameState.gameObjects);
+        for (let i = objectIds.length - 1; i >= 0; i--) {
+            const obj = this.gameState.gameObjects[objectIds[i]];
+
+            // Get the dimensions, prioritizing direct properties over itemData
+            const objWidth = obj.width || (obj.itemData ? obj.itemData.width : 0);
+            const objHeight = obj.height || (obj.itemData ? obj.itemData.height : 0);
+
+            // If dimensions are not available, skip the object
+            if (objWidth === 0 || objHeight === 0) continue;
+
+            const objLeft = obj.x - objWidth / 2;
+            const objRight = obj.x + objWidth / 2;
+            const objTop = obj.y - objHeight / 2;
+            const objBottom = obj.y + objHeight / 2;
+
+            // Perform a simple rectangle-to-point collision check
+            if (x >= objLeft && x <= objRight && y >= objTop && y <= objBottom) {
+                // Found a match, return the object
                 return obj;
             }
         }
+        
+        // No object was found at the given coordinates
         return null;
     }
 

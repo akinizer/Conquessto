@@ -7,49 +7,59 @@
     { "name": "Tesla", "type": "Infantry", "cost": 80, "time": 320, "icon": "", "tags": ["Ground"], "width": 35, "height": 35 },
     { "name": "Commando", "type": "Infantry", "cost": 100, "time": 350, "icon": "", "tags": ["Amphibious"], "width": 30, "height": 30 },
     { "name": "Fixer", "type": "Infantry", "cost": 60, "time": 250, "icon": "", "tags": ["Ground"], "width": 30, "height": 30 },
-    { "name": "Apothecrist", "type": "Infantry", "cost": 60, "time": 250, "icon": "", "tags": ["Ground"], "width": 30, "height": 30 },
+    { "name": "Apotheke", "type": "Infantry", "cost": 60, "time": 250, "icon": "", "tags": ["Ground"], "width": 30, "height": 30 },
     { "name": "Tinkerer", "type": "Infantry", "cost": 60, "time": 250, "icon": "", "tags": ["Ground"], "width": 30, "height": 30 },
+
     { "name": "Basic Tank", "type": "Offensive Vehicle", "cost": 150, "time": 400, "icon": "", "tags": ["Ground", "Solid"], "width": 50, "height": 50 },
     { "name": "Medium Tank", "type": "Offensive Vehicle", "cost": 200, "time": 500, "icon": "", "tags": ["Ground", "Solid"], "width": 55, "height": 55 },
     { "name": "Heavy Tank", "type": "Offensive Vehicle", "cost": 300, "time": 700, "icon": "", "tags": ["Ground", "Solid"], "width": 60, "height": 60 },
+
     { "name": "IFC", "type": "Transport Vehicle", "cost": 120, "time": 350, "icon": "", "tags": ["Ground", "Solid"], "width": 45, "height": 45 },
     { "name": "APC", "type": "Transport Vehicle", "cost": 100, "time": 300, "icon": "", "tags": ["Ground", "Solid"], "width": 45, "height": 45 },
-    { "name": "Hovercraft", "type": "Transport Vehicle", "cost": 180, "time": 450, "icon": "", "tags": ["Amphibious", "Solid"], "width": 50, "height": 50 },
+    { "name": "Leviathan", "type": "Transport Vehicle", "cost": 180, "time": 450, "icon": "", "tags": ["Amphibious", "Solid"], "width": 50, "height": 50 },
     { "name": "Sea Dragon", "type": "Transport Vehicle", "cost": 220, "time": 550, "icon": "", "tags": ["Air", "Phasing"], "width": 55, "height": 55 },
+
     { "name": "Volatile", "type": "Support Vehicle", "cost": 100, "time": 300, "icon": "", "tags": ["Ground", "Solid"], "width": 45, "height": 45 },
     { "name": "Disruptor", "type": "Support Vehicle", "cost": 110, "time": 320, "icon": "", "tags": ["Ground", "Solid"], "width": 45, "height": 45 },
+
     { "name": "Anti-Air", "type": "Entrench Vehicle", "cost": 130, "time": 350, "icon": "", "tags": ["Ground", "Solid"], "width": 50, "height": 50 },
     { "name": "Anti-Vehicle", "type": "Entrench Vehicle", "cost": 140, "time": 370, "icon": "", "tags": ["Ground", "Solid"], "width": 50, "height": 50 },
     { "name": "Anti-Unit", "type": "Entrench Vehicle", "cost": 120, "time": 330, "icon": "", "tags": ["Ground", "Solid"], "width": 50, "height": 50 },
     { "name": "Voyager", "type": "Entrench Vehicle", "cost": 150, "time": 400, "icon": "", "tags": ["Ground", "Solid"], "width": 55, "height": 55 },
     { "name": "Mobile Radar", "type": "Entrench Vehicle", "cost": 100, "time": 300, "icon": "", "tags": ["Ground", "Solid"], "width": 45, "height": 45 },
+
     { "name": "Anti-Air", "type": "Aircraft", "cost": 150, "time": 400, "icon": "", "tags": ["Air", "Phasing"], "width": 40, "height": 40 },
     { "name": "Bomber", "type": "Aircraft", "cost": 250, "time": 600, "icon": "", "tags": ["Air", "Phasing"], "width": 50, "height": 50 },
     { "name": "Helix", "type": "Aircraft", "cost": 200, "time": 500, "icon": "", "tags": ["Air", "Phasing"], "width": 45, "height": 45 },
     { "name": "Kamikaze", "type": "Aircraft", "cost": 100, "time": 300, "icon": "", "tags": ["Air", "Phasing"], "width": 35, "height": 35 },
     { "name": "Scout Drone", "type": "Aircraft", "cost": 50, "time": 200, "icon": "", "tags": ["Air", "Phasing"], "width": 30, "height": 30 },
+
     { "name": "Submarine", "type": "Naval", "cost": 200, "time": 500, "icon": "", "tags": ["Water", "Phasing"], "width": 55, "height": 55 },
     { "name": "Cannoneer", "type": "Naval", "cost": 250, "time": 600, "icon": "", "tags": ["Water", "Solid"], "width": 60, "height": 60 },
     { "name": "Missile Platform", "type": "Naval", "cost": 280, "time": 650, "icon": "", "tags": ["Water", "Solid"], "width": 60, "height": 60 },
     { "name": "Anti-Air", "type": "Naval", "cost": 220, "time": 550, "icon": "", "tags": ["Water", "Solid"], "width": 55, "height": 55 },
     { "name": "Navigator", "type": "Naval", "cost": 180, "time": 450, "icon": "", "tags": ["Water", "Solid"], "width": 50, "height": 50 },
+
     { "name": "Super Commando", "type": "Super Unit", "cost": 500, "time": 1000, "icon": "", "tags": ["Amphibious", "Solid"], "width": 60, "height": 60 },
     { "name": "Super Tank", "type": "Super Unit", "cost": 700, "time": 1200, "icon": "", "tags": ["Ground", "Solid"], "width": 70, "height": 70 },
     { "name": "Super Airship", "type": "Super Unit", "cost": 800, "time": 1500, "icon": "", "tags": ["Air", "Phasing"], "width": 75, "height": 75 },
     { "name": "Super Cruiser", "type": "Super Unit", "cost": 900, "time": 1800, "icon": "", "tags": ["Water", "Solid"], "width": 80, "height": 80 }
   ],
-   "buildings": [
+    "buildings": [
     { "name": "Barracks", "type": "Production", "cost": 200, "time": 500, "icon": "", "tags": ["Solid"], "width": 80, "height": 80,
-      "produces": ["Guerilla", "Rifler", "Heavy Duty", "Rocketeer", "Tesla", "Commando", "Fixer", "Apothecrist", "Tinkerer"] },
+      "produces": ["Guerilla", "Rifler", "Heavy Duty", "Rocketeer", "Tesla", "Commando", "Fixer", "Apotheke", "Tinkerer"] },
+    { "name": "Vehicle Factory", "type": "Production", "cost": 350, "time": 600, "icon": "", "tags": ["Solid"], "width": 90, "height": 90,
+      "produces": ["Basic Tank", "Medium Tank", "Heavy Tank", "IFC", "APC", "Leviathan", "Volatile", "Disruptor", "Anti-Air", "Anti-Vehicle", "Anti-Unit", "Voyager", "Mobile Radar", "Super Tank"] },
     { "name": "Hangar", "type": "Production", "cost": 500, "time": 700, "icon": "", "tags": ["Solid"], "width": 100, "height": 100,
-      "produces": ["Anti-Air", "Bomber", "Helix", "Kamikaze", "Scout Drone"] },
-    { "name": "Radar", "type": "Other", "cost": 300, "time": 400, "icon": "", "tags": ["Solid"], "width": 70, "height": 70 },
-    { "name": "HQ", "type": "Command", "cost": 1000, "time": 1000, "icon": "", "tags": ["Solid"], "width": 120, "height": 120 },
-    { "name": "Corporation", "type": "Other", "cost": 600, "time": 800, "icon": "", "tags": ["Solid"], "width": 90, "height": 90 },
-    { "name": "Refinery", "type": "Economic", "cost": 400, "time": 600, "icon": "", "tags": ["Solid"], "width": 80, "height": 80 },
+      "produces": ["Anti-Air", "Bomber", "Helix", "Kamikaze", "Scout Drone", "Sea Dragon"] },
     { "name": "Dock", "type": "Production", "cost": 500, "time": 700, "icon": "", "tags": ["Solid"], "width": 100, "height": 100,
-      "produces": ["Submarine", "Cannoneer", "Missile Platform", "Anti-Air", "Navigator"] },
+      "produces": ["Submarine", "Cannoneer", "Missile Platform", "Anti-Air", "Navigator", "Leviathan", "Super Commando", "Super Cruiser"] },
     { "name": "Airbase", "type": "Production", "cost": 800, "time": 900, "icon": "", "tags": ["Solid"], "width": 110, "height": 110,
-      "produces": ["Super Airship"] }
+      "produces": ["Super Airship"] },
+
+    { "name": "HQ", "type": "Command", "cost": 1000, "time": 1000, "icon": "", "tags": ["Solid"], "width": 120, "height": 120 },
+    { "name": "Refinery", "type": "Economic", "cost": 400, "time": 600, "icon": "", "tags": ["Solid"], "width": 80, "height": 80 },
+    { "name": "Radar", "type": "Other", "cost": 300, "time": 400, "icon": "", "tags": ["Solid"], "width": 70, "height": 70 },
+    { "name": "Genesis Workshop", "type": "Other", "cost": 600, "time": 800, "icon": "", "tags": ["Solid"], "width": 90, "height": 90 }
   ]
 }

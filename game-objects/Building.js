@@ -3,13 +3,19 @@
 import { GameObject } from './GameObject.js';
 
 export class Building extends GameObject {
-    constructor(id, team, x, y, canvas, gameController, tags = []) {
-        // We call super() with the 'Building' type and the tags
+    // 1. Add itemData to the constructor parameters
+    constructor(id, team, x, y, canvas, gameController, tags = [], itemData) {
         super(id, "Building", team, x, y, canvas, gameController, tags);
-        this.width = 80;
-        this.height = 80;
-        this.health = 1000;
-        this.maxHealth = 1000;
+        
+        // 2. This is the crucial line: store the data on the object
+        this.itemData = itemData;
+
+        // 3. Use itemData to set properties dynamically
+        this.width = this.itemData.width || 80;
+        this.height = this.itemData.height || 80;
+        this.health = this.itemData.health || 1000;
+        this.maxHealth = this.itemData.health || 1000;
+
         this.ctx = canvas.getContext('2d'); 
     }
     
