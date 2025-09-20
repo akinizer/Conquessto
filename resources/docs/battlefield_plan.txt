@@ -15,6 +15,8 @@ Building: Spawn Units Trained by Production Panel, Rally Point
 Resources: Credits, Metal, Energy
 Resource Generation: generated via a building placed upon game canvas
 Start Units: HQ spawns a set of units when game starts
+Start Locations: HQ spawns in one of start locations
+    Format: 3-1-3
 
 * Setup
 Setup UI: Player Name, Player Color, Enemy Quantity, Map Size
