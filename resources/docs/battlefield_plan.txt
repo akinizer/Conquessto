@@ -12,9 +12,13 @@ Map Canvas: Place Building, Select Building, Select Unit, Move Unit, Set Rally P
 Unit: Move, Collide, Train
 Building: Spawn Units Trained by Production Panel, Rally Point
 
+Resources: Credits, Metal, Energy
+Resource Generation: generated via a building placed upon game canvas
+
 * Setup
 Setup UI: Player Name, Player Color, Enemy Quantity, Map Size
 Building: HQ
+Base Resources: Credits, Energy, Metal
 
 * Units
 Unit List: Infantry, Vehicle, Aircraft, Naval, Terrashift
@@ -37,10 +41,16 @@ Unit List: Infantry, Vehicle, Aircraft, Naval, Terrashift
 
 Unit Tags: Ground, Amphibious, Water, Air; Solid, Phasing
 Unit Descriptions
+Unit Costs: {credits, energy}
 
 * Buildings
-Building List: Barracks, Vehicle Factory, Hangar, Dock, Airbase, Genesis Workshop, HQ, Refinery, Radar
+Building List: Barracks, Vehicle Factory, Hangar, Dock, Airbase, Genesis Workshop, HQ, Refinery, Radar,
+    Energy Generator, Marketing Hub
 Building Types: Production, Economic, Command, Other
+    Production: trains units
+    Economic: generates resources
+    Command: trains and places Buildings
+    Other: -
 Building Tags: Solid
 Produces: units producable for production buildings, buildings producable for command buildings
     Barracks: Infantry units
@@ -50,6 +60,10 @@ Produces: units producable for production buildings, buildings producable for co
     Airbase: Drones
     Genesis Workshop: Super Units
     HQ: Production Buildings
+
+Generates:
+    Energy Generator: Energy per 5 sec
+    Marketing Hub: -
 
 Building Descriptions
 
@@ -76,7 +90,6 @@ Terrashift: it has multiple forms and a base form
 Shortest Path Algorithm: Collided Units
 Game Setup: Functionality
 Battle Currency: 
-    Battle Only: Meta Credits, Energy
     Counts Toward Global Currency: Nutritions, Metal
 Rewards:
     Nutritions, Metal gained during battles (giftboxes, npc in a random civlian structure)

@@ -47,21 +47,26 @@
     { "name": "Super Cruiser", "type": "Super Unit", "cost": 900, "time": 1800, "icon": "", "tags": ["Water", "Solid"], "width": 80, "height": 80, "description": "Ultimate naval warship." }
   ],
   "buildings": [
-    { "name": "Barracks", "type": "Production", "cost": 200, "time": 500, "icon": "", "tags": ["Solid"], "width": 80, "height": 80, "description": "Trains infantry.",
+    { "name": "Energy Generator", "type": "Economic", "cost": { "credits": 100, "energy": 0 }, "time": 300, "icon": "", "tags": ["Solid"], "width": 50, "height": 50, "description": "Generates energy." },
+    { "name": "Refinery", "type": "Economic", "cost": { "credits": 100, "energy": 0 }, "time": 600, "icon": "", "tags": ["Solid"], "width": 80, "height": 80, "description": "Generates resources." },
+    { "name": "Marketing Hub", "type": "Economic", "cost": { "credits": 100, "energy": 0 }, "time": 250, "icon": "", "tags": ["Solid"], "width": 50, "height": 50, "description": "Generates credits." },
+
+    { "name": "Barracks", "type": "Production", "cost": { "credits": 100, "energy": 0 }, "time": 500, "icon": "", "tags": ["Solid"], "width": 80, "height": 80, "description": "Trains infantry.",
       "produces": ["Guerrilla", "Hunter", "Hunt Wolf", "Heavy Duty", "Rocketeer", "Tesla", "Commando", "Fixer", "Apotheke", "Tinkerer"] },
-    { "name": "Vehicle Factory", "type": "Production", "cost": 350, "time": 600, "icon": "", "tags": ["Solid"], "width": 90, "height": 90, "description": "Produces ground vehicles.",
+    { "name": "Vehicle Factory", "type": "Production", "cost": { "credits": 100, "energy": 0 }, "time": 600, "icon": "", "tags": ["Solid"], "width": 90, "height": 90, "description": "Produces ground vehicles.",
       "produces": ["Basic Tank", "Medium Tank", "Heavy Tank", "Panterra", "IFC", "APC", "Volatile", "Disruptor", "Flak Cannon", "Baneblade", "Sentry", "Voyager", "Mobile Radar"] },
-    { "name": "Hangar", "type": "Production", "cost": 500, "time": 700, "icon": "", "tags": ["Solid"], "width": 100, "height": 100, "description": "Constructs light aircraft.",
+    { "name": "Hangar", "type": "Production", "cost": { "credits": 100, "energy": 0 }, "time": 700, "icon": "", "tags": ["Solid"], "width": 100, "height": 100, "description": "Constructs light aircraft.",
       "produces": ["Helix", "Scout Drone", "Spotter", "Striker Drone", "Griffon Rider", "Super Airship"] },
-    { "name": "Dock", "type": "Production", "cost": 500, "time": 700, "icon": "", "tags": ["Solid"], "width": 100, "height": 100, "description": "Builds naval units.",
+    { "name": "Dock", "type": "Production", "cost": { "credits": 100, "energy": 0 }, "time": 700, "icon": "", "tags": ["Solid"], "width": 100, "height": 100, "description": "Builds naval units.",
       "produces": ["Submarine", "Phantom", "Manta", "Cannoneer", "Missile Platform", "Guardian", "Navigator", "Leviathan", "Super Cruiser"] },
-    { "name": "Airbase", "type": "Production", "cost": 800, "time": 900, "icon": "", "tags": ["Solid"], "width": 110, "height": 110, "description": "Deploys heavy aircraft.",
+    { "name": "Airbase", "type": "Production", "cost": { "credits": 100, "energy": 0 }, "time": 900, "icon": "", "tags": ["Solid"], "width": 110, "height": 110, "description": "Deploys heavy aircraft.",
       "produces": ["Interceptor", "Bomber", "Kamikaze", "Sea Dragon"] },
-    { "name": "Genesis Workshop", "type": "Production", "cost": 600, "time": 800, "icon": "", "tags": ["Solid"], "width": 90, "height": 90, "description": "Produces super units.",
+    { "name": "Genesis Workshop", "type": "Production", "cost": { "credits": 100, "energy": 0 }, "time": 800, "icon": "", "tags": ["Solid"], "width": 90, "height": 90, "description": "Produces super units.",
       "produces": ["Super Commando", "Super Tank"] },
-    { "name": "HQ", "type": "Command", "cost": 1000, "time": 1000, "icon": "", "tags": ["Solid"], "width": 120, "height": 120, "description": "Main base.",
-      "produces": ["Barracks", "Vehicle Factory", "Hangar", "Dock", "Airbase", "Refinery", "Radar", "Genesis Workshop"] },
-    { "name": "Refinery", "type": "Economic", "cost": 400, "time": 600, "icon": "", "tags": ["Solid"], "width": 80, "height": 80, "description": "Generates resources." },
-    { "name": "Radar", "type": "Other", "cost": 300, "time": 400, "icon": "", "tags": ["Solid"], "width": 70, "height": 70, "description": "Increases map vision." }
+
+    { "name": "HQ", "type": "Command", "cost": { "credits": 100, "energy": 0 }, "time": 1000, "icon": "", "tags": ["Solid"], "width": 120, "height": 120, "description": "Main base.",
+      "produces": ["Energy Generator", "Marketing Hub", "Barracks", "Vehicle Factory", "Hangar", "Dock", "Airbase", "Refinery", "Radar", "Genesis Workshop"] },
+    
+    { "name": "Radar", "type": "Other", "cost": { "credits": 100, "energy": 0 }, "time": 400, "icon": "", "tags": ["Solid"], "width": 70, "height": 70, "description": "Increases map vision." }
   ]
 }

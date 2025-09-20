@@ -1,3 +1,5 @@
+// battlefield-initializer.js
+
 import { GameController } from './battlefield-game-controller.js';
 
 export function initializeGame({ canvas, uiController, productionItems, settings }) {

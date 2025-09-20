@@ -33,4 +33,6 @@ export class Building extends GameObject {
         ctx.fillStyle = this.team === "friend" ? "green" : "darkred";
         ctx.fillRect(this.x - size, this.y - size, size * 2, size * 2);
     }
+
+    update(deltaTime) {}
 }

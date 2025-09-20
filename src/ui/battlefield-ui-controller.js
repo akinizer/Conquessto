@@ -20,10 +20,22 @@ export class UIController {
         this.hoverPopup.style.borderRadius = '3px';
         this.hoverPopup.style.display = 'none'; // Initially hidden
         this.hoverPopup.style.pointerEvents = 'none'; // Prevents it from interfering with mouse events
+
+        // Resources
+        this.creditsValue = document.getElementById('credits-value');
+        this.metalValue = document.getElementById('metal-value');
+        this.energyValue = document.getElementById('energy-value');
     }
 
     initializeUI() {
         this.setStatus("Ready.");
+        this.updateResourcesUI(this.gameController.gameState.resources);
+    }
+
+    updateResourcesUI(resources) {
+        this.creditsValue.textContent = resources.credits;
+        this.metalValue.textContent = resources.metal;
+        this.energyValue.textContent = resources.energy;
     }
 
     setStatus(message) {

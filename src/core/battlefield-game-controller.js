@@ -12,6 +12,14 @@ export class GameController {
         this.ctx = canvas.getContext('2d');
         this.uiController = uiController;
         this.gameState = new GameState();
+        // NEW: Add a resources object to the game state.
+        this.gameState.resources = {
+            energy: 100,
+            metal: 0,
+            credits: 0
+        };
+        this.lastTime = performance.now(); // For delta time calculation
+        // Removed the global resourceUpdateTime timer as it's now handled per-building.
 
         this.dataManager = new DataManager();
         this.dataManager.loadProductionData().then(() => {
@@ -67,12 +75,15 @@ export class GameController {
             // Default to the specific OtherBuilding class for other types.
             building = new OtherBuilding(id, team, x, y, this.canvas, this, itemData);
         }
+        
+        // NEW: Set the initial production time for economic buildings.
+        if (building instanceof EconomicBuilding) {
+            building.lastProductionTime = performance.now();
+        }
 
         this.gameState.addObject(building);
         return building;
     }
-
-
 
     spawnUnit(team, x, y, itemData) {
         const id = this.gameState.getNextId();
@@ -436,7 +447,7 @@ export class GameController {
         return { x: mouseX + this.viewport.x, y: mouseY + this.viewport.y };
     }
 
-   // Replace your existing getObjectAt function with this revised version
+    // Replace your existing getObjectAt function with this revised version
     getObjectAt(x, y) {
         // Loop through game objects in reverse order to check top-most objects first
         // (This is useful if you have a drawing order where units are drawn on top of buildings)
@@ -453,8 +464,8 @@ export class GameController {
 
             const objLeft = obj.x - objWidth / 2;
             const objRight = obj.x + objWidth / 2;
-            const objTop = obj.y - objHeight / 2;
-            const objBottom = obj.y + objHeight / 2;
+            const objTop = obj.y - obj.height / 2;
+            const objBottom = obj.y + obj.height / 2;
 
             // Perform a simple rectangle-to-point collision check
             if (x >= objLeft && x <= objRight && y >= objTop && y <= objBottom) {
@@ -489,14 +500,64 @@ export class GameController {
             this.onCanvasClick(event);
         }
     }
+    
+    // NEW: The main update loop for game logic.
+    update(deltaTime) {
+        // Update all game objects
+        for (const id in this.gameState.gameObjects) {
+            const obj = this.gameState.gameObjects[id];
+            // Pass deltaTime to the update method for consistent movement
+            if (obj.update) {
+                obj.update(deltaTime);
+            }
+        }
+        
+        // Handle resource updates separately
+        this._updateResources();
+    }
+
+    /**
+     * Updates the game's resources based on economic buildings.
+     * This function now checks each economic building individually for its production timer.
+     */
+    _updateResources() {
+        const currentTime = performance.now();
+        // Calculate the total energy produced by all Energy Generators
+        let totalEnergyProduction = 0;
+        for (const id in this.gameState.gameObjects) {
+            const obj = this.gameState.gameObjects[id];
+            
+            // NEW: Check for Energy Generators and their individual timers.
+            if (obj.itemData && obj.itemData.name === 'Energy Generator') {
+                if (currentTime - obj.lastProductionTime >= 5000) {
+                    // Each Energy Generator produces 10 energy every 5 seconds.
+                    totalEnergyProduction += 10;
+                    // Reset the individual building's timer.
+                    obj.lastProductionTime = currentTime;
+                }
+            }
+        }
+        
+        // Only update if there was any production to add.
+        if (totalEnergyProduction > 0) {
+            this.gameState.resources.energy += totalEnergyProduction;
+            this.uiController.updateResourcesUI(this.gameState.resources);
+        }
+    }
 
     // MAIN GAME PROCESS ///
 
-    gameLoop() {
+    gameLoop(time) {
+        const deltaTime = (time - this.lastTime) / 1000;
+        this.lastTime = time;
+
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
-        // New: Call the keyboard input handler
         this.handleKeyboardInput();
+        this.update(deltaTime); // Call the new update method
+        
+        // Removed the line that previously updated the UI every frame.
+        // this.uiController.updateResourcesUI(this.gameState.resources);
 
         // Apply translation to the canvas context
         this.ctx.save();
@@ -504,7 +565,6 @@ export class GameController {
 
         for (const id in this.gameState.gameObjects) {
             const obj = this.gameState.gameObjects[id];
-            if (obj.update) obj.update();
             if (obj.draw) obj.draw();
         }
 
@@ -551,6 +611,6 @@ export class GameController {
         }
         this.gameState.gameObjects = livingObjects;
 
-        requestAnimationFrame(() => this.gameLoop());
+        requestAnimationFrame((time) => this.gameLoop(time));
     }
 }

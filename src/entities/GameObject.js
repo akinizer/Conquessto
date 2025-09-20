@@ -11,4 +11,7 @@ export class GameObject {
         this.maxHealth = 100;
         this.tags = tags;
     }
+    draw(ctx) {}
+    update(deltaTime) {}
+
 }

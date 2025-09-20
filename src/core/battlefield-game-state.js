@@ -2,6 +2,7 @@
 
 export class GameState {
     constructor() {
+        // Canvas Objects
         this.gameObjects = {};
         this.nextObjectId = 0;
         this.pendingBuilding = null;
@@ -11,6 +12,14 @@ export class GameState {
         // Hover Label
         this.hoveredObject = null;
         this.hoverTimeoutId = null; 
+
+        // Resources
+        this.resources = {
+            credits: 1000,
+            metal: 500,
+            energy: 200
+        };
+
     }
 
     getNextId() {
@@ -24,5 +33,11 @@ export class GameState {
 
     removeObject(id) {
         delete this.gameObjects[id];
+    }
+
+    updateResources(type, amount) {
+        if (this.resources[type] !== undefined) {
+            this.resources[type] += amount;
+        }
     }
 }
