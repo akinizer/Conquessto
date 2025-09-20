@@ -197,6 +197,8 @@ multi select on double click
 drag select
 
 smart movement: ai behavior, blocked path - reroute, dont move beyond map canvas edge
+smart attack: attack priority, ignore or hit obstacle on ranged attack
+
 force attack - friend fire: ctrl + right click on friend unit or building
 force attack - ground
 force attack - natural
@@ -213,6 +215,8 @@ Offensive Buildings: Turrets, Traps, Aura Buildings
 * Map Mechanics
 radar displays miniature version of map with dynamic unit locations 
 fog of war (cloud, gray)
+map zoom
+
 * SFX
 building select, building production
 unit select, unit move, unit attack, unit shoot unit destruction
@@ -225,3 +229,5 @@ enemy pointer arrow
 cursor location X,Y
 objectives panel: kill enemies, destroy bases, generate resources (credits, metal), survive for a duration
 battlefield details: enemy names (crossed over when dead), number of units, enemy colors
+
+map edge glow when it reaches end on panning
