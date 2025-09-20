@@ -9,8 +9,9 @@ Map Canvas: Place Building, Select Building, Select Unit, Move Unit, Set Rally P
     Placement Indicator: Placeable, Not Placeable
     Map Panning: WASD / Arrow Key, Screen Edge Cursor Push 
     HQ Focus: H, moves camera to HQ building of human player, considers map edges
+    HQ Focus Start: cam focuses on human player HQ at start
     Production Building Quick Action Buttons
-Unit: Move, Collide, Train, Autochase (target and move until collision), Autoattack (attack in range), Health-Depletion (destruction / elimination)
+Unit: Move, Collide, Train, Autochase (target and move until collision, stay targeting if there is a solid obstacle in between), Autoattack (attack in range), Health-Depletion (destruction / elimination)
 Building: Spawn Units Trained by Production Panel, Rally Point
 
 Resources: Credits, Metal, Energy
@@ -211,10 +212,16 @@ Offensive Buildings: Turrets, Traps, Aura Buildings
 
 * Map Mechanics
 radar displays miniature version of map with dynamic unit locations 
-
+fog of war (cloud, gray)
 * SFX
 building select, building production
 unit select, unit move, unit attack, unit shoot unit destruction
 produce panel:ready, hold on, cancel, click, cant click
 
-- unit gets stuck in building on autochase
+victory, game over
+
+* Indicators
+enemy pointer arrow
+cursor location X,Y
+objectives panel: kill enemies, destroy bases, generate resources (credits, metal), survive for a duration
+battlefield details: enemy names (crossed over when dead), number of units, enemy colors

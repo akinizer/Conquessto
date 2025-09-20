@@ -36,6 +36,25 @@ export function initializeGame({ canvas, uiController, productionItems, settings
     setupPlayerOperations(gameController, productionItems, playerSpawnLocation);
     setupEnemyOperations(gameController, productionItems, enemySpawnLocation);
     setupNaturalOperations(gameController);
+    
+    // Automatically move the camera to the HQ position after a short delay
+    setTimeout(() => {
+        const hq = Object.values(gameController.gameState.gameObjects).find(obj =>
+            obj.team === 'friend' && obj.itemData.type === 'Command'
+        );
+        
+        if (hq) {
+            // Calculate potential viewport coordinates to center on the HQ
+            let newViewportX = hq.x - gameController.canvas.width / 2;
+            let newViewportY = hq.y - gameController.canvas.height / 2;
+
+            // Clamp the new coordinates to the world boundaries
+            gameController.viewport.x = Math.max(0, Math.min(gameController.WORLD_WIDTH - gameController.canvas.width, newViewportX));
+            gameController.viewport.y = Math.max(0, Math.min(gameController.WORLD_HEIGHT - gameController.canvas.height, newViewportY));
+
+            gameController.uiController.setStatus("Camera moved to HQ.");
+        }
+    }, 100); // 100ms delay to ensure all objects are rendered
 }
 
 const spawnLocations = {
