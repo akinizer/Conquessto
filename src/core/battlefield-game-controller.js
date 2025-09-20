@@ -279,6 +279,16 @@ export class GameController {
     }
 
     _selectObject(object) {
+        // --- NEW: Add this line to prevent selecting enemy objects ---
+        if (object && object.team !== 'friend') {
+            this.uiController.setStatus("You cannot select enemy units or buildings.");
+            // Ensure nothing is selected
+            this.gameState.selectedUnits = [];
+            this.gameState.productionBuilding = null;
+            return; // Exit the function early
+        }
+        // --- END NEW ---
+
         // Check if the selected object is the current production building
         const isSameProductionBuilding = this.gameState.productionBuilding && (object === this.gameState.productionBuilding);
 
@@ -297,13 +307,10 @@ export class GameController {
 
             switch (object.itemData.type) {
                 case "Production":
-                    // If it's the same production building, don't re-select it or reset the rally point.
                     if (!isSameProductionBuilding) {
                         this.gameState.productionBuilding = object;
                         this.gameState.productionBuilding.select();
                         this.uiController.setStatus(`${object.itemData.name} selected as primary.`);
-                        
-                        // Initialize rally point if it doesn't exist
                         if (!this.gameState.productionBuilding.rallyPoint) {
                             this.gameState.productionBuilding.rallyPoint = { x: object.x, y: object.y };
                         }
@@ -553,6 +560,36 @@ export class GameController {
         this.viewport.y = Math.max(0, Math.min(this.WORLD_HEIGHT - this.canvas.height, targetY));
     }
 
+    checkAndDisplayEdgeIndicators() {
+        console.log('Checking for indicators...');
+        const topIndicator = document.getElementById('top-indicator');
+        console.log('Top indicator found:', topIndicator);
+
+        const bottomIndicator = document.getElementById('bottom-indicator');
+        const leftIndicator = document.getElementById('left-indicator');
+        const rightIndicator = document.getElementById('right-indicator');
+
+        // Reset indicators to a hidden state
+        topIndicator.style.display = 'none';
+        bottomIndicator.style.display = 'none';
+        leftIndicator.style.display = 'none';
+        rightIndicator.style.display = 'none';
+
+        // Show indicator if the viewport is at a boundary
+        if (this.viewport.y <= 0) {
+            topIndicator.style.display = 'block';
+        }
+        if (this.viewport.y >= this.WORLD_HEIGHT - this.canvas.height) {
+            bottomIndicator.style.display = 'block';
+        }
+        if (this.viewport.x <= 0) {
+            leftIndicator.style.display = 'block';
+        }
+        if (this.viewport.x >= this.WORLD_WIDTH - this.canvas.width) {
+            rightIndicator.style.display = 'block';
+        }
+    }
+
     handleMouseDown(event) {
         if (event.button === 0) {
             this.onCanvasClick(event);
@@ -655,6 +692,8 @@ export class GameController {
     // MAIN GAME PROCESS ///
 
     gameLoop(time) {
+        console.log(`Viewport: x=${this.viewport.x}, y=${this.viewport.y}`);
+
         const deltaTime = (time - this.lastTime) / 1000;
         this.lastTime = time;
 
@@ -663,8 +702,8 @@ export class GameController {
         this.handleKeyboardInput();
         this.update(deltaTime); // Call the new update method
         
-        // Removed the line that previously updated the UI every frame.
-        // this.uiController.updateResourcesUI(this.gameState.resources);
+        // Map edge indicators
+        this.checkAndDisplayEdgeIndicators();
 
         // Apply translation to the canvas context
         this.ctx.save();

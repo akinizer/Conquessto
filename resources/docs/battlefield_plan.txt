@@ -90,6 +90,9 @@ Hover Plate:
     Unit and Building Objects: Name, Energy Use, Type
     Produces: Name, Description, Cost, Train Time
 
+Map Canvas Pan:
+    Indicator when an edge is reached
+
 === IN-PROGRESS ===
 * Mechanics
 Terrashift: it has multiple forms and a base form
