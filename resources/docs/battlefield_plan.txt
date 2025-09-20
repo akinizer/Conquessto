@@ -10,6 +10,7 @@ Map Canvas: Place Building, Select Building, Select Unit, Move Unit, Set Rally P
     Map Panning: WASD / Arrow Key, Screen Edge Cursor Push 
     HQ Focus: H, moves camera to HQ building of human player, considers map edges
     HQ Focus Start: cam focuses on human player HQ at start
+    HQ Focus Switcher: cam moves to next hq on map
     Production Building Quick Action Buttons
 Unit: Move, Collide, Train, Autochase (target and move until collision, stay targeting if there is a solid obstacle in between), Autoattack (attack in range), Health-Depletion (destruction / elimination)
 Building: Spawn Units Trained by Production Panel, Rally Point

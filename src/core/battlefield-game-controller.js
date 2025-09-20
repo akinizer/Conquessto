@@ -512,12 +512,45 @@ export class GameController {
 
                 this.uiController.setStatus("Camera moved to HQ.");
             }
-        }
+        }        
 
+          // Single-press action for the 'Tab' key
+
+        if (this.keys['t']) {
+            const hqs = Object.values(this.gameState.gameObjects).filter(obj => 
+                obj.itemData && obj.itemData.type === 'Command'
+            );
+
+
+            if (hqs.length > 0) {
+                let currentIndex = this.gameState.focusedHqIndex || 0;
+                let nextIndex = (currentIndex + 1) % hqs.length;
+                this.gameState.focusedHqIndex = nextIndex;
+
+                const nextHq = hqs[nextIndex];
+                this.focusCameraOnObject(nextHq);
+                this.uiController.setStatus(`Camera moved to ${nextHq.team}'s HQ.`);
+            }
+
+            this.keys['t'] = false; // Reset the key state to prevent continuous jumping
+        } 
 
         if (this.keys['k']) {
             this.destroySelectedPlayerUnit();
         }
+    }
+
+    // A new method to correctly center the viewport on a given object
+    focusCameraOnObject(object) {
+        if (!object) return;
+
+        // Calculate the target viewport position to center the object
+        let targetX = object.x - this.canvas.width / 2;
+        let targetY = object.y - this.canvas.height / 2;
+
+        // Clamp the target position to ensure it stays within the world boundaries
+        this.viewport.x = Math.max(0, Math.min(this.WORLD_WIDTH - this.canvas.width, targetX));
+        this.viewport.y = Math.max(0, Math.min(this.WORLD_HEIGHT - this.canvas.height, targetY));
     }
 
     handleMouseDown(event) {
