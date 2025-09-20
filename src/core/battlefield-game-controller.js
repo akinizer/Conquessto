@@ -547,7 +547,15 @@ export class GameController {
         }
     }
 
-    // A new method to correctly center the viewport on a given object
+    handleMouseDown(event) {
+        if (event.button === 0) {
+            this.onCanvasClick(event);
+        }
+    }
+
+    // Map and Radar
+
+      // A new method to correctly center the viewport on a given object
     focusCameraOnObject(object) {
         if (!object) return;
 
@@ -590,10 +598,49 @@ export class GameController {
         }
     }
 
-    handleMouseDown(event) {
-        if (event.button === 0) {
-            this.onCanvasClick(event);
-        }
+    drawMiniMapIndicators() {
+        // Get the mini-map canvas and its context
+        const miniMapCanvas = document.getElementById('miniMapCanvas');
+        console.log("Mini-map Canvas Element:", miniMapCanvas); // Check this log!
+
+        if (!miniMapCanvas) return;
+        const miniMapCtx = miniMapCanvas.getContext('2d');
+
+        // Clear the mini-map canvas to prepare for a new draw
+        miniMapCtx.clearRect(0, 0, miniMapCanvas.width, miniMapCanvas.height);
+
+        console.log("World Dimensions:", this.WORLD_WIDTH, "x", this.WORLD_HEIGHT);
+        console.log("Mini-map Dimensions:", miniMapCanvas.width, "x", miniMapCanvas.height);
+        console.log("Viewport:", this.viewport.x, this.viewport.y);
+
+        // Calculate scaling factors to translate world coordinates to mini-map coordinates
+        const scaleX = miniMapCanvas.width / this.WORLD_WIDTH;
+        const scaleY = miniMapCanvas.height / this.WORLD_HEIGHT;
+
+        console.log("Scale:", scaleX, scaleY);
+
+        // Convert the main viewport coordinates to mini-map coordinates
+        const indicatorX = this.viewport.x * scaleX;
+        const indicatorY = this.viewport.y * scaleY;
+        const indicatorWidth = this.canvas.width * scaleX;
+        const indicatorHeight = this.canvas.height * scaleY;
+
+        console.log("Indicator:", indicatorX, indicatorY, indicatorWidth, indicatorHeight);
+
+        // Set the fill style to a semi-transparent yellow
+        miniMapCtx.fillStyle = 'rgba(255, 255, 0, 0.4)';
+
+        // Draw the yellow rectangle representing the viewport
+        miniMapCtx.fillRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight);
+
+        // Add a glowing effect
+        miniMapCtx.save();
+        miniMapCtx.shadowColor = 'rgba(255, 255, 0, 1)';
+        miniMapCtx.shadowBlur = 10;
+        miniMapCtx.strokeStyle = 'yellow';
+        miniMapCtx.lineWidth = 2;
+        miniMapCtx.strokeRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight);
+        miniMapCtx.restore();
     }
     
     // NEW: The main update loop for game logic.
@@ -701,9 +748,10 @@ export class GameController {
         
         this.handleKeyboardInput();
         this.update(deltaTime); // Call the new update method
-        
+                
         // Map edge indicators
         this.checkAndDisplayEdgeIndicators();
+        this.drawMiniMapIndicators();
 
         // Apply translation to the canvas context
         this.ctx.save();

@@ -93,6 +93,8 @@ Hover Plate:
 Map Canvas Pan:
     Indicator when an edge is reached
 
+Radar Minimap: Cam Indicator
+
 === IN-PROGRESS ===
 * Mechanics
 Terrashift: it has multiple forms and a base form
@@ -156,10 +158,9 @@ Equippables & Slots:
     Transport Slots
     Naval Slots
 * Visuals:
-    Radar Map, Building Info Panel & Features, Unit / Building Hover Info, Notification; VFX, SFX; Game State Panel (Restart, Quit, Pause / Play)
+    Building Info Panel & Features, Unit / Building Hover Info, Notification; VFX, SFX; Game State Panel (Restart, Quit, Pause / Play)
 
     Unit Shape, Building Shape, Rally Point Icon
-    Range
 * VFX
     Shooting, Training, Warning (Credits, Energy)
 
