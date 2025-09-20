@@ -12,11 +12,11 @@ export class GameController {
         this.ctx = canvas.getContext('2d');
         this.uiController = uiController;
         this.gameState = new GameState();
-        // NEW: Add a resources object to the game state.
+        // FIXED: Initialize credits to 0 to prevent "NaN" error.
         this.gameState.resources = {
             energy: 100,
             metal: 0,
-            credits: 0
+            credits: 0 // Initialize credits here
         };
         this.lastTime = performance.now(); // For delta time calculation
         // Removed the global resourceUpdateTime timer as it's now handled per-building.
@@ -522,27 +522,39 @@ export class GameController {
      */
     _updateResources() {
         const currentTime = performance.now();
-        // Calculate the total energy produced by all Energy Generators
         let totalEnergyProduction = 0;
+        let totalCreditsProduction = 0; // NEW: Track credits production
+        
         for (const id in this.gameState.gameObjects) {
             const obj = this.gameState.gameObjects[id];
             
-            // NEW: Check for Energy Generators and their individual timers.
+            // Check for Energy Generators
             if (obj.itemData && obj.itemData.name === 'Energy Generator') {
                 if (currentTime - obj.lastProductionTime >= 5000) {
-                    // Each Energy Generator produces 10 energy every 5 seconds.
                     totalEnergyProduction += 10;
-                    // Reset the individual building's timer.
+                    obj.lastProductionTime = currentTime;
+                }
+            }
+
+            // NEW: Check for Marketing Hubs
+            if (obj.itemData && obj.itemData.name === 'Marketing Hub') {
+                if (currentTime - obj.lastProductionTime >= 5000) {
+                    totalCreditsProduction += 5; // Assuming 5 credits every 5 seconds
                     obj.lastProductionTime = currentTime;
                 }
             }
         }
         
-        // Only update if there was any production to add.
+        // Update resources if there was any production
         if (totalEnergyProduction > 0) {
             this.gameState.resources.energy += totalEnergyProduction;
-            this.uiController.updateResourcesUI(this.gameState.resources);
         }
+        if (totalCreditsProduction > 0) {
+            this.gameState.resources.credits += totalCreditsProduction;
+        }
+        
+        // Always update the UI to reflect the latest resource values
+        this.uiController.updateResourcesUI(this.gameState.resources);
     }
 
     // MAIN GAME PROCESS ///

@@ -62,8 +62,8 @@ Produces: units producable for production buildings, buildings producable for co
     HQ: Production Buildings
 
 Generates:
-    Energy Generator: Energy per 5 sec
-    Marketing Hub: -
+    Energy Generator: Energy over time
+    Marketing Hub: Credits over time
 
 Building Descriptions
 
