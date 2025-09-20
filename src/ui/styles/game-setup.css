@@ -183,3 +183,43 @@
     box-shadow: 0 0 0 2px #4CAF50, 0 0 10px rgba(76, 175, 80, 0.5);
     color: #e0e0e0;
 }
+
+/* Add this new CSS class to your stylesheet */
+.setup-grid-2-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px; /* Adjust as needed for spacing */
+    align-items: center;
+}
+
+/* Make sure the map icon grid styles are still present */
+.map-icon-grid {
+    display: flex;
+    gap: 10px;
+}
+
+.map-icon-option {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    border: 2px solid #555;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: #333;
+    transition: all 0.2s ease-in-out;
+}
+
+.map-icon-option:hover {
+    border-color: #777;
+    background-color: #444;
+    transform: scale(1.05);
+}
+
+.map-icon-option.active {
+    border-color: #fff;
+    box-shadow: 0 0 10px #fff;
+    background-color: #555;
+}

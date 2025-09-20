@@ -2,13 +2,15 @@ export class GameSetupUI {
     constructor(onStartGame) {
         this.config = {
             colors: ['#1e90ff', '#32cd32', '#ff4500', '#ffd700'],
-            mapSizes: ['small', 'medium', 'large']
+            mapSizes: ['small', 'medium', 'large'],
+            mapTypes: ['desert', 'islands', 'volcano', 'forest']
         };
 
         this.onStartGame = onStartGame;
         this.elements = {};
         this.selectedColor = this.config.colors[0];
         this.selectedMapSize = this.config.mapSizes[1]; // Default to 'medium'
+        this.selectedMapType = this.config.mapTypes[0]; // NEW: Default to 'desert'
 
         this.init();
     }
@@ -27,6 +29,7 @@ export class GameSetupUI {
         this.elements.enemyQuantitySlider = document.getElementById('enemyQuantitySlider');
         this.elements.enemyQuantityValue = document.getElementById('enemyQuantityValue');
         this.elements.mapSizeGrid = document.getElementById('mapSizeGrid');
+        this.elements.mapTypeGrid = document.getElementById('mapTypeGrid');
     }
 
     renderColorPicker() {
@@ -67,6 +70,13 @@ export class GameSetupUI {
                 this.selectMapSize(sizeOption);
             }
         });
+
+        this.elements.mapTypeGrid.addEventListener('click', (e) => {
+            const mapTypeOption = e.target.closest('.map-icon-option');
+            if (mapTypeOption) {
+                this.selectMapType(mapTypeOption);
+            }
+        });
     }
 
     selectColor(selectedOption) {
@@ -85,6 +95,15 @@ export class GameSetupUI {
         this.selectedMapSize = selectedOption.dataset.size;
     }
 
+    selectMapType(selectedOption) {
+        this.elements.mapTypeGrid.querySelectorAll('.map-icon-option').forEach(option => {
+            option.classList.remove('active');
+        });
+        selectedOption.classList.add('active');
+        this.selectedMapType = selectedOption.dataset.mapType;
+    }
+        
+
     show() {
         this.elements.overlay.classList.remove('hidden');
     }
@@ -98,7 +117,9 @@ export class GameSetupUI {
             playerName: this.elements.playerNameInput.value,
             playerColor: this.selectedColor,
             enemyQuantity: parseInt(this.elements.enemyQuantitySlider.value, 10),
-            mapSize: this.selectedMapSize // Retrieve the selected map size
+            mapSize: this.selectedMapSize,
+            mapType: this.selectMapType
+
         };
     }
 }

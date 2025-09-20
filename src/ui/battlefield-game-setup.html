@@ -1,4 +1,3 @@
-<!-- /ui/game-setup.html -->
 <div id="game-setup-overlay" class="hidden">
     <form class="game-setup-panel" id="gameSetupForm">
         <h2>Game Setup</h2>
@@ -9,11 +8,27 @@
         <div class="setup-group">
             <label>Player Color</label>
             <div class="color-picker-grid" id="playerColorPicker">
-                </div>
+            </div>
         </div>
-        <div class="setup-group">
-            <label for="enemyQuantitySlider">Enemy Quantity: <span id="enemyQuantityValue">1</span></label>
-            <input type="range" id="enemyQuantitySlider" name="enemyQuantity" min="1" max="8" value="1">
+        <div class="setup-group setup-grid-2-col">
+            <div class="enemy-quantity-container">
+                <label for="enemyQuantitySlider">Enemy Quantity: <span id="enemyQuantityValue">1</span></label>
+                <input type="range" id="enemyQuantitySlider" name="enemyQuantity" min="1" max="8" value="1">
+            </div>
+            <div class="map-icon-grid" id="mapTypeGrid">
+                <div class="map-icon-option active" data-map-type="desert">
+                    🏜️
+                </div>
+                <div class="map-icon-option" data-map-type="islands">
+                    🏝️
+                </div>
+                <div class="map-icon-option" data-map-type="volcano">
+                    🌋
+                </div>
+                <div class="map-icon-option" data-map-type="forest">
+                    🌲
+                </div>
+            </div>
         </div>
         <div class="setup-group">
             <label>Map Size</label>
