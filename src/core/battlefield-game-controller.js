@@ -255,20 +255,21 @@ export class GameController {
 
             const isLocationClear = this._isAreaClear(mouseX, mouseY, buildingWidth, buildingHeight);
             
-            const isWithinCanvas = (
-                mouseX - buildingWidth / 2 >= 0 &&
-                mouseX + buildingWidth / 2 <= this.canvas.width &&
-                mouseY - buildingHeight / 2 >= 0 &&
-                mouseY + buildingHeight / 2 <= this.canvas.height
+            // FIX: Correctly check if the building can be placed within the current viewport.
+            const isWithinViewport = (
+                mouseX - buildingWidth / 2 >= this.viewport.x &&
+                mouseX + buildingWidth / 2 <= this.viewport.x + this.canvas.width &&
+                mouseY - buildingHeight / 2 >= this.viewport.y &&
+                mouseY + buildingHeight / 2 <= this.viewport.y + this.canvas.height
             );
 
-            if (isLocationClear && isWithinCanvas) {
+            if (isLocationClear && isWithinViewport) {
                 const newBuilding = this.buildBuilding("friend", mouseX, mouseY, this.gameState.pendingBuilding);
                 this._selectObject(newBuilding);
                 this.uiController.setStatus(`${this.gameState.pendingBuilding.name} placed.`);
                 this.gameState.pendingBuilding = null;
             } else {
-                this.uiController.setStatus("Cannot place building here.");
+                this.uiController.setStatus("Cannot place building here. Ensure it's not on top of another object and is within the visible area.");
             }
             return;
         }
@@ -493,6 +494,30 @@ export class GameController {
         if (this.keys['d'] || this.keys['ArrowRight']) {
             this.viewport.x = Math.min(this.WORLD_WIDTH - this.canvas.width, this.viewport.x + panSpeed);
         }
+
+        // Focus HQ when 'h' is pressed ---
+        if (this.keys['h']) {
+            const hq = Object.values(this.gameState.gameObjects).find(obj =>
+                obj.team === 'friend' && obj.itemData.type === 'Command'
+            );
+            
+            if (hq) {
+                // Calculate potential viewport coordinates to center on the HQ
+                let newViewportX = hq.x - this.canvas.width / 2;
+                let newViewportY = hq.y - this.canvas.height / 2;
+
+                // Clamp the new coordinates to the world boundaries
+                this.viewport.x = Math.max(0, Math.min(this.WORLD_WIDTH - this.canvas.width, newViewportX));
+                this.viewport.y = Math.max(0, Math.min(this.WORLD_HEIGHT - this.canvas.height, newViewportY));
+
+                this.uiController.setStatus("Camera moved to HQ.");
+            }
+        }
+
+
+        if (this.keys['k']) {
+            this.destroySelectedPlayerUnit();
+        }
     }
 
     handleMouseDown(event) {
@@ -557,6 +582,43 @@ export class GameController {
         this.uiController.updateResourcesUI(this.gameState.resources);
     }
 
+    /**
+     * Destroys the currently selected player unit.
+     */
+    destroySelectedPlayerUnit() {
+        // Check if there are any selected units
+        if (this.gameState.selectedUnits.length > 0) {
+            // Get the first selected unit (or all of them in a loop for multi-selection)
+            const unitToDestroy = this.gameState.selectedUnits[0];
+            
+            // Check if it belongs to the player's team
+            if (unitToDestroy.team === 'friend') {
+                console.log(`Destroying selected player unit with ID: ${unitToDestroy.id}`);
+                this.removeObject(unitToDestroy);
+                this.gameState.selectedUnits = []; // Clear the selection
+                this.uiController.setStatus("Selected unit destroyed.");
+            } else {
+                console.log("The selected unit is not a player unit and cannot be destroyed.");
+            }
+        } else {
+            console.log("No player unit is selected.");
+            this.uiController.setStatus("No unit selected to destroy.");
+        }
+    }
+
+    /**
+     * Removes a game object from the game state.
+     * @param {GameObject} objectToRemove The object to remove.
+     */
+    removeObject(objectToRemove) {
+        if (objectToRemove && this.gameState.gameObjects[objectToRemove.id]) {
+            delete this.gameState.gameObjects[objectToRemove.id];
+            // Remove from selected units list if it's there
+            this.gameState.selectedUnits = this.gameState.selectedUnits.filter(unit => unit.id !== objectToRemove.id);
+            console.log(`Object with ID ${objectToRemove.id} removed from the game.`);
+        }
+    }
+
     // MAIN GAME PROCESS ///
 
     gameLoop(time) {
@@ -588,23 +650,21 @@ export class GameController {
             const mouseX = this.pendingBuildingCursorPosition.x;
             const mouseY = this.pendingBuildingCursorPosition.y;
 
-            const isWithinCanvas = (
-                mouseX - buildingWidth / 2 >= 0 &&
-                mouseX + buildingWidth / 2 <= this.canvas.width &&
-                mouseY - buildingHeight / 2 >= 0 &&
-                mouseY + buildingHeight / 2 <= this.canvas.height
+            // Check for validity to determine color
+            const isLocationClear = this._isAreaClear(mouseX, mouseY, buildingWidth, buildingHeight);
+            const isWithinViewport = (
+                mouseX - buildingWidth / 2 >= this.viewport.x &&
+                mouseX + buildingWidth / 2 <= this.viewport.x + this.canvas.width &&
+                mouseY - buildingHeight / 2 >= this.viewport.y &&
+                mouseY + buildingHeight / 2 <= this.viewport.y + this.canvas.height
             );
 
-            const isLocationClear = this._isAreaClear(
-                mouseX,
-                mouseY,
-                buildingWidth,
-                buildingHeight
-            );
-
-            this.canPlaceBuilding = isWithinCanvas && isLocationClear;
+            this.canPlaceBuilding = isLocationClear && isWithinViewport;
             const silhouetteColor = this.canPlaceBuilding ? 'rgba(0,255,0,0.4)' : 'rgba(255,0,0,0.4)';
 
+            // FIX: Translate the context to draw the silhouette correctly relative to the viewport.
+            this.ctx.save();
+            this.ctx.translate(-this.viewport.x, -this.viewport.y);
             this.ctx.fillStyle = silhouetteColor;
             this.ctx.fillRect(
                 mouseX - buildingWidth / 2,
@@ -612,6 +672,7 @@ export class GameController {
                 buildingWidth,
                 buildingHeight
             );
+            this.ctx.restore();
         }
 
         const livingObjects = {};

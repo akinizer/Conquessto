@@ -94,11 +94,15 @@ export class UIController {
     }
 
     // UPDATED: Method to show the hover popup with description, cost, and time
-    showProductionPopup(item, clientX, clientY) {
+   showProductionPopup(item, clientX, clientY) {
+        // Build the cost string from the cost object
+        const costItems = Object.entries(item.cost).filter(([key, value]) => value > 0);
+        const costString = costItems.map(([key, value]) => `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}`).join(', ');
+
         this.hoverPopup.innerHTML = `
             <strong>${item.name}</strong><br>
             ${item.description || 'No description available.'}<br>
-            Cost: ${item.cost}<br>
+            Cost: ${costString}<br>
             Time: ${item.time}s
         `;
         this.hoverPopup.style.left = `${clientX + 15}px`;

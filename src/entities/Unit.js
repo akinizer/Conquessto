@@ -11,11 +11,12 @@ export class Unit extends GameObject {
         this.targetX = x;
         this.targetY = y;
         this.speed = 2;
-        this.attackRange = 40;
+        this.attackRange = 40; // The range to stop and deal damage
+        this.autochaseRange = 200; // The range to start moving toward an enemy
         this.damage = 0.5;
         this.attackTarget = null;
         this.isSelected = false;
-        this.searchRange = 200;
+        this.isCommandedToMove = false;
         this.gameController = gameController;
         this.tags = tags;
     }
@@ -32,11 +33,22 @@ export class Unit extends GameObject {
         const ctx = this.canvas.getContext('2d');
         const color = this.team === "friend" ? "blue" : "red";
 
-        // Save the current state of the canvas
+        // Save the current state of the canvas for isolation
         ctx.save();
         
-        // Translate the canvas context to the unit's position for easier drawing
+        // Translate the canvas context to the unit's position
         ctx.translate(this.x, this.y);
+
+        // Draw autochase range indicator if the unit is selected
+        if (this.isSelected) {
+            ctx.beginPath();
+            ctx.arc(0, 0, this.autochaseRange, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(255, 255, 0, 0.1)"; // Semi-transparent yellow
+            ctx.fill();
+            ctx.strokeStyle = "rgba(255, 255, 0, 0.5)";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
 
         // Draw the unit shape based on its type
         switch (this.itemData.type) {
@@ -65,8 +77,7 @@ export class Unit extends GameObject {
 
         // Draw selection highlight only if the unit is selected
         if (this.isSelected) {
-            // Because we're inside a save/restore block and have already translated, 
-            // the stroke will be applied to the last shape drawn.
+            // The stroke is applied to the last shape drawn (the unit itself)
             ctx.strokeStyle = "yellow";
             ctx.lineWidth = 2;
             ctx.stroke();
@@ -91,7 +102,6 @@ export class Unit extends GameObject {
         ctx.arc(0, 0, this.width / 2, 0, Math.PI * 2);
         ctx.fillStyle = color;
         ctx.fill();
-        // Removed the ctx.stroke() from here
     }
 
     _drawSquare = (ctx, color) => {
@@ -99,7 +109,6 @@ export class Unit extends GameObject {
         ctx.rect(-this.width / 2, -this.height / 2, this.width, this.height);
         ctx.fillStyle = color;
         ctx.fill();
-        // Removed the ctx.stroke() from here
     }
 
     _drawTriangle = (ctx, color) => {
@@ -110,7 +119,6 @@ export class Unit extends GameObject {
         ctx.closePath();
         ctx.fillStyle = color;
         ctx.fill();
-        // Removed the ctx.stroke() from here
     }
 
     _drawHexagon = (ctx, color) => {
@@ -124,7 +132,6 @@ export class Unit extends GameObject {
         ctx.closePath();
         ctx.fillStyle = color;
         ctx.fill();
-        // Removed the ctx.stroke() from here
     }
 
     _drawDiamond = (ctx, color) => {
@@ -136,19 +143,19 @@ export class Unit extends GameObject {
         ctx.closePath();
         ctx.fillStyle = color;
         ctx.fill();
-        // Removed the ctx.stroke() from here
     }
     
-    // ... all other methods remain the same as before
     moveTo = (destX, destY) => {
         this.targetX = destX;
         this.targetY = destY;
         this.attackTarget = null;
+        this.isCommandedToMove = true;
     }
 
     findClosestEnemy = () => {
         let closestEnemy = null;
-        let minDistance = Infinity;
+        let minDistance = this.autochaseRange + 1;
+
         for (const id in this.gameController.gameState.gameObjects) {
             const obj = this.gameController.gameState.gameObjects[id];
             if (obj.team !== this.team && obj.id !== this.id) {
@@ -204,28 +211,54 @@ export class Unit extends GameObject {
     }
 
     update = () => {
-        if (this.attackTarget) {
-            const distance = Math.sqrt(Math.pow(this.attackTarget.x - this.x, 2) + Math.pow(this.attackTarget.y - this.y, 2));
-            if (distance > this.attackRange) {
-                const nextX = this.x + (this.attackTarget.x - this.x) / distance * this.speed;
-                const nextY = this.y + (this.attackTarget.y - this.y) / distance * this.speed;
+        if (this.isCommandedToMove) {
+            const dx = this.targetX - this.x;
+            const dy = this.targetY - this.y;
+            const distance = Math.hypot(dx, dy);
+
+            if (distance <= this.speed) {
+                this.x = this.targetX;
+                this.y = this.targetY;
+                this.isCommandedToMove = false;
+            } else {
+                const nextX = this.x + (dx / distance) * this.speed;
+                const nextY = this.y + (dy / distance) * this.speed;
                 if (!this._checkCollision(nextX, nextY)) {
                     this.x = nextX;
                     this.y = nextY;
                 }
-            } else {
-                this.attackTarget.health -= this.damage;
             }
         } else {
-            const closestEnemy = this.findClosestEnemy();
+            let closestEnemy = this.findClosestEnemy();
+
             if (closestEnemy) {
                 this.attackTarget = closestEnemy;
-                return;
+            } else {
+                this.attackTarget = null;
             }
-            if (this.x !== this.targetX || this.y !== this.targetY) {
+            
+            if (this.attackTarget) {
+                const distanceToTarget = Math.hypot(this.attackTarget.x - this.x, this.attackTarget.y - this.y);
+
+                if (distanceToTarget > this.attackRange) {
+                    const dx = this.attackTarget.x - this.x;
+                    const dy = this.attackTarget.y - this.y;
+                    const angle = Math.atan2(dy, dx);
+                    const nextX = this.x + Math.cos(angle) * this.speed;
+                    const nextY = this.y + Math.sin(angle) * this.speed;
+
+                    if (!this._checkCollision(nextX, nextY, this.attackTarget)) {
+                        this.x = nextX;
+                        this.y = nextY;
+                    }
+                } else { // In attack range, so attack
+                    this.attackTarget.health -= this.damage;
+                }
+            } else if (this.x !== this.targetX || this.y !== this.targetY) {
                 const dx = this.targetX - this.x;
                 const dy = this.targetY - this.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
+                const distance = Math.hypot(dx, dy);
+
                 if (distance <= this.speed) {
                     this.x = this.targetX;
                     this.y = this.targetY;

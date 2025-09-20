@@ -17,78 +17,142 @@ export function initializeGame({ canvas, uiController, productionItems, settings
     uiController.gameController = gameController;
     uiController.initializeUI();
     
-    // Pass productionItems to the setup functions for initialization
-    setupPlayerOperations(gameController, productionItems);
-    setupEnemyOperations(gameController);
+    // Select a random map for the entire game session.
+    const selectedMap = mapData[Math.floor(Math.random() * mapData.length)];
+    // Create a mutable copy of the spawn locations to prevent players from spawning on the same spot.
+    const possibleSpawnLocations = [...selectedMap.possibleSpawnLocations];
+    
+    // Choose a random location for the player and remove it from the pool.
+    const playerSpawnIndex = Math.floor(Math.random() * possibleSpawnLocations.length);
+    const playerSpawnLocation = possibleSpawnLocations.splice(playerSpawnIndex, 1)[0];
+    
+    // Choose a random location for the enemy from the remaining pool.
+    const enemySpawnIndex = Math.floor(Math.random() * possibleSpawnLocations.length);
+    const enemySpawnLocation = possibleSpawnLocations[enemySpawnIndex];
+    
+    console.log(`Selected Map: ${selectedMap.name}`);
+
+    // Pass the unique spawn locations to the respective setup functions.
+    setupPlayerOperations(gameController, productionItems, playerSpawnLocation);
+    setupEnemyOperations(gameController, productionItems, enemySpawnLocation);
     setupNaturalOperations(gameController);
 }
+
+const spawnLocations = {
+    TopLeft: { name: "Top-Left", x: 0.1, y: 0.1 },
+    MidLeft: { name: "Mid-Left", x: 0.1, y: 0.5 },
+    BottomLeft: { name: "Bottom-Left", x: 0.1, y: 0.9 },
+    TopCenter: { name: "Top-Center", x: 0.5, y: 0.1 },
+    MidCenter: { name: "Mid-Center", x: 0.5, y: 0.5 },
+    BottomCenter: { name: "Bottom-Center", x: 0.5, y: 0.9 },
+    TopRight: { name: "Top-Right", x: 0.9, y: 0.1 },
+    MidRight: { name: "Mid-Right", x: 0.9, y: 0.5 },
+    BottomRight: { name: "Bottom-Right", x: 0.9, y: 0.9 }
+}
+
+// Define a list of maps with their unique spawn locations
+const mapData = [
+    {
+        name: "First Map",
+        spawnFormat: [3,1,3],
+        possibleSpawnLocations: [
+            // Left side
+            spawnLocations.TopLeft, spawnLocations.MidLeft, spawnLocations.BottomLeft,
+            // Center
+            spawnLocations.MidCenter,
+            // Right side
+            spawnLocations.TopRight, spawnLocations.MidRight, spawnLocations.BottomRight
+        ]
+    },
+    {
+        name: "Second Map",
+        spawnFormat: [2,0,1],
+        possibleSpawnLocations: [
+            // Left side
+            spawnLocations.TopLeft, 
+            spawnLocations.BottomLeft,
+            // Right side
+            spawnLocations.MidRight
+        ]
+    },
+    {
+        name: "Third Map",
+        spawnFormat: [3,3,3],
+        possibleSpawnLocations: [
+            // Left side
+            spawnLocations.TopLeft, spawnLocations.MidLeft, spawnLocations.BottomLeft,
+            // Center
+            spawnLocations.TopCenter, spawnLocations.MidCenter, spawnLocations.BottomCenter,
+            // Right side
+            spawnLocations.TopRight, spawnLocations.MidRight, spawnLocations.BottomRight
+        ]
+    }
+];
 
 /**
  * Sets up player-related operations.
  * @param {GameController} gameController - The game controller instance.
  * @param {Array<Object>} productionItems - List of available production items.
+ * @param {Object} playerSpawnLocation - The pre-selected spawn location for the player.
  */
-function setupPlayerOperations(gameController, productionItems) {
-    // Player operations will be defined here.
+function setupPlayerOperations(gameController, productionItems, playerSpawnLocation) {
     const hqItem = productionItems.find(item => item.name === "HQ");
     const hunterItem = productionItems.find(item => item.name === "Hunter");
     const lightTankItem = productionItems.find(item => item.name === "Light Tank");
     const team = "friend";
 
-    // Assume the map is a fixed, larger size than the visible canvas for spawn calculations
     const mapWidth = gameController.WORLD_WIDTH;
     const mapHeight = gameController.WORLD_HEIGHT;
+    const spawnX = mapWidth * playerSpawnLocation.x;
+    const spawnY = mapHeight * playerSpawnLocation.y;
 
-    // Define a list of exact spawn locations with 3 on the left, 1 in the center, and 3 on the right
-    const possibleSpawnLocations = [
-        // Left side
-        { x: mapWidth * 0.1, y: mapHeight * 0.1, name: "Top-Left" }, 
-        { x: mapWidth * 0.1, y: mapHeight * 0.5, name: "Mid-Left" },
-        { x: mapWidth * 0.1, y: mapHeight * 0.9, name: "Bottom-Left" },
-        // Center
-        { x: mapWidth * 0.5, y: mapHeight * 0.5, name: "Center" },
-        // Right side
-        { x: mapWidth * 0.9, y: mapHeight * 0.1, name: "Top-Right" }, 
-        { x: mapWidth * 0.9, y: mapHeight * 0.5, name: "Mid-Right" },
-        { x: mapWidth * 0.9, y: mapHeight * 0.9, name: "Bottom-Right" }
-    ];
+    console.log(`Spawning player HQ at: ${playerSpawnLocation.name}`);
 
-    // Select a random spawn location from the predefined list
-    const spawnLocation = possibleSpawnLocations[Math.floor(Math.random() * possibleSpawnLocations.length)];
-    const spawnX = spawnLocation.x;
-    const spawnY = spawnLocation.y;
+    // Create the list of initial units to spawn for the player
+    const playerSpawns = createInitialUnitSpawns(hqItem, hunterItem, lightTankItem, spawnX, spawnY, "right");
 
-    console.log(`Spawning HQ at: ${spawnLocation.name}`);
-
-    if (hqItem) {
-        const hq = gameController.placeBuilding(hqItem, team, spawnX, spawnY);
-    }
-    
-    // Spawn initial player units near the HQ with small random offsets
-    if (hunterItem) {
-        // Function to get a random offset
-        const getRandomOffset = () => (Math.random() - 0.5) * 80; // offset between -40 and 40
-
-        gameController.spawnUnit(team, spawnX + 50 + getRandomOffset(), spawnY + getRandomOffset(), hunterItem);
-        gameController.spawnUnit(team, spawnX + 50 + getRandomOffset(), spawnY + 40 + getRandomOffset(), hunterItem);
-        gameController.spawnUnit(team, spawnX + 50 + getRandomOffset(), spawnY - 40 + getRandomOffset(), hunterItem);
-    }
-    
-    if (lightTankItem) {
-        const getRandomOffset = () => (Math.random() - 0.5) * 80;
-        gameController.spawnUnit(team, spawnX + 100 + getRandomOffset(), spawnY + getRandomOffset(), lightTankItem);
+    // Loop through the list and place each object
+    for (const spawn of playerSpawns) {
+        if (spawn.item.type === "Command") { // This should be the HQ
+            gameController.placeBuilding(spawn.item, team, spawn.x, spawn.y);
+        } else {
+            gameController.spawnUnit(team, spawn.x, spawn.y, spawn.item);
+        }
     }
 
     console.log("Player operations setup complete.");
 }
 
-
 /**
  * Sets up enemy-related operations.
  * @param {GameController} gameController - The game controller instance.
+ * @param {Array<Object>} productionItems - List of available production items.
+ * @param {Object} enemySpawnLocation - The pre-selected spawn location for the enemy.
  */
-function setupEnemyOperations(gameController) {
-    // Enemy operations will be defined here.
+function setupEnemyOperations(gameController, productionItems, enemySpawnLocation) {
+    const hqItem = productionItems.find(item => item.name === "HQ");
+    const hunterItem = productionItems.find(item => item.name === "Hunter");
+    const team = "foe";
+
+    const mapWidth = gameController.WORLD_WIDTH;
+    const mapHeight = gameController.WORLD_HEIGHT;
+    const spawnX = mapWidth * enemySpawnLocation.x;
+    const spawnY = mapHeight * enemySpawnLocation.y;
+
+    console.log(`Spawning enemy HQ at: ${enemySpawnLocation.name}`);
+
+    // Create the list of initial units to spawn for the enemy
+    const enemySpawns = createInitialUnitSpawns(hqItem, hunterItem, null, spawnX, spawnY, "left");
+
+    // Loop through the list and place each object
+    for (const spawn of enemySpawns) {
+        if (spawn.item.type === "Command") { // This should be the HQ
+            gameController.placeBuilding(spawn.item, team, spawn.x, spawn.y);
+        } else {
+            gameController.spawnUnit(team, spawn.x, spawn.y, spawn.item);
+        }
+    }
+
     console.log("Enemy operations setup complete.");
 }
 
@@ -99,4 +163,38 @@ function setupEnemyOperations(gameController) {
 function setupNaturalOperations(gameController) {
     // Natural element operations will be defined here.
     console.log("Natural operations setup complete.");
+}
+
+/**
+ * Creates the initial spawn configuration for a team.
+ * @param {Object} hqItem - The HQ item data.
+ * @param {Object} hunterItem - The Hunter unit item data.
+ * @param {Object} lightTankItem - The Light Tank unit item data.
+ * @param {number} spawnX - The base X coordinate for the spawn.
+ * @param {number} spawnY - The base Y coordinate for the spawn.
+ * @param {string} direction - "left" or "right" to offset units.
+ * @returns {Array<Object>} An array of objects to be spawned, with their item data and positions.
+ */
+function createInitialUnitSpawns(hqItem, hunterItem, lightTankItem, spawnX, spawnY, direction) {
+    const spawns = [];
+    const offset = direction === "right" ? 100 : -100;
+    const tankOffset = direction === "right" ? 150 : -150;
+
+    // Place the HQ first
+    if (hqItem) {
+        spawns.push({ item: hqItem, x: spawnX, y: spawnY });
+    }
+
+    // Place the units with staggered offsets
+    if (hunterItem) {
+        spawns.push({ item: hunterItem, x: spawnX + offset, y: spawnY });
+        spawns.push({ item: hunterItem, x: spawnX + offset, y: spawnY + 40 });
+        spawns.push({ item: hunterItem, x: spawnX + offset, y: spawnY - 40 });
+    }
+
+    if (lightTankItem) {
+        spawns.push({ item: lightTankItem, x: spawnX + tankOffset, y: spawnY });
+    }
+
+    return spawns;
 }
