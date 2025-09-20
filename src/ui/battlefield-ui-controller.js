@@ -131,4 +131,31 @@ export class UIController {
             this.hoverPopup.style.display = 'none';
         }
     }
+
+     updateResourceCountAnimated(resource, finalValue) {
+        // Use the correct HTML IDs from your index.html
+        const resourceElement = document.getElementById(`${resource}-value`);
+        if (!resourceElement) {
+            console.error(`UI element for resource '${resource}-value' not found.`);
+            return;
+        }
+
+        const currentValue = parseInt(resourceElement.textContent, 10);
+        const duration = 500; // Animation duration in milliseconds
+        const startTime = performance.now();
+
+        const animate = (currentTime) => {
+            const elapsedTime = currentTime - startTime;
+            const progress = Math.min(elapsedTime / duration, 1);
+            const animatedValue = Math.floor(currentValue + (finalValue - currentValue) * progress);
+            
+            resourceElement.textContent = animatedValue;
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
+
+        requestAnimationFrame(animate);
+    }
 }

@@ -3,7 +3,7 @@
 * This content is now a page
 
 * Mechanics
-Command Bar
+Command Bar: Resources
 Production Panel:  Produces Tab (Train Building, Train Unit), list filtered by building
 Map Canvas: Place Building, Select Building, Select Unit, Move Unit, Set Rally Point / Waypoint
     Placement Indicator: Placeable, Not Placeable
@@ -15,7 +15,7 @@ Map Canvas: Place Building, Select Building, Select Unit, Move Unit, Set Rally P
 Unit: Move, Collide, Train, Autochase (target and move until collision, stay targeting if there is a solid obstacle in between), Autoattack (attack in range), Health-Depletion (destruction / elimination)
 Building: Spawn Units Trained by Production Panel, Rally Point
 
-Resources: Credits, Metal, Energy
+Resources: Credits, Metal, Energy, Substance
 Resource Generation: generated via a building placed upon game canvas
 Start Units: HQ spawns a set of units when game starts
 Start Locations: HQ spawns in one of start locations
@@ -23,8 +23,8 @@ Start Locations: HQ spawns in one of start locations
 
 * Setup
 Setup UI: Player Name, Player Color, Enemy Quantity, Map Size
-Building: HQ
-Base Resources: Credits, Energy, Metal
+Building: HQ, Start Units
+Base Resources: Credits, Energy, Metal, Substance
 
 * Units
 Unit List: Infantry, Vehicle, Aircraft, Naval, Terrashift
@@ -47,11 +47,11 @@ Unit List: Infantry, Vehicle, Aircraft, Naval, Terrashift
 
 Unit Tags: Ground, Amphibious, Water, Air; Solid, Phasing
 Unit Descriptions
-Unit Costs: {credits, energy}
+Unit Costs: {credits, energy, substance}
 
 * Buildings
 Building List: Barracks, Vehicle Factory, Hangar, Dock, Airbase, Genesis Workshop, HQ, Refinery, Radar,
-    Energy Generator, Marketing Hub
+    Energy Generator, Marketing Hub, Genetics Lab
 Building Types: Production, Economic, Command, Other
     Production: trains units
     Economic: generates resources
@@ -70,8 +70,9 @@ Produces: units producable for production buildings, buildings producable for co
 Generates:
     Energy Generator: Energy over time
     Marketing Hub: Credits over time
+    Genetics Lab: Substance over time
 
-Building Descriptions
+Building Descriptions, Costs
 
 * UI
 Building Shapes: 
@@ -166,8 +167,6 @@ Equippables & Slots:
 
 * Player Data (Name, Level, XP, Currencies, Achievements, Profile, Command Rank - Rookie to Grand Marshall), Autosave (Settings, Battle Results, Production Field States) ...
 
-
-
 =============BUGFIX-PLAN=======================
 
 *GameController.js
@@ -218,7 +217,6 @@ HP, Destruction-Elimination
 Offensive Buildings: Turrets, Traps, Aura Buildings
 
 * Map Mechanics
-radar displays miniature version of map with dynamic unit locations 
 fog of war (cloud, gray)
 map zoom
 
@@ -234,5 +232,3 @@ enemy pointer arrow
 cursor location X,Y
 objectives panel: kill enemies, destroy bases, generate resources (credits, metal), survive for a duration
 battlefield details: enemy names (crossed over when dead), number of units, enemy colors
-
-map edge glow when it reaches end on panning

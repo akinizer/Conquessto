@@ -14,9 +14,10 @@ export class GameController {
         this.gameState = new GameState();
         // FIXED: Initialize credits to 0 to prevent "NaN" error.
         this.gameState.resources = {
-            energy: 100,
+            credits: 10000, // Initialize credits here
+            energy: 0,
             metal: 0,
-            credits: 0 // Initialize credits here
+            substance: 0 
         };
         this.lastTime = performance.now(); // For delta time calculation
         // Removed the global resourceUpdateTime timer as it's now handled per-building.
@@ -130,6 +131,14 @@ export class GameController {
             }
 
             const itemToQueue = units.find(u => u.name === item.name);
+
+            if (!this.isAffordable(itemToQueue.cost)) {
+                this.uiController.setStatus(`Not enough resources to train ${itemToQueue.name}.`);
+                return;
+            }
+            
+            this.deductCost(itemToQueue.cost);
+
             this.gameState.productionBuilding.productionQueue.push({ item: itemToQueue, button: button });
             this.uiController.setStatus(`${itemToQueue.name} added to queue.`);
             return;
@@ -137,6 +146,11 @@ export class GameController {
 
         // ✅ check if it's a building
         if (buildings.some(b => b.name === item.name)) {
+             if (!this.isAffordable(item.cost)) {
+                this.uiController.setStatus(`Not enough resources to build ${item.name}.`);
+                return;
+            }
+
             this.gameState.pendingBuilding = item;
             this.uiController.setStatus(`Click on the map to place a ${item.name}.`);
             return;
@@ -251,9 +265,10 @@ export class GameController {
         
         
         if (this.gameState.pendingBuilding) {
-            const { width: buildingWidth, height: buildingHeight } = this.gameState.pendingBuilding;
+            const { width: buildingWidth, height: buildingHeight , cost: buildingCost} = this.gameState.pendingBuilding;
 
-            const isLocationClear = this._isAreaClear(mouseX, mouseY, buildingWidth, buildingHeight);
+            const isLocationClear = this._isAreaClear(mouseX, mouseY, buildingWidth, buildingHeight
+            );
             
             // FIX: Correctly check if the building can be placed within the current viewport.
             const isWithinViewport = (
@@ -264,6 +279,9 @@ export class GameController {
             );
 
             if (isLocationClear && isWithinViewport) {
+                //deduct cost
+                this.deductCost(buildingCost);
+
                 const newBuilding = this.buildBuilding("friend", mouseX, mouseY, this.gameState.pendingBuilding);
                 this._selectObject(newBuilding);
                 this.uiController.setStatus(`${this.gameState.pendingBuilding.name} placed.`);
@@ -599,61 +617,61 @@ export class GameController {
     }
 
     drawMiniMapIndicators() {
-    const miniMapCanvas = document.getElementById('miniMapCanvas');
-    if (!miniMapCanvas) {
-        console.warn("Mini-map canvas element with ID 'miniMapCanvas' not found.");
-        return;
-    }
-    const miniMapCtx = miniMapCanvas.getContext('2d');
+        const miniMapCanvas = document.getElementById('miniMapCanvas');
+        if (!miniMapCanvas) {
+            console.warn("Mini-map canvas element with ID 'miniMapCanvas' not found.");
+            return;
+        }
+        const miniMapCtx = miniMapCanvas.getContext('2d');
 
-    if (this.WORLD_WIDTH === 0 || this.WORLD_HEIGHT === 0) {
-        return;
-    }
+        if (this.WORLD_WIDTH === 0 || this.WORLD_HEIGHT === 0) {
+            return;
+        }
 
-    miniMapCtx.clearRect(0, 0, miniMapCanvas.width, miniMapCanvas.height);
+        miniMapCtx.clearRect(0, 0, miniMapCanvas.width, miniMapCanvas.height);
 
-    const scaleX = miniMapCanvas.width / this.WORLD_WIDTH;
-    const scaleY = miniMapCanvas.height / this.WORLD_HEIGHT;
+        const scaleX = miniMapCanvas.width / this.WORLD_WIDTH;
+        const scaleY = miniMapCanvas.height / this.WORLD_HEIGHT;
 
-    // 1. Draw the viewport indicator (your existing code)
-    const indicatorX = this.viewport.x * scaleX;
-    const indicatorY = this.viewport.y * scaleY;
-    const indicatorWidth = this.canvas.width * scaleX;
-    const indicatorHeight = this.canvas.height * scaleY;
+        // 1. Draw the viewport indicator (your existing code)
+        const indicatorX = this.viewport.x * scaleX;
+        const indicatorY = this.viewport.y * scaleY;
+        const indicatorWidth = this.canvas.width * scaleX;
+        const indicatorHeight = this.canvas.height * scaleY;
 
-    miniMapCtx.fillStyle = 'rgba(255, 255, 0, 0.4)';
-    miniMapCtx.fillRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight);
-    
-    miniMapCtx.save();
-    miniMapCtx.shadowColor = 'rgba(255, 255, 0, 1)';
-    miniMapCtx.shadowBlur = 10;
-    miniMapCtx.strokeStyle = 'yellow';
-    miniMapCtx.lineWidth = 2;
-    miniMapCtx.strokeRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight);
-    miniMapCtx.restore();
+        miniMapCtx.fillStyle = 'rgba(255, 255, 0, 0.4)';
+        miniMapCtx.fillRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight);
+        
+        miniMapCtx.save();
+        miniMapCtx.shadowColor = 'rgba(255, 255, 0, 1)';
+        miniMapCtx.shadowBlur = 10;
+        miniMapCtx.strokeStyle = 'yellow';
+        miniMapCtx.lineWidth = 2;
+        miniMapCtx.strokeRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight);
+        miniMapCtx.restore();
 
-    // 2. Draw the HQ indicators
-    for (const id in this.gameState.gameObjects) {
-        const obj = this.gameState.gameObjects[id];
+        // 2. Draw the HQ indicators
+        for (const id in this.gameState.gameObjects) {
+            const obj = this.gameState.gameObjects[id];
 
-        // Check if the object is a Command (HQ) building
-        if (obj.itemData && obj.itemData.type === 'Command') {
-            // Get the color based on the team
-            const color = (obj.team === 'friend') ? 'blue' : 'red';
+            // Check if the object is a Command (HQ) building
+            if (obj.itemData && obj.itemData.type === 'Command') {
+                // Get the color based on the team
+                const color = (obj.team === 'friend') ? 'blue' : 'red';
 
-            // Convert world coordinates to mini-map coordinates
-            const hqX = obj.x * scaleX;
-            const hqY = obj.y * scaleY;
-            const hqRadius = 3; // A small radius for a dot
+                // Convert world coordinates to mini-map coordinates
+                const hqX = obj.x * scaleX;
+                const hqY = obj.y * scaleY;
+                const hqRadius = 3; // A small radius for a dot
 
-            // Draw a circle for the HQ
-            miniMapCtx.fillStyle = color;
-            miniMapCtx.beginPath();
-            miniMapCtx.arc(hqX, hqY, hqRadius, 0, Math.PI * 2);
-            miniMapCtx.fill();
+                // Draw a circle for the HQ
+                miniMapCtx.fillStyle = color;
+                miniMapCtx.beginPath();
+                miniMapCtx.arc(hqX, hqY, hqRadius, 0, Math.PI * 2);
+                miniMapCtx.fill();
+            }
         }
     }
-}
     
     // NEW: The main update loop for game logic.
     update(deltaTime) {
@@ -675,40 +693,79 @@ export class GameController {
      * This function now checks each economic building individually for its production timer.
      */
     _updateResources() {
-        const currentTime = performance.now();
-        let totalEnergyProduction = 0;
-        let totalCreditsProduction = 0; // NEW: Track credits production
-        
+    const currentTime = performance.now();
+
         for (const id in this.gameState.gameObjects) {
             const obj = this.gameState.gameObjects[id];
             
-            // Check for Energy Generators
-            if (obj.itemData && obj.itemData.name === 'Energy Generator') {
-                if (currentTime - obj.lastProductionTime >= 5000) {
-                    totalEnergyProduction += 10;
-                    obj.lastProductionTime = currentTime;
-                }
-            }
+            if (obj.itemData && obj.itemData.type === 'Economic') {
+                const timeSinceLastProduction = currentTime - obj.lastProductionTime;
+                // The production interval should be read from the itemData
+                const interval = obj.itemData.productionInterval || 5000;
 
-            // NEW: Check for Marketing Hubs
-            if (obj.itemData && obj.itemData.name === 'Marketing Hub') {
-                if (currentTime - obj.lastProductionTime >= 5000) {
-                    totalCreditsProduction += 5; // Assuming 5 credits every 5 seconds
+                if (timeSinceLastProduction >= interval) {
+                    // Get the resources this building produces
+                    const resourcesProduced = obj.itemData.produces;
+                    
+                    if (resourcesProduced) {
+                        // Iterate over each resource and update it
+                        for (const resource in resourcesProduced) {
+                            const amount = resourcesProduced[resource];
+                            
+                            // Add the amount to the current resource total
+                            this.gameState.resources[resource] += amount;
+                            
+                            // Call the animated UI update for this specific resource
+                            this.uiController.updateResourceCountAnimated(resource, this.gameState.resources[resource]);
+                        }
+                    }
+                    // Reset the timer for this building
                     obj.lastProductionTime = currentTime;
                 }
             }
         }
-        
-        // Update resources if there was any production
-        if (totalEnergyProduction > 0) {
-            this.gameState.resources.energy += totalEnergyProduction;
+    }
+
+    isAffordable(cost) {
+        if (!cost) {
+            return true;
         }
-        if (totalCreditsProduction > 0) {
-            this.gameState.resources.credits += totalCreditsProduction;
+        for (const resource in cost) {
+            if (!this.gameState.resources.hasOwnProperty(resource) || this.gameState.resources[resource] < cost[resource]) {
+                return false;
+            }
         }
-        
-        // Always update the UI to reflect the latest resource values
-        this.uiController.updateResourcesUI(this.gameState.resources);
+        return true;
+    }
+
+    deductCost(cost) {
+        if (!cost) {
+            return;
+        }
+        for (const resource in cost) {
+            if (this.gameState.resources.hasOwnProperty(resource)) {
+                // Deduct the cost from the game state
+                this.gameState.resources[resource] -= cost[resource];
+
+                // NEW: Trigger the digit change animation with the final value
+                this.uiController.updateResourceCountAnimated(resource, this.gameState.resources[resource]);
+            }
+        }
+    }
+
+    earnResources(amount) {
+        if (!amount) {
+            return;
+        }
+        for (const resource in amount) {
+            if (this.gameState.resources.hasOwnProperty(resource)) {
+                // Add the new resources to the game state
+                this.gameState.resources[resource] += amount[resource];
+                
+                // Trigger the same animation with the new, final value
+                this.uiController.updateResourceCountAnimated(resource, this.gameState.resources[resource]);
+            }
+        }
     }
 
     /**
