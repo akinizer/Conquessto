@@ -93,7 +93,7 @@ Hover Plate:
 Map Canvas Pan:
     Indicator when an edge is reached
 
-Radar Minimap: Cam Indicator
+Radar Minimap: Cam Indicator, Enemy HQ Indicator, Ally Enemy Indicator
 
 === IN-PROGRESS ===
 * Mechanics

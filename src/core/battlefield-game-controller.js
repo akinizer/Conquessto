@@ -599,49 +599,61 @@ export class GameController {
     }
 
     drawMiniMapIndicators() {
-        // Get the mini-map canvas and its context
-        const miniMapCanvas = document.getElementById('miniMapCanvas');
-        console.log("Mini-map Canvas Element:", miniMapCanvas); // Check this log!
-
-        if (!miniMapCanvas) return;
-        const miniMapCtx = miniMapCanvas.getContext('2d');
-
-        // Clear the mini-map canvas to prepare for a new draw
-        miniMapCtx.clearRect(0, 0, miniMapCanvas.width, miniMapCanvas.height);
-
-        console.log("World Dimensions:", this.WORLD_WIDTH, "x", this.WORLD_HEIGHT);
-        console.log("Mini-map Dimensions:", miniMapCanvas.width, "x", miniMapCanvas.height);
-        console.log("Viewport:", this.viewport.x, this.viewport.y);
-
-        // Calculate scaling factors to translate world coordinates to mini-map coordinates
-        const scaleX = miniMapCanvas.width / this.WORLD_WIDTH;
-        const scaleY = miniMapCanvas.height / this.WORLD_HEIGHT;
-
-        console.log("Scale:", scaleX, scaleY);
-
-        // Convert the main viewport coordinates to mini-map coordinates
-        const indicatorX = this.viewport.x * scaleX;
-        const indicatorY = this.viewport.y * scaleY;
-        const indicatorWidth = this.canvas.width * scaleX;
-        const indicatorHeight = this.canvas.height * scaleY;
-
-        console.log("Indicator:", indicatorX, indicatorY, indicatorWidth, indicatorHeight);
-
-        // Set the fill style to a semi-transparent yellow
-        miniMapCtx.fillStyle = 'rgba(255, 255, 0, 0.4)';
-
-        // Draw the yellow rectangle representing the viewport
-        miniMapCtx.fillRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight);
-
-        // Add a glowing effect
-        miniMapCtx.save();
-        miniMapCtx.shadowColor = 'rgba(255, 255, 0, 1)';
-        miniMapCtx.shadowBlur = 10;
-        miniMapCtx.strokeStyle = 'yellow';
-        miniMapCtx.lineWidth = 2;
-        miniMapCtx.strokeRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight);
-        miniMapCtx.restore();
+    const miniMapCanvas = document.getElementById('miniMapCanvas');
+    if (!miniMapCanvas) {
+        console.warn("Mini-map canvas element with ID 'miniMapCanvas' not found.");
+        return;
     }
+    const miniMapCtx = miniMapCanvas.getContext('2d');
+
+    if (this.WORLD_WIDTH === 0 || this.WORLD_HEIGHT === 0) {
+        return;
+    }
+
+    miniMapCtx.clearRect(0, 0, miniMapCanvas.width, miniMapCanvas.height);
+
+    const scaleX = miniMapCanvas.width / this.WORLD_WIDTH;
+    const scaleY = miniMapCanvas.height / this.WORLD_HEIGHT;
+
+    // 1. Draw the viewport indicator (your existing code)
+    const indicatorX = this.viewport.x * scaleX;
+    const indicatorY = this.viewport.y * scaleY;
+    const indicatorWidth = this.canvas.width * scaleX;
+    const indicatorHeight = this.canvas.height * scaleY;
+
+    miniMapCtx.fillStyle = 'rgba(255, 255, 0, 0.4)';
+    miniMapCtx.fillRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight);
+    
+    miniMapCtx.save();
+    miniMapCtx.shadowColor = 'rgba(255, 255, 0, 1)';
+    miniMapCtx.shadowBlur = 10;
+    miniMapCtx.strokeStyle = 'yellow';
+    miniMapCtx.lineWidth = 2;
+    miniMapCtx.strokeRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight);
+    miniMapCtx.restore();
+
+    // 2. Draw the HQ indicators
+    for (const id in this.gameState.gameObjects) {
+        const obj = this.gameState.gameObjects[id];
+
+        // Check if the object is a Command (HQ) building
+        if (obj.itemData && obj.itemData.type === 'Command') {
+            // Get the color based on the team
+            const color = (obj.team === 'friend') ? 'blue' : 'red';
+
+            // Convert world coordinates to mini-map coordinates
+            const hqX = obj.x * scaleX;
+            const hqY = obj.y * scaleY;
+            const hqRadius = 3; // A small radius for a dot
+
+            // Draw a circle for the HQ
+            miniMapCtx.fillStyle = color;
+            miniMapCtx.beginPath();
+            miniMapCtx.arc(hqX, hqY, hqRadius, 0, Math.PI * 2);
+            miniMapCtx.fill();
+        }
+    }
+}
     
     // NEW: The main update loop for game logic.
     update(deltaTime) {
