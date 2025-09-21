@@ -4,23 +4,26 @@ export class Unit extends GameObject {
     constructor(id, team, x, y, width, height, canvas, gameController, itemData, tags = []) {
         super(id, "Unit", team, x, y, canvas, gameController, tags);
 
+     // Properties that would typically be loaded from a JSON data file
         this.width = width;
         this.height = height;
         this.itemData = itemData;
-
+        this.speed = itemData.combatProperties.speed;
+        this.attackRange = itemData.combatProperties.attackRange; // The range to stop and deal damage
+        this.autochaseRange = itemData.combatProperties.attackRange * 1.5; // The range to start moving toward an enemy
+        this.damage = itemData.combatProperties.damage;
+        this.rateOfFire = itemData.combatProperties.rateOfFire; // Cooldown in milliseconds (e.g., 500ms = 2 attacks per second)
+        
+        // Dynamic state properties
         this.targetX = x;
         this.targetY = y;
-        this.speed = 2;
-        this.attackRange = 40; // The range to stop and deal damage
-        this.autochaseRange = 200; // The range to start moving toward an enemy
-        this.damage = 0.5;
+        this.path = [];
+        this.pathIndex = 0;
+        this.lastAttackTime = 0; // Time of the last attack
         this.attackTarget = null;
         this.isSelected = false;
         this.isCommandedToMove = false;
         this.isCommandedToHQ = false; // New state to check if unit is commanded to an HQ
-
-        this.path = [];
-        this.pathIndex = 0;
     }
 
     select = () => {
@@ -41,15 +44,26 @@ export class Unit extends GameObject {
         // Translate the canvas context to the unit's position
         ctx.translate(this.x, this.y);
 
+        
+
         // Draw autochase range indicator if the unit is selected
         if (this.isSelected) {
             ctx.beginPath();
-            ctx.arc(0, 0, this.autochaseRange, 0, Math.PI * 2);
+            ctx.arc(0, 0, this.attackRange, 0, Math.PI * 2);
             ctx.fillStyle = "rgba(255, 255, 0, 0.1)"; // Semi-transparent yellow
             ctx.fill();
             ctx.strokeStyle = "rgba(255, 255, 0, 0.5)";
             ctx.lineWidth = 1;
             ctx.stroke();
+
+            // Draw the broken-line circle for the autochase range
+            ctx.beginPath();
+            ctx.setLineDash([5, 5]); // Sets a dash pattern for broken lines
+            ctx.arc(0, 0, this.autochaseRange, 0, Math.PI * 2);
+            ctx.strokeStyle = "rgba(0, 255, 0, 0.5)";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.setLineDash([]); // Reset the dash pattern to a solid line
         }
 
         // Draw the unit shape based on its type
@@ -228,7 +242,7 @@ export class Unit extends GameObject {
                     return otherObj;
                 }
             } else {
-                const distance = Math.sqrt(Math.pow(tempUnit.x - otherObj.x, 2) + Math.pow(temp.y - otherObj.y, 2));
+                const distance = Math.sqrt(Math.pow(tempUnit.x - otherObj.x, 2) + Math.pow(tempUnit.y - otherObj.y, 2));
                 const otherRadius = otherObj.width / 2;
                 const unitRadius = tempUnit.width / 2;
                 if (distance < unitRadius + otherRadius) {
@@ -300,6 +314,14 @@ export class Unit extends GameObject {
         // Now just a simple call to the helper method
         return this._getCollidingObject(newX, newY, ignoreObject) !== null;
     }
+    
+    dealDamage = (target) => {
+        // Check if the attack cooldown has passed
+        if (Date.now() - this.lastAttackTime >= this.rateOfFire) {
+            target.health -= this.damage;
+            this.lastAttackTime = Date.now();
+        }
+    };
 
     update = () => {
         // If not manually moving or commanded to an HQ, find the closest enemy to attack
@@ -316,7 +338,7 @@ export class Unit extends GameObject {
 
             // If we are in attack range, stop and attack.
             if (this.attackTarget && distance <= this.attackRange) {
-                this.attackTarget.health -= this.damage;
+                this.dealDamage(this.attackTarget);
                 return;
             }
 

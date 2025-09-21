@@ -48,6 +48,7 @@ Unit List: Infantry, Vehicle, Aircraft, Naval, Terrashift
 Unit Tags: Ground, Amphibious, Water, Air; Solid, Phasing
 Unit Descriptions
 Unit Costs: {credits, energy, substance}
+Combat Properties: health, damage, speed, attack range, rate of fire
 
 * Buildings
 Building List: Barracks, Vehicle Factory, Hangar, Dock, Airbase, Genesis Workshop, HQ, Refinery, Radar,
@@ -73,6 +74,8 @@ Generates:
     Genetics Lab: Substance over time
 
 Building Descriptions, Costs
+Combat Properties: health, damage, speed, attack range, rate of fire
+Other Properties: isStatic, isDestructable
 
 * UI
 Building Shapes: 
@@ -87,6 +90,8 @@ Unit Shapes:
     Naval Vehicle: Blue Hexagon
     Amphibious Vehicle: Blue Diamond  
 
+Unit Indicators: Attack Range, Autochase Range
+
 Hover Plate:
     Unit and Building Objects: Name, Energy Use, Type
     Produces: Name, Description, Cost, Train Time
@@ -95,6 +100,13 @@ Map Canvas Pan:
     Indicator when an edge is reached
 
 Radar Minimap: Cam Indicator, Enemy HQ Indicator, Ally Enemy Indicator
+
+Animation Data:
+    Unit: Model (VFX, Anim, SFX)
+    Building: Model (VFX, Anim, SFX)
+
+Terrashift Data: Base Model, Models
+
 
 === IN-PROGRESS ===
 * Mechanics
