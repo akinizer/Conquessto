@@ -169,6 +169,14 @@ Equippables & Slots:
 
 =============BUGFIX-PLAN=======================
 
+*PRIORITY:
+
+- collision distance unit vs building
+- pathfinding unit vs solid
+- pathfinding unit vs terrain
+- move to attack should override click to move
+
+
 *GameController.js
 
 ### **Flawed Selection Logic**
@@ -191,6 +199,12 @@ Equippables & Slots:
 - **Code Part:** The entire `handleMouseMove` function is a duplicate of `onCanvasMouseMove` and is never called by any event listener, making it dead code.
 
 * Unit Mechanics
+
+attack move -> override move
+attack move - dynamic tracking
+attack move - set dynamic waypoint flag
+
+move - set waypoint flag
 
 move waypoint: click to move, click to attack, click to Garrison
 autotarget range, autochase range 
@@ -232,3 +246,4 @@ enemy pointer arrow
 cursor location X,Y
 objectives panel: kill enemies, destroy bases, generate resources (credits, metal), survive for a duration
 battlefield details: enemy names (crossed over when dead), number of units, enemy colors
+
