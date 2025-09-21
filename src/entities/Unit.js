@@ -18,9 +18,7 @@ export class Unit extends GameObject {
         this.isSelected = false;
         this.isCommandedToMove = false;
         this.isCommandedToHQ = false; // New state to check if unit is commanded to an HQ
-        this.gameController = gameController;
-        this.tags = tags;
-        
+
         this.path = [];
         this.pathIndex = 0;
     }
@@ -155,7 +153,9 @@ export class Unit extends GameObject {
         this.attackTarget = null;
         this.isCommandedToMove = true;
         this.isCommandedToHQ = false;
-        this._findPath(destX, destY);
+        // With detour logic removed, we simply set the path to the destination
+        this.path = [{ x: destX, y: destY }];
+        this.pathIndex = 0;
     }
 
     commandToHQ = () => {
@@ -166,40 +166,12 @@ export class Unit extends GameObject {
             this.attackTarget = null;
             this.isCommandedToMove = false;
             this.isCommandedToHQ = true;
-            this._findPath(hq.x, hq.y);
+            this.path = [{ x: hq.x, y: hq.y }];
+            this.pathIndex = 0;
         }
     }
 
-    _findPath = (destX, destY) => {
-        this.path = [];
-        this.pathIndex = 0;
-
-        // Check for a straight-line collision to the destination
-        if (!this._isPathClear(this.x, this.y, destX, destY)) {
-            // Find a detour point if the path is blocked
-            const collisionObj = this._getFirstCollision(this.x, this.y, destX, destY);
-            if (collisionObj) {
-                // Calculate a detour point to one side of the obstacle
-                const dx = destX - this.x;
-                const dy = destY - this.y;
-                const distance = Math.hypot(dx, dy);
-                const normDx = dx / distance;
-                const normDy = dy / distance;
-
-                // Find a point perpendicular to the collision point
-                const detourDistance = 50; // How far to go around the obstacle
-                const detourX = collisionObj.x + (normDy * detourDistance);
-                const detourY = collisionObj.y - (normDx * detourDistance);
-                
-                this.path.push({ x: detourX, y: detourY });
-                this.path.push({ x: destX, y: destY });
-            }
-        } else {
-            // If the path is clear, just add the destination
-            this.path.push({ x: destX, y: destY });
-        }
-    }
-    
+    // This method is no longer used for pathfinding, but remains for collision detection
     _isPathClear = (startX, startY, endX, endY) => {
         const rayStep = 10;
         const dx = endX - startX;
@@ -256,7 +228,7 @@ export class Unit extends GameObject {
                     return otherObj;
                 }
             } else {
-                const distance = Math.sqrt(Math.pow(tempUnit.x - otherObj.x, 2) + Math.pow(tempUnit.y - otherObj.y, 2));
+                const distance = Math.sqrt(Math.pow(tempUnit.x - otherObj.x, 2) + Math.pow(temp.y - otherObj.y, 2));
                 const otherRadius = otherObj.width / 2;
                 const unitRadius = tempUnit.width / 2;
                 if (distance < unitRadius + otherRadius) {
@@ -338,61 +310,40 @@ export class Unit extends GameObject {
         const target = this.isCommandedToMove ? { x: this.targetX, y: this.targetY } : (this.isCommandedToHQ ? this._findClosestHQ() : this.attackTarget);
 
         if (target) {
-            if ((this.isCommandedToMove || this.isCommandedToHQ) && this.path.length > 0) {
-                const currentWaypoint = this.path[this.pathIndex];
-                const dx = currentWaypoint.x - this.x;
-                const dy = currentWaypoint.y - this.y;
-                const distance = Math.hypot(dx, dy);
+            const dx = target.x - this.x;
+            const dy = target.y - this.y;
+            const distance = Math.hypot(dx, dy);
 
-                // Calculate the next position
-                const normDx = dx / distance;
-                const normDy = dy / distance;
-                let nextX = this.x + normDx * this.speed;
-                let nextY = this.y + normDy * this.speed;
+            // If we are in attack range, stop and attack.
+            if (this.attackTarget && distance <= this.attackRange) {
+                this.attackTarget.health -= this.damage;
+                return;
+            }
 
-                // Check for collision at the next position before moving
-                if (this._getCollidingObject(nextX, nextY, this)) {
-                    // Collision detected, recalculate path from the current position
-                    this._findPath(this.targetX, this.targetY);
-                } else {
-                    // No collision, move to the next position
-                    this.x = nextX;
-                    this.y = nextY;
-                }
+            // If we are close to the move-to target, stop.
+            if (this.isCommandedToMove && distance <= this.speed) {
+                this.x = this.targetX;
+                this.y = this.targetY;
+                this.isCommandedToMove = false;
+                return;
+            }
 
-                if (distance <= this.speed) {
-                    this.pathIndex++;
-                    if (this.pathIndex >= this.path.length) {
-                        this.path = [];
-                        this.isCommandedToMove = false;
-                        this.isCommandedToHQ = false;
-                    }
-                }
+            // Normal movement vector
+            const normDx = dx / distance;
+            const normDy = dy / distance;
+            let nextX = this.x + normDx * this.speed;
+            let nextY = this.y + normDy * this.speed;
+
+            // Check for collision at the next position before moving
+            if (this._getCollidingObject(nextX, nextY, this)) {
+                // Collision detected, stop the unit
+                this.isCommandedToMove = false;
+                this.isCommandedToHQ = false;
+                return;
             } else {
-                const dx = target.x - this.x;
-                const dy = target.y - this.y;
-                const distance = Math.hypot(dx, dy);
-
-                // If we are in attack range, stop and attack.
-                if (this.attackTarget && distance <= this.attackRange) {
-                    this.attackTarget.health -= this.damage;
-                    return;
-                }
-
-                // If we are close to the move-to target, stop.
-                if (this.isCommandedToMove && distance <= this.speed) {
-                    this.x = this.targetX;
-                    this.y = this.targetY;
-                    this.isCommandedToMove = false;
-                    return;
-                }
-
-                // Normal movement vector
-                const normDx = dx / distance;
-                const normDy = dy / distance;
-                this.x += normDx * this.speed;
-                this.y += normDy * this.speed;
-                
+                // No collision, move to the next position
+                this.x = nextX;
+                this.y = nextY;
             }
         }
     }
