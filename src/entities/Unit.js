@@ -17,8 +17,12 @@ export class Unit extends GameObject {
         this.attackTarget = null;
         this.isSelected = false;
         this.isCommandedToMove = false;
+        this.isCommandedToHQ = false; // New state to check if unit is commanded to an HQ
         this.gameController = gameController;
         this.tags = tags;
+        
+        this.path = [];
+        this.pathIndex = 0;
     }
 
     select = () => {
@@ -150,7 +154,158 @@ export class Unit extends GameObject {
         this.targetY = destY;
         this.attackTarget = null;
         this.isCommandedToMove = true;
+        this.isCommandedToHQ = false;
+        this._findPath(destX, destY);
     }
+
+    commandToHQ = () => {
+        const hq = this._findClosestHQ();
+        if (hq) {
+            this.targetX = hq.x;
+            this.targetY = hq.y;
+            this.attackTarget = null;
+            this.isCommandedToMove = false;
+            this.isCommandedToHQ = true;
+            this._findPath(hq.x, hq.y);
+        }
+    }
+
+    _findPath = (destX, destY) => {
+        this.path = [];
+        this.pathIndex = 0;
+
+        // Check for a straight-line collision to the destination
+        if (!this._isPathClear(this.x, this.y, destX, destY)) {
+            // Find a detour point if the path is blocked
+            const collisionObj = this._getFirstCollision(this.x, this.y, destX, destY);
+            if (collisionObj) {
+                // Calculate a detour point to one side of the obstacle
+                const dx = destX - this.x;
+                const dy = destY - this.y;
+                const distance = Math.hypot(dx, dy);
+                const normDx = dx / distance;
+                const normDy = dy / distance;
+
+                // Find a point perpendicular to the collision point
+                const detourDistance = 50; // How far to go around the obstacle
+                const detourX = collisionObj.x + (normDy * detourDistance);
+                const detourY = collisionObj.y - (normDx * detourDistance);
+                
+                this.path.push({ x: detourX, y: detourY });
+                this.path.push({ x: destX, y: destY });
+            }
+        } else {
+            // If the path is clear, just add the destination
+            this.path.push({ x: destX, y: destY });
+        }
+    }
+    
+    _isPathClear = (startX, startY, endX, endY) => {
+        const rayStep = 10;
+        const dx = endX - startX;
+        const dy = endY - startY;
+        const distance = Math.hypot(dx, dy);
+        const steps = Math.floor(distance / rayStep);
+        const normDx = dx / distance;
+        const normDy = dy / distance;
+
+        for (let i = 0; i <= steps; i++) {
+            const currentX = startX + normDx * rayStep * i;
+            const currentY = startY + normDy * rayStep * i;
+            // Use the single source of truth for collision detection
+            if (this._getCollidingObject(currentX, currentY, this)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    // A single, reusable method for checking collision at a specific point.
+    // This removes duplicated code from other methods.
+    _getCollidingObject = (x, y, ignoreObject = null) => {
+        const tempUnit = {
+            id: this.id,
+            x: x,
+            y: y,
+            width: this.width || 30,
+            height: this.height || 30,
+        };
+        for (const objId in this.gameController.gameState.gameObjects) {
+            const otherObj = this.gameController.gameState.gameObjects[objId];
+            // Skip self and non-solid objects
+            if (otherObj.id === this.id || !otherObj.tags.includes('solid') || otherObj === ignoreObject) {
+                continue;
+            }
+            if (otherObj.tags.includes('structure') || otherObj.tags.includes('hq')) {
+                const rectX = otherObj.x - otherObj.width / 2;
+                const rectY = otherObj.y - otherObj.height / 2;
+                const rectWidth = otherObj.width;
+                const rectHeight = otherObj.height;
+                
+                // Find the closest point on the rectangle to the center of the circle
+                const closestX = Math.max(rectX, Math.min(tempUnit.x, rectX + rectWidth));
+                const closestY = Math.max(rectY, Math.min(tempUnit.y, rectY + rectHeight));
+
+                // Calculate the distance between the circle's center and this closest point
+                const dx = tempUnit.x - closestX;
+                const dy = tempUnit.y - closestY;
+                const distance = Math.sqrt((dx * dx) + (dy * dy));
+
+                // If the distance is less than the unit's radius, there is a collision
+                if (distance < tempUnit.width / 2) {
+                    return otherObj;
+                }
+            } else {
+                const distance = Math.sqrt(Math.pow(tempUnit.x - otherObj.x, 2) + Math.pow(tempUnit.y - otherObj.y, 2));
+                const otherRadius = otherObj.width / 2;
+                const unitRadius = tempUnit.width / 2;
+                if (distance < unitRadius + otherRadius) {
+                    return otherObj;
+                }
+            }
+        }
+        return null;
+    }
+
+    _getFirstCollision = (startX, startY, endX, endY) => {
+        const rayStep = 10;
+        const dx = endX - startX;
+        const dy = endY - startY;
+        const distance = Math.hypot(dx, dy);
+        const steps = Math.floor(distance / rayStep);
+        const normDx = dx / distance;
+        const normDy = dy / distance;
+    
+        for (let i = 0; i <= steps; i++) {
+            const currentX = startX + normDx * rayStep * i;
+            const currentY = startY + normDy * rayStep * i;
+            // Use the single source of truth to find the colliding object
+            const collisionObject = this._getCollidingObject(currentX, currentY);
+            if (collisionObject) {
+                return collisionObject;
+            }
+        }
+        return null;
+    }
+
+    _findClosestHQ = () => {
+        let closestHQ = null;
+        let minDistance = Infinity;
+
+        for (const id in this.gameController.gameState.gameObjects) {
+            const obj = this.gameController.gameState.gameObjects[id];
+            // Check if the object is an HQ and is on the same team
+            if (obj.tags.includes('hq') && obj.team === this.team) {
+                const distance = Math.hypot(this.x - obj.x, this.y - obj.y);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestHQ = obj;
+                }
+            }
+        }
+        return closestHQ;
+    }
+
 
     findClosestEnemy = () => {
         let closestEnemy = null;
@@ -170,104 +325,74 @@ export class Unit extends GameObject {
     }
 
     _checkCollision = (newX, newY, ignoreObject = null) => {
-        const tempUnit = {
-            id: this.id,
-            x: newX,
-            y: newY,
-            width: this.width || 30,
-            height: this.height || 30,
-        };
-        for (const objId in this.gameController.gameState.gameObjects) {
-            const otherObj = this.gameController.gameState.gameObjects[objId];
-            if (otherObj.id === this.id || !otherObj.tags.includes('solid') || otherObj === ignoreObject) {
-                continue;
-            }
-            if (otherObj.tags.includes('structure')) {
-                const distX = Math.abs(tempUnit.x - otherObj.x);
-                const distY = Math.abs(tempUnit.y - otherObj.y);
-                const halfOtherWidth = otherObj.width / 2;
-                const halfOtherHeight = otherObj.height / 2;
-                const unitRadius = tempUnit.width / 2;
-                if (distX > (halfOtherWidth + unitRadius) || distY > (halfOtherHeight + unitRadius)) {
-                    continue;
-                }
-                if (distX <= halfOtherWidth || distY <= halfOtherHeight) {
-                    return true;
-                }
-                const dx = distX - halfOtherWidth;
-                const dy = distY - halfOtherHeight;
-                if ((dx * dx + dy * dy) <= (unitRadius * unitRadius)) {
-                    return true;
-                }
-            } else {
-                const distance = Math.sqrt(Math.pow(tempUnit.x - otherObj.x, 2) + Math.pow(tempUnit.y - otherObj.y, 2));
-                const otherRadius = otherObj.width / 2;
-                if (distance < unitRadius + otherRadius) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        // Now just a simple call to the helper method
+        return this._getCollidingObject(newX, newY, ignoreObject) !== null;
     }
 
     update = () => {
-        // If not manually moving, find the closest enemy to attack
-        if (!this.isCommandedToMove) {
+        // If not manually moving or commanded to an HQ, find the closest enemy to attack
+        if (!this.isCommandedToMove && !this.isCommandedToHQ) {
             this.attackTarget = this.findClosestEnemy();
         }
 
-        const target = this.isCommandedToMove ? { x: this.targetX, y: this.targetY } : this.attackTarget;
+        const target = this.isCommandedToMove ? { x: this.targetX, y: this.targetY } : (this.isCommandedToHQ ? this._findClosestHQ() : this.attackTarget);
 
         if (target) {
-            const dx = target.x - this.x;
-            const dy = target.y - this.y;
-            const distance = Math.hypot(dx, dy);
+            if ((this.isCommandedToMove || this.isCommandedToHQ) && this.path.length > 0) {
+                const currentWaypoint = this.path[this.pathIndex];
+                const dx = currentWaypoint.x - this.x;
+                const dy = currentWaypoint.y - this.y;
+                const distance = Math.hypot(dx, dy);
 
-            // If we are in attack range, stop and attack.
-            if (this.attackTarget && distance <= this.attackRange) {
-                this.attackTarget.health -= this.damage;
-                return;
-            }
+                // Calculate the next position
+                const normDx = dx / distance;
+                const normDy = dy / distance;
+                let nextX = this.x + normDx * this.speed;
+                let nextY = this.y + normDy * this.speed;
 
-            // If we are close to the move-to target, stop.
-            if (this.isCommandedToMove && distance <= this.speed) {
-                this.x = this.targetX;
-                this.y = this.targetY;
-                this.isCommandedToMove = false;
-                return;
-            }
-
-            // Normal movement vector
-            const normDx = dx / distance;
-            const normDy = dy / distance;
-            let nextX = this.x + normDx * this.speed;
-            let nextY = this.y + normDy * this.speed;
-
-            // Simple Obstacle Avoidance:
-            // Check for collision on the next step. If a collision is detected,
-            // try to move in a perpendicular direction.
-            if (this._checkCollision(nextX, nextY, this.attackTarget)) {
-                // Try moving perpendicular to the original direction (e.g., "sidestep")
-                // We'll try one side first, then the other if needed.
-                let nextX_avoid = this.x + normDy * this.speed * 0.5;
-                let nextY_avoid = this.y - normDx * this.speed * 0.5;
-
-                if (!this._checkCollision(nextX_avoid, nextY_avoid, this.attackTarget)) {
-                    this.x = nextX_avoid;
-                    this.y = nextY_avoid;
+                // Check for collision at the next position before moving
+                if (this._getCollidingObject(nextX, nextY, this)) {
+                    // Collision detected, recalculate path from the current position
+                    this._findPath(this.targetX, this.targetY);
                 } else {
-                    // Try the other side if the first one is also blocked
-                    nextX_avoid = this.x - normDy * this.speed * 0.5;
-                    nextY_avoid = this.y + normDx * this.speed * 0.5;
-                    if (!this._checkCollision(nextX_avoid, nextY_avoid, this.attackTarget)) {
-                        this.x = nextX_avoid;
-                        this.y = nextY_avoid;
+                    // No collision, move to the next position
+                    this.x = nextX;
+                    this.y = nextY;
+                }
+
+                if (distance <= this.speed) {
+                    this.pathIndex++;
+                    if (this.pathIndex >= this.path.length) {
+                        this.path = [];
+                        this.isCommandedToMove = false;
+                        this.isCommandedToHQ = false;
                     }
                 }
             } else {
-                // No collision, proceed with normal movement.
-                this.x = nextX;
-                this.y = nextY;
+                const dx = target.x - this.x;
+                const dy = target.y - this.y;
+                const distance = Math.hypot(dx, dy);
+
+                // If we are in attack range, stop and attack.
+                if (this.attackTarget && distance <= this.attackRange) {
+                    this.attackTarget.health -= this.damage;
+                    return;
+                }
+
+                // If we are close to the move-to target, stop.
+                if (this.isCommandedToMove && distance <= this.speed) {
+                    this.x = this.targetX;
+                    this.y = this.targetY;
+                    this.isCommandedToMove = false;
+                    return;
+                }
+
+                // Normal movement vector
+                const normDx = dx / distance;
+                const normDy = dy / distance;
+                this.x += normDx * this.speed;
+                this.y += normDy * this.speed;
+                
             }
         }
     }
