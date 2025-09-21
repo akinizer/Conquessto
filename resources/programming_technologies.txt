@@ -1,0 +1,94 @@
+/implemented\
+structure: 
+    genre: economy, rts, rpg
+    type: web app, single page
+    language: js
+    api: ui, managers, modular
+    framework: custom
+    data model: json
+    soap / rest: -
+ui:
+    canvas, game objects (base, units, buildings), map, radar, command, animations
+    collision: 
+        axis aligned bounding boxes (AABB)
+        circle vs AABB hybrid
+        distance formula
+        radius comparison
+    basic AI:
+        find target
+design patterns:
+    observer (notifies subscriber on update): uiUpdateCallback (resource manager), ui controller (update - feedback)
+    modular (manageable): modified only by public methods (core, data, entities, ui)
+    factory: production (building and unit classes, build / spawns)
+    system / manager / controller: managers (ability, effect, battlefield, resource, data), services (ui controller, game setup ui), controller (ui, game) object lifesycle (destroy, remove unit)
+    command: set... methods (ability), encapsulation, specific ability -> SRP
+    constant / enumeration: modular, encapsulation, typo-free, readabilty, centralized maintenance 
+    game loop: delta time, draw / render / update, viewport, camera, animation render
+    template method: game object shapes (super.draw(ctx))
+    facade: single function, large body of code (initialize, run)
+    key design: data-driven (constructor(itemData))
+    inheritence pattern (hierarchy): grandchild -> child -> parent
+    state pattern (internal state of game object): building (queue, training time)
+    strategy patten (draw - switch): drawCircle, drawSquare etc
+    singleton: game state
+    SPA (single page application): main.js 
+solid principles:
+    single responsibility (srp): managers, generic game objects (building, unit), handlers -> ENCAPSULATION
+    open / closed (custom child / solid parent) (OCP): generic parent allowd custom childs (building - economic building etc)
+    liskov substitution (LSP): super class and children behave same, super()
+    interface segregation (isp): avoid redundant interfaces (unit & building: take damage (+), moveable (+,-))
+    dependency inversion (dip): avoid cobweb of imports; high level modules do not depend on low level modules
+oop:
+    encapsulation (internal logic separate from system): game objects (unit, building)
+    abstraction: generic functions (setBuff)
+    enumeration
+    inheritence (extend): extend (GameObject)
+    polymorphism (many to one extend): (building, unit) extend (GameObject)
+    data-driven (loads data from file, avoid hard coding, json): production items, map data, spawn locations
+    constants: ABILITY_KEYS, BUFF_PROPERTIES, ATTACK_EFFECTS -> CONSTANT PATTERN
+    robustness: mutable array -> [...selectedMap.possibleSpawnLocations], avoids spawn overlap
+injection:
+    dependency injection: constructor(new Class)
+async programming:
+    multithreading: async / await, fetch API, setTimeout
+    architecture design
+event driven architecture:
+    event listeners: mousedown, keydown, onrightclick etc
+    decoupling: stats of objects can be changed via JSON
+    scalability: custom children (unit, building) -> OPC
+
+/todo\
+component architecture
+    unit: all properties, methods, various components
+
+event driven architecture:
+    decoupling: separate data from logic - ability manager publishes event ABILITY_USED - effect manager subscribes event ABILITY_USED
+    scalability: managers i.e ui sound manager listens to events
+
+design pattern: 
+    Entity-Component-System (ECS): entities, components, systems
+        entity manger - system, processes entitiyes
+        ability component - apply effects
+        code simplification
+    dependency injection: 
+        decoupling
+
+state management:
+    flux / redux: data flow, dispatch ability, store gameState, render view
+
+NPM -> node.js -> automation
+
+event tracking:
+    console.log -> X
+    logger (info: 'Ability Expired', data: { abilityName: 'Rage', unitId: '123' })
+
+CI / CD pipeline: this will make commit - push more difficult
+    CI: Github -> automated tools -> build, run tests (unit, integration) -> validates no bugs
+    CD: pipeline deploys to Github
+
+
+Algorithms:
+    Web Workers: ai pathfinding, responsive ui thread
+    Pathfinder: object movement
+    Web Sockets: real-time multiplayer, two-way communication, more efficent than http data transfer
+    Collision Detection Algorithms: separating axis theorem (SAT)
