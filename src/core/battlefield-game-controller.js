@@ -151,7 +151,7 @@ export class GameController {
             }
 
             this.gameState.pendingBuilding = item;
-            this.uiController.setStatus(`Click on the map to place a ${item.name}.`);
+            this.uiController.setStatus(`Place the ${item.name}.`);
             return;
         }
 

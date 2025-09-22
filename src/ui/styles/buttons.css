@@ -1,93 +1,78 @@
 /* styles/buttons.css */
 
+@import url('https://fonts.googleapis.com/css2?family=Electrolize&display=swap');
+
 #production-grid {
-    flex-grow: 1;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(120px, 1fr)); /* ✅ FIX: Use minmax for flexibility */
-    gap: 15px;
-    padding-top: 10px;
-    overflow-y: auto;
-    justify-content: center;
+flex-grow: 1;
+display: grid;
+grid-template-columns: repeat(2, minmax(120px, 1fr));
+gap: 15px;
+padding-top: 10px;
+overflow-y: auto;
+justify-content: center;
 }
 
 .unit-button {
-    background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
-    border: 2px solid #4CAF50;
-    border-radius: 6px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: bold;
-    color: #e0e0e0;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    width: 100px;
-    height: 100px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* Updated for minimalist, flat design */
+background-color: #333;
+border: 2px solid #555;
+border-radius: 8px;
+text-align: center;
+cursor: pointer;
+transition: all 0.3s ease;
+font-weight: bold;
+color: #f0f0f0;
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+height: 100px;
+display: flex;
+justify-content: center;
+align-items: center;
+padding: 10px;
+font-size: 14px;
+font-family: 'Electrolize', sans-serif;
+text-transform: uppercase;
 }
 
 .unit-button:hover {
-    background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
-    border-color: #5ac45e;
-    box-shadow: 0 4px 10px rgba(0, 255, 0, 0.4);
-    transform: translateY(-2px);
+background-color: #444;
+border-color: #777;
+box-shadow: 0 6px 8px rgba(0, 0, 0, 0.5);
+transform: translateY(-2px);
 }
 
-.unit-button.loading {
-    border: 3px solid #4CAF50;
-    position: relative;
-    overflow: hidden;
-    cursor: wait;
+.unit-button:active {
+transform: translateY(0);
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+background-color: #222;
 }
 
-.unit-button.loading::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to right, rgba(76, 175, 80, 0.5) 50%, rgba(128, 128, 128, 0.2) 50%);
-    background-size: 200% 100%;
-    background-position: 100% 0;
-    animation: fill-animation var(--production-duration) linear forwards;
-}
-
-/* Base style for all buttons in the production grid */
+/* Base style for all buttons in the production grid - now matches the new look */
 .produces-button {
-    background: linear-gradient(145deg, #181d22, #0d1217);
-    border: 2px solid #00fffb;
-    border-radius: 4px;
-    color: #f0f0f0;
-    font-family: 'Electrolize', sans-serif;
-    text-transform: uppercase;
-    font-weight: bold;
-    font-size: 13.5px; /* ✅ Smaller font size for safety */
-    padding: 10px 18px; /* ✅ Wider horizontal padding */
-    margin: 5px;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    box-shadow: 0 0 5px rgba(0, 255, 251, 0.4), inset 0 0 5px rgba(0, 255, 251, 0.2);
+background-color: #333;
+border: 2px solid #555;
+border-radius: 8px;
+color: #00ff00;
+font-family: 'Electrolize', sans-serif;
+text-transform: uppercase;
+font-weight: bold;
+font-size: 14px;
+padding: 10px 18px;
+margin: 5px;
+cursor: pointer;
+transition: all 0.2s ease-in-out;
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
 }
 
-/* Hover and active states are unchanged and work with the new size */
 .produces-button:hover {
-    background: linear-gradient(145deg, #2a343e, #181d22);
-    border-color: #00fffb;
-    color: #ffffff;
-    transform: translateY(-2px);
-    box-shadow: 0 0 15px rgba(0, 255, 251, 0.8), inset 0 0 10px rgba(0, 255, 251, 0.6);
+background-color: #444;
+border-color: #777;
+color: #ffffff;
+transform: translateY(-2px);
+box-shadow: 0 6px 8px rgba(0, 0, 0, 0.5);
 }
 
 .produces-button:active {
-    transform: translateY(0);
-    box-shadow: 0 0 5px rgba(0, 255, 251, 0.4), inset 0 0 5px rgba(0, 255, 251, 0.2);
-    background: linear-gradient(145deg, #0d1217, #181d22);
-}
-
-@keyframes fill-animation {
-    to {
-        background-position: 0% 0;
-    }
+transform: translateY(0);
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+background-color: #222;
 }

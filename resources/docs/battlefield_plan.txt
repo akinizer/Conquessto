@@ -209,34 +209,57 @@ Equippables & Slots:
 - **Function:** `handleMouseMove`
 - **Code Part:** The entire `handleMouseMove` function is a duplicate of `onCanvasMouseMove` and is never called by any event listener, making it dead code.
 
-* Unit Mechanics
+* Unit Mechanics - Move
 
+move - set waypoint flag
+move waypoint line
+click to Garrison
+
+* Unit Mechanics - Move Path
+
+set multipath: shift right click to set paths and on release move unit
+smart movement: ai behavior, blocked path - reroute, dont move beyond map canvas edge
+smart attack: attack priority, ignore or hit obstacle on ranged attack
+return to position
+march: move A - B until autochase
+
+* Unit Mechanics - Attack Move
+
+click to attack
+attack to building
 attack move -> override move
 attack move - dynamic tracking
 attack move - set dynamic waypoint flag
 
-response - when attacked
-
-move - set waypoint flag
-
-move waypoint line: click to move, click to attack, click to Garrison
-autotarget range, autochase range 
-set multipath: shift right click to set paths and on release move unit
-override movement: right click to move disables autochase and autoattack until it ends paths
-
-multi select on double click
-drag select
-
-smart movement: ai behavior, blocked path - reroute, dont move beyond map canvas edge
-smart attack: attack priority, ignore or hit obstacle on ranged attack
+* Unit Mechanics - Force Attack
 
 force attack - friend fire: ctrl + right click on friend unit or building
 force attack - ground
 force attack - natural
 
-attack to building
-return to position
-march: move A - B until autochase
+* Unit Mechanics - Response
+
+response - when attacked
+
+* Unit Mechanics - Multiselect
+
+multi select on double click
+drag select
+
+* Base Mechanics
+
+player.generateBase // { [{unitName,quantity}], area size }
+
+* Objective Mechanics
+
+victory, game over    // if( win() )
+destroy all enemies   // if(teams.remaining = firstplayer) win()
+destroy all hq        // if(hq.remaining = [player.hq]) win()
+survive for a time    // if(player.hq.alive & timer=0) win()
+destroy a unit        // if(!target.alive) win()
+destroy a building    // if(!target.alive) win()
+destroy an amount of units // if(killcount.remaining = 0) win()
+destroy an amount of objects // if(killcount.remaining = 0) win()
 
 * Building Mechanics
 HP, Destruction-Elimination
@@ -251,7 +274,6 @@ map zoom
 building select, building production
 unit select, unit move, unit attack, unit shoot unit destruction
 produce panel:ready, hold on, cancel, click, cant click
-
 victory, game over
 
 * Indicators
