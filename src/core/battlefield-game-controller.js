@@ -249,7 +249,7 @@ export class GameController {
         return true; // No collisions found
     }
 
-    // ========================= MOUSE EVENTS ========================= //
+    // ========================= MOUSE AND KEYBOARD EVENTS ========================= //
     
     // Left mouse click operations: object click, map canvas click, placement indicator click
     onCanvasClick(event) {
@@ -692,7 +692,7 @@ export class GameController {
 
     // Updates the game's resources based on economic buildings. This function now checks each economic building individually for its production timer.
     _updateResources() {
-    const currentTime = performance.now();
+        const currentTime = performance.now();
 
         for (const id in this.gameState.gameObjects) {
             const obj = this.gameState.gameObjects[id];
