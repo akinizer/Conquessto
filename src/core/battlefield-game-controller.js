@@ -617,7 +617,7 @@ export class GameController {
         }
     }
 
-    // Display radar minimap indicators
+    // Display radar minimap indicators: viewport indicator, hq indicator, building indicator, map canvas borders indicator
     drawMiniMapIndicators() {
         const miniMapCanvas = document.getElementById('miniMapCanvas');
         if (!miniMapCanvas) {
@@ -634,12 +634,17 @@ export class GameController {
 
         const scaleX = miniMapCanvas.width / this.WORLD_WIDTH;
         const scaleY = miniMapCanvas.height / this.WORLD_HEIGHT;
+        
+        // Use a single scale factor to preserve aspect ratio
+        const scale = Math.min(scaleX, scaleY);
+        // Define a minimum size for indicators to ensure visibility
+        const MIN_BUILDING_SIZE = 5;
 
-        // Draw the viewport indicator
-        const indicatorX = this.viewport.x * scaleX;
-        const indicatorY = this.viewport.y * scaleY;
-        const indicatorWidth = this.canvas.width * scaleX;
-        const indicatorHeight = this.canvas.height * scaleY;
+        // Draw the viewport indicator using the uniform scale
+        const indicatorX = this.viewport.x * scale;
+        const indicatorY = this.viewport.y * scale;
+        const indicatorWidth = this.canvas.width * scale;
+        const indicatorHeight = this.canvas.height * scale;
 
         miniMapCtx.fillStyle = 'rgba(255, 255, 0, 0.4)';
         miniMapCtx.fillRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight);
@@ -652,27 +657,53 @@ export class GameController {
         miniMapCtx.strokeRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight);
         miniMapCtx.restore();
 
-        // Draw the HQ indicators
+        // Store HQ data to draw its outline later
+        let friendlyHqData = null;
+        let enemyHqData = null;
+
+        // Draw indicators for all buildings (filled rectangle)
         for (const id in this.gameState.gameObjects) {
             const obj = this.gameState.gameObjects[id];
 
-            // Check if the object is a Command (HQ) building
-            if (obj.itemData && obj.itemData.type === 'Command') {
-                // Get the color based on the team
+            if (obj.itemData && obj.itemData.isStatic) {
+                const miniMapX = obj.x * scale;
+                const miniMapY = obj.y * scale;
+                const miniMapWidth = Math.max(obj.itemData.width * scale, MIN_BUILDING_SIZE);
+                const miniMapHeight = Math.max(obj.itemData.height * scale, MIN_BUILDING_SIZE);
+                
                 const color = (obj.team === 'friend') ? 'blue' : 'red';
 
-                // Convert world coordinates to mini-map coordinates
-                const hqX = obj.x * scaleX;
-                const hqY = obj.y * scaleY;
-                const hqRadius = 3; // A small radius for a dot
-
-                // Draw a circle for the HQ
                 miniMapCtx.fillStyle = color;
-                miniMapCtx.beginPath();
-                miniMapCtx.arc(hqX, hqY, hqRadius, 0, Math.PI * 2);
-                miniMapCtx.fill();
+                miniMapCtx.fillRect(miniMapX - miniMapWidth / 2, miniMapY - miniMapHeight / 2, miniMapWidth, miniMapHeight);
+                
+                // Save the HQ's data to draw the outline later
+                if (obj.itemData.type === 'Command') {
+                    if (obj.team === 'friend') {
+                        friendlyHqData = { miniMapX, miniMapY, miniMapWidth, miniMapHeight };
+                    } else {
+                        enemyHqData = { miniMapX, miniMapY, miniMapWidth, miniMapHeight };
+                    }
+                }
             }
         }
+        
+        // Function to draw the HQ outline
+        const drawHqOutline = (hqData) => {
+            if (hqData) {
+                const { miniMapX, miniMapY, miniMapWidth, miniMapHeight } = hqData;
+                miniMapCtx.save();
+                miniMapCtx.shadowColor = 'rgba(255, 255, 0, 1)';
+                miniMapCtx.shadowBlur = 10;
+                miniMapCtx.strokeStyle = 'yellow';
+                miniMapCtx.lineWidth = 1.5;
+                miniMapCtx.strokeRect(miniMapX - miniMapWidth / 2, miniMapY - miniMapHeight / 2, miniMapWidth, miniMapHeight);
+                miniMapCtx.restore();
+            }
+        }
+
+        // Draw the outlines for both HQs after drawing all buildings
+        drawHqOutline(friendlyHqData);
+        drawHqOutline(enemyHqData);
     }
     
     // The main update loop for game logic. Render resources and game objects
