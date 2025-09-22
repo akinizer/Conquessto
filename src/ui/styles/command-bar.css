@@ -1,19 +1,41 @@
 #command-bar {
-    width: 99%; /* Now fills the width of its parent container */
-    height: 60px; /* Height remains fixed */
-    background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
-    border: 2px solid #4CAF50;
-    box-shadow: 0 0 15px rgba(76, 175, 80, 0.5), 0 0 30px rgba(0, 0, 0, 0.7);
-    border-radius: 6px;
+    width: 100%;
     display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 0 10px;
-    color: #e0e0e0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 1.1em;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem 0;
+    background: transparent;
 }
 
-.command-group {
-    text-shadow: 0 0 5px rgba(76, 175, 80, 0.4);
+.resource-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #1c1c1c;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    border: 1px solid #444;
+    box-shadow: 0 0 5px rgba(0, 255, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.resource-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 8px rgba(0, 255, 0, 0.2);
+}
+
+.resource-item span, .resource-item .icon {
+    color: #00FF00;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-shadow: 0 0 3px #29aa29;
+    filter: drop-shadow(0 0 3px #3cff00be);
+}
+
+.resource-item .label {
+    color: #E0E0E0;
+    font-size: 1rem;
+    font-weight: normal;
+    text-shadow: none;
+    filter: none;
 }
