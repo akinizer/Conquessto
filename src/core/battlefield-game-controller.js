@@ -12,7 +12,7 @@ export class GameController {
         this.ctx = canvas.getContext('2d');
         this.uiController = uiController;
         this.gameState = new GameState();
-        // FIXED: Initialize credits to 0 to prevent "NaN" error.
+        // Initialize credits to 0 to prevent "NaN" error.
         this.gameState.resources = {
             credits: 10000, // Initialize credits here
             energy: 0,
@@ -20,8 +20,8 @@ export class GameController {
             substance: 0 
         };
         this.lastTime = performance.now(); // For delta time calculation
-        // Removed the global resourceUpdateTime timer as it's now handled per-building.
 
+        // Load JSON data of units and buildings
         this.dataManager = new DataManager();
         this.dataManager.loadProductionData().then(() => {
             console.log('Game data is ready.');
@@ -35,7 +35,7 @@ export class GameController {
         this.canvas.addEventListener('mousemove', (event) => this.onCanvasMouseMove(event));
         this.canvas.addEventListener('mouseleave', () => this.onCanvasMouseLeave());
 
-        // New keyboard listeners for camera control
+        // Keyboard listeners for camera control
         this.keys = {};
         document.addEventListener('keydown', (event) => { this.keys[event.key] = true; });
         document.addEventListener('keyup', (event) => { this.keys[event.key] = false; });
@@ -59,25 +59,25 @@ export class GameController {
         this.gameLoop();
     }
 
-    // MECHANISMS //
+    // ========================= GAME MECHANISMS ========================= //
     buildBuilding(team, x, y, itemData) {
         const id = this.gameState.getNextId();
         let building;
 
-        // FIX: Check the itemData type to create the correct building object.
+        // Check the itemData type to create the correct building object.
         if (itemData.type === "Production") {
             building = new ProductionBuilding(id, team, x, y, this.canvas, this, itemData);
         } else if (itemData.type === "Command") {
             building = new CommandBuilding(id, team, x, y, this.canvas, this, itemData);
         } else if (itemData.type === "Economic") {
-            // NEW: Instantiate an EconomicBuilding for economic types.
+            // Instantiate an EconomicBuilding for economic types.
             building = new EconomicBuilding(id, team, x, y, this.canvas, this, itemData);
         } else {
             // Default to the specific OtherBuilding class for other types.
             building = new OtherBuilding(id, team, x, y, this.canvas, this, itemData);
         }
         
-        // NEW: Set the initial production time for economic buildings.
+        // Set the initial production time for economic buildings.
         if (building instanceof EconomicBuilding) {
             building.lastProductionTime = performance.now();
         }
@@ -97,8 +97,7 @@ export class GameController {
         return unit;
     }
     
-    // 🛠️ NEW: A new method to place a building on the map.
-    // This is called from main.js to place the starting HQ.
+    // 🛠️ Places the building at a location triggered by placement indicator. This is called from main.js to place the starting HQ.
     placeBuilding(itemData, team, x, y) {
         // Build the building and add it to the game state.
         const newBuilding = this.buildBuilding(team, x, y, itemData);
@@ -118,7 +117,7 @@ export class GameController {
         return newBuilding;
     }
 
-
+    // Train a buiilding or unit in produce panel
     trainItem(item, button) {
         const units = this.dataManager.getProductionItems().units;
         const buildings = this.dataManager.getProductionItems().buildings;
@@ -160,7 +159,7 @@ export class GameController {
         this.uiController.setStatus("Unknown item type.");
     }
 
-    // BUILDING PLACEMENT //
+    // ========================= BUILDING PLACEMENT ========================= //
 
     _isAreaClear(x, y, width, height) {
         // The padding is a fixed value, but this function will now work with the scaled coordinates.
@@ -250,9 +249,9 @@ export class GameController {
         return true; // No collisions found
     }
 
-
-    // MOUSE EVENTS //
+    // ========================= MOUSE EVENTS ========================= //
     
+    // Left mouse click operations: object click, map canvas click, placement indicator click
     onCanvasClick(event) {
         if (event.button !== 0) return;
         
@@ -260,9 +259,7 @@ export class GameController {
         const mouseX = mousePos.x;
         const mouseY = mousePos.y;
         
-        const clickedObject = this.getObjectAt(mouseX, mouseY);
-
-        
+        const clickedObject = this.getObjectAt(mouseX, mouseY);        
         
         if (this.gameState.pendingBuilding) {
             const { width: buildingWidth, height: buildingHeight , cost: buildingCost} = this.gameState.pendingBuilding;
@@ -270,7 +267,7 @@ export class GameController {
             const isLocationClear = this._isAreaClear(mouseX, mouseY, buildingWidth, buildingHeight
             );
             
-            // FIX: Correctly check if the building can be placed within the current viewport.
+            // Correctly check if the building can be placed within the current viewport.
             const isWithinViewport = (
                 mouseX - buildingWidth / 2 >= this.viewport.x &&
                 mouseX + buildingWidth / 2 <= this.viewport.x + this.canvas.width &&
@@ -296,16 +293,16 @@ export class GameController {
         this._selectObject(clickedObject);
     }
 
+    // select a game object on map canvas
     _selectObject(object) {
-        // --- NEW: Add this line to prevent selecting enemy objects ---
+        // Prevent selecting enemy objects
         if (object && object.team !== 'friend') {
             this.uiController.setStatus("You cannot select enemy units or buildings.");
             // Ensure nothing is selected
             this.gameState.selectedUnits = [];
             this.gameState.productionBuilding = null;
-            return; // Exit the function early
+            return;
         }
-        // --- END NEW ---
 
         // Check if the selected object is the current production building
         const isSameProductionBuilding = this.gameState.productionBuilding && (object === this.gameState.productionBuilding);
@@ -364,6 +361,8 @@ export class GameController {
             this.uiController.fillProducesTab(null);
         }
     }
+
+    // Right mouse click operations: cancel placement indicator, deselect units, set rally point
     onCanvasRightClick(event) {
         event.preventDefault();
         if (event.button !== 2) return;
@@ -378,8 +377,7 @@ export class GameController {
             return;
         }
 
-        // This is the correct logical flow.
-        // Check if any units are selected first.
+        // This is the correct logical flow. Check if any units are selected first.
         if (this.gameState.selectedUnits.length > 0) {
             this.gameState.selectedUnits.forEach(unit => {
                 unit.moveTo(mouseX, mouseY);
@@ -395,9 +393,11 @@ export class GameController {
             this.uiController.setStatus("Rally point set.");
         }
     }
+
+    // Key and cursor operations: Map canvas edge panning 
     onCanvasMouseMove(event) {
         try {
-            // --- Part 1: Edge Panning & Cursor Change ---
+            // Edge Panning & Cursor Change ---
             const panSpeed = 10;
             const edgeMargin = 50;
             let newCursor = 'default';
@@ -420,10 +420,10 @@ export class GameController {
 
             this.canvas.style.cursor = newCursor;
 
-            // --- Part 2: Building Placement Cursor ---
+            // Building Placement Cursor ---
             this.pendingBuildingCursorPosition = this.getMousePos(event);
 
-            // --- Part 3: Delayed Hover Logic ---
+            // Delayed Hover Logic ---
             const mousePos = this.getMousePos(event);
             const objectUnderMouse = this.getObjectAt(mousePos.x, mousePos.y);
 
@@ -456,6 +456,7 @@ export class GameController {
         }
     }
 
+    // Cursor leave operations: hide popup
     onCanvasMouseLeave() {
         // This is crucial for stopping the timer and hiding the popup
         clearTimeout(this.gameState.hoverTimeoutId);
@@ -464,7 +465,7 @@ export class GameController {
         this.canvas.style.cursor = 'default';
     }
 
-    // New function to correctly calculate mouse position relative to the scaled canvas
+    // Function to correctly calculate mouse position relative to the scaled canvas
     getMousePos(event) {
         const rect = this.canvas.getBoundingClientRect();
         const mouseX = (event.clientX - rect.left);
@@ -475,8 +476,7 @@ export class GameController {
 
     // Replace your existing getObjectAt function with this revised version
     getObjectAt(x, y) {
-        // Loop through game objects in reverse order to check top-most objects first
-        // (This is useful if you have a drawing order where units are drawn on top of buildings)
+        // Loop through game objects in reverse order to check top-most objects first (This is useful if you have a drawing order where units are drawn on top of buildings)
         const objectIds = Object.keys(this.gameState.gameObjects);
         for (let i = objectIds.length - 1; i >= 0; i--) {
             const obj = this.gameState.gameObjects[objectIds[i]];
@@ -504,8 +504,9 @@ export class GameController {
         return null;
     }
 
-    // New: Handle keyboard input for camera movement
+    // Handle keyboard input for camera movement
     handleKeyboardInput() {
+        // Map canvas panning ----
         const panSpeed = 10;
         if (this.keys['w'] || this.keys['ArrowUp']) {
             this.viewport.y = Math.max(0, this.viewport.y - panSpeed);
@@ -539,8 +540,7 @@ export class GameController {
             }
         }        
 
-          // Single-press action for the 'Tab' key
-
+        // Focus on next HQ when 't' key is pressed --- 
         if (this.keys['t']) {
             const hqs = Object.values(this.gameState.gameObjects).filter(obj => 
                 obj.itemData && obj.itemData.type === 'Command'
@@ -560,20 +560,22 @@ export class GameController {
             this.keys['t'] = false; // Reset the key state to prevent continuous jumping
         } 
 
+        // Destroy action onunit
         if (this.keys['k']) {
             this.destroySelectedPlayerUnit();
         }
     }
 
+    // ???
     handleMouseDown(event) {
         if (event.button === 0) {
             this.onCanvasClick(event);
         }
     }
 
-    // Map and Radar
+    // ========================= MAP CANVAS AND RADAR MINIMAP ========================= //
 
-      // A new method to correctly center the viewport on a given object
+     // A method to correctly center the viewport on a given object
     focusCameraOnObject(object) {
         if (!object) return;
 
@@ -586,11 +588,10 @@ export class GameController {
         this.viewport.y = Math.max(0, Math.min(this.WORLD_HEIGHT - this.canvas.height, targetY));
     }
 
+    // Display edge indicators
     checkAndDisplayEdgeIndicators() {
-        console.log('Checking for indicators...');
+        // Edge indicators
         const topIndicator = document.getElementById('top-indicator');
-        console.log('Top indicator found:', topIndicator);
-
         const bottomIndicator = document.getElementById('bottom-indicator');
         const leftIndicator = document.getElementById('left-indicator');
         const rightIndicator = document.getElementById('right-indicator');
@@ -616,6 +617,7 @@ export class GameController {
         }
     }
 
+    // Display radar minimap indicators
     drawMiniMapIndicators() {
         const miniMapCanvas = document.getElementById('miniMapCanvas');
         if (!miniMapCanvas) {
@@ -633,7 +635,7 @@ export class GameController {
         const scaleX = miniMapCanvas.width / this.WORLD_WIDTH;
         const scaleY = miniMapCanvas.height / this.WORLD_HEIGHT;
 
-        // 1. Draw the viewport indicator (your existing code)
+        // Draw the viewport indicator
         const indicatorX = this.viewport.x * scaleX;
         const indicatorY = this.viewport.y * scaleY;
         const indicatorWidth = this.canvas.width * scaleX;
@@ -650,7 +652,7 @@ export class GameController {
         miniMapCtx.strokeRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight);
         miniMapCtx.restore();
 
-        // 2. Draw the HQ indicators
+        // Draw the HQ indicators
         for (const id in this.gameState.gameObjects) {
             const obj = this.gameState.gameObjects[id];
 
@@ -673,7 +675,7 @@ export class GameController {
         }
     }
     
-    // NEW: The main update loop for game logic.
+    // The main update loop for game logic. Render resources and game objects
     update(deltaTime) {
         // Update all game objects
         for (const id in this.gameState.gameObjects) {
@@ -688,10 +690,7 @@ export class GameController {
         this._updateResources();
     }
 
-    /**
-     * Updates the game's resources based on economic buildings.
-     * This function now checks each economic building individually for its production timer.
-     */
+    // Updates the game's resources based on economic buildings. This function now checks each economic building individually for its production timer.
     _updateResources() {
     const currentTime = performance.now();
 
@@ -768,9 +767,7 @@ export class GameController {
         }
     }
 
-    /**
-     * Destroys the currently selected player unit.
-     */
+    // Destroy the currently selected player unit.
     destroySelectedPlayerUnit() {
         // Check if there are any selected units
         if (this.gameState.selectedUnits.length > 0) {
@@ -792,10 +789,7 @@ export class GameController {
         }
     }
 
-    /**
-     * Removes a game object from the game state.
-     * @param {GameObject} objectToRemove The object to remove.
-     */
+    // Remove a game object from the game state.
     removeObject(objectToRemove) {
         if (objectToRemove && this.gameState.gameObjects[objectToRemove.id]) {
             delete this.gameState.gameObjects[objectToRemove.id];
@@ -805,7 +799,7 @@ export class GameController {
         }
     }
 
-    // MAIN GAME PROCESS ///
+    // ========================= GAME ENGINE ========================= ///
 
     gameLoop(time) {
         console.log(`Viewport: x=${this.viewport.x}, y=${this.viewport.y}`);
