@@ -150,7 +150,7 @@ Units (Huntables, Civilians, Rebel)
 Civilian (Cosmetic, NPC Spawn, Giftbox Spawn)
 Giftboxes (Unit spawn friendly / enemy, unit boost, self-destruct, global / battle currency, all unit heal)
 * Researches
-Abilities: Nuke, Teleport, Lightning, Earthquake, Shockwave, Orbital Strike, Convert / Doubleagent
+Super Abilities: Nuke, Teleport, Lightning, Earthquake, Shockwave, Orbital Strike, Convert / Doubleagent
 Doctrines: Nanorepair, Passive Income, Armor Boost, Speed Boost, Industrial Discount, Faster Training
 Techs: Production Techs, Unit Techs, Building Techs, Unit Special Unlock, Building Tiers & Unlocks, Super Unit Training Program
 Stolen Techs: 
@@ -188,7 +188,6 @@ Equippables & Slots:
 - pathfinding unit vs terrain
 - move to attack should override click to move
 
-
 *GameController.js
 
 ### **Flawed Selection Logic**
@@ -216,9 +215,11 @@ attack move -> override move
 attack move - dynamic tracking
 attack move - set dynamic waypoint flag
 
+response - when attacked
+
 move - set waypoint flag
 
-move waypoint: click to move, click to attack, click to Garrison
+move waypoint line: click to move, click to attack, click to Garrison
 autotarget range, autochase range 
 set multipath: shift right click to set paths and on release move unit
 override movement: right click to move disables autochase and autoattack until it ends paths
