@@ -47,28 +47,57 @@ export class UIController {
     }
 
     fillProducesTab(selectedObject) {
-        this.productionGrid.innerHTML = ''; // Clear previous buttons
-
+        this.productionGrid.innerHTML = '';
         if (selectedObject && selectedObject.itemData) {
             let allPossibleItems = [];
             const itemType = selectedObject.itemData.type;
-
             if (itemType === "Production") {
                 allPossibleItems = this.productionItems.units;
             } else if (itemType === "Command") {
                 allPossibleItems = this.productionItems.buildings;
             }
-
             const producesList = selectedObject.itemData.produces || [];
             const itemsToDisplay = allPossibleItems.filter(item => producesList.includes(item.name));
-            
+
+            const currentResources = this.gameController.gameState.resources;
+
             if (itemsToDisplay.length > 0) {
                 itemsToDisplay.forEach(item => {
                     const button = document.createElement('button');
-                    button.textContent = item.name;
                     button.className = 'produces-button';
+                    button.dataset.cost = JSON.stringify(item.cost);
+                    
+                    const nameDiv = document.createElement('div');
+                    nameDiv.className = 'produces-button-name';
+                    nameDiv.textContent = item.name;
 
-                    // NEW: Add mouseover and mouseout event listeners
+                    const costDiv = document.createElement('div');
+                    costDiv.className = 'produces-button-cost';
+                    
+                    if (item.cost && Object.keys(item.cost).length > 0) {
+                        for (const resource in item.cost) {
+                            if (item.cost[resource] > 0) {
+                                const costItemDiv = document.createElement('div');
+                                
+                                // Added classes to make the text white and align the icon and value
+                                costItemDiv.className = 'cost-item flex items-center justify-between p-3 rounded-md bg-gray-700 text-white';
+                                
+                                costItemDiv.dataset.resource = resource;
+                                
+                                let icon = '';
+                                if (resource === 'credits') { icon = '©'; }
+                                else if (resource === 'energy') { icon = '⚡️'; }
+                                else if (resource === 'substance') { icon = '⚗'; }
+                                
+                                costItemDiv.innerHTML = `<span class="resource-icon">${icon}</span> <span>${item.cost[resource]}</span>`;
+                                costDiv.appendChild(costItemDiv);
+                            }
+                        }
+                    }
+                    
+                    button.appendChild(nameDiv);
+                    button.appendChild(costDiv);
+
                     button.addEventListener('mouseover', (e) => {
                         this.showProductionPopup(item, e.clientX, e.clientY);
                     });
@@ -84,6 +113,7 @@ export class UIController {
                     this.productionGrid.appendChild(button);
                 });
                 this.setStatus(`${selectedObject.itemData.name} produces tab updated.`);
+                this.updateProductionButtons();
             } else {
                 this.productionGrid.innerHTML = '<p>This building produces nothing.</p>';
                 this.setStatus("Nothing to produce.");

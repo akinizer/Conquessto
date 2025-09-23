@@ -263,6 +263,7 @@ destroy an amount of objects // if(killcount.remaining = 0) win()
 
 * Building Mechanics
 HP, Destruction-Elimination
+Refund: On Destruction, return all energy & 20% of credits cost
 
 Offensive Buildings: Turrets, Traps, Aura Buildings
 
