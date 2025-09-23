@@ -47,6 +47,35 @@ oop:
     data-driven (loads data from file, avoid hard coding, json): production items, map data, spawn locations
     constants: ABILITY_KEYS, BUFF_PROPERTIES, ATTACK_EFFECTS -> CONSTANT PATTERN
     robustness: mutable array -> [...selectedMap.possibleSpawnLocations], avoids spawn overlap
+
+    object declaration:
+        object literal: 
+            + object is a dictionary, all attributes are public
+            invocation: { name: "Jason", age: 23, greet: function(){console.log("Hello");} };
+            declaration: const example = {...};
+            call: example.greet();
+        IIFE - function: 
+            + object is a function, return a dictionary
+            invocation: ( function() { const data; function foo(){} return { greet: function(){foo();} }} )();
+            declaration: cont example = (...);
+            call:example.greet(); 
+        IIFE - lambda function:
+            + encapsulation: function is accessible, data is protected within scope. object is a scope, return a dictionary
+            invocation: ( () => { const data = []; const fun1 = (id, obj) => { obj.data = data[id]}; const fun2; return {data,fun1,fun2}; } );
+            declaration: const example = (...);
+            call: example.data; example.cur();
+            + exposed: function is accessible, data became accessible and exposed. object is a scope, return a lambda function
+            invocation: ( () => { const data = [];  return (id, obj) => { obj.data = data[id]}; } );
+            declaration: const example = (...);
+            call: example(id,ob);
+
+        IIFE - lambda function - return types:
+            + object is a lambda function, explicit return
+            declaration: const sum = (a, b) => {return a + b};
+            calltellm : sum(1,2);
+            + object is a lambda function, implicit return
+            use: const sum = (a, b) => a + b;
+        
 injection:
     dependency injection: constructor(new Class)
 async programming:
@@ -56,6 +85,7 @@ event driven architecture:
     event listeners: mousedown, keydown, onrightclick etc
     decoupling: stats of objects can be changed via JSON
     scalability: custom children (unit, building) -> OPC
+
 
 /todo\
 component architecture
