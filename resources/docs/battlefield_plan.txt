@@ -14,6 +14,7 @@ Map Canvas: Place Building, Select Building, Select Unit, Move Unit, Set Rally P
     Production Building Quick Action Buttons
 Unit: Move, Collide, Train, Autochase (target and move until collision, stay targeting if there is a solid obstacle in between), Autoattack (attack in range), Health-Depletion (destruction / elimination)
 Building: Spawn Units Trained by Production Panel, Rally Point
+Multi place production buildings
 
 Resources: Credits, Metal, Energy, Substance
 Resource Generation: generated via a building placed upon game canvas
