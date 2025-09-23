@@ -5,6 +5,7 @@ import { CommandBuilding } from '../entities/CommandBuilding.js';
 import { EconomicBuilding } from '../entities/EconomicBuilding.js';
 import { OtherBuilding } from '../entities/OtherBuilding.js';
 import { DataManager } from './battlefield-data-manager.js';
+import { CursorManager } from './CursorManager.js'; 
 
 export class GameController {
     constructor(canvas, uiController) {
@@ -29,6 +30,8 @@ export class GameController {
             console.error('Failed to load game data:', error);
         });
 
+        this.CursorManager = CursorManager;
+
         // Event listeners for mouse interaction
         this.canvas.addEventListener('mousedown', (event) => this.handleMouseDown(event));
         this.canvas.addEventListener('contextmenu', (event) => this.onCanvasRightClick(event));
@@ -51,10 +54,9 @@ export class GameController {
         this.WORLD_HEIGHT = this.canvas.height * 4;
 
         // Initialize the viewport (camera)
-        this.viewport = {
-            x: 0,
-            y: 0
-        };
+        this.viewport = {x: 0,y: 0};
+        this.panInterval = null;
+        this.mousePosition =  {x:0, y:0};        
 
         this.gameLoop();
     }
@@ -394,31 +396,80 @@ export class GameController {
         }
     }
 
-    // Key and cursor operations: Map canvas edge panning 
-    onCanvasMouseMove(event) {
-        try {
-            // Edge Panning & Cursor Change ---
-            const panSpeed = 10;
-            const edgeMargin = 50;
-            let newCursor = 'default';
+    startPanInterval() {
+        // If the pan interval is already running, do nothing
+        if (this.panInterval) {
+            return;
+        }
 
-            if (event.clientX < edgeMargin) {
+        const panSpeed = 10;
+        const edgeMargin = 100;
+        const intervalTime = 16; // Approximately 60 FPS
+
+        // Start a new interval to continuously update the viewport
+        this.panInterval = setInterval(() => {
+            let newCursor = 'default';
+            const mouseX = this.mousePosition.x;
+            const mouseY = this.mousePosition.y;
+
+            // Pan horizontally
+            if (mouseX < edgeMargin) {
                 this.viewport.x = Math.max(0, this.viewport.x - panSpeed);
                 newCursor = 'w-resize';
-            } else if (event.clientX > window.innerWidth - edgeMargin) {
+            } else if (mouseX > this.canvas.width - edgeMargin) {
                 this.viewport.x = Math.min(this.WORLD_WIDTH - this.canvas.width, this.viewport.x + panSpeed);
                 newCursor = 'e-resize';
             }
 
-            if (event.clientY < edgeMargin) {
+            // Pan vertically
+            if (mouseY < edgeMargin) {
                 this.viewport.y = Math.max(0, this.viewport.y - panSpeed);
-                newCursor = newCursor === 'w-resize' ? 'nw-resize' : (newCursor === 'e-resize' ? 'ne-resize' : 'n-resize');
-            } else if (event.clientY > window.innerHeight - edgeMargin) {
+                if (newCursor === 'w-resize') newCursor = 'nw-resize';
+                else if (newCursor === 'e-resize') newCursor = 'ne-resize';
+                else newCursor = 'n-resize';
+            } else if (mouseY > this.canvas.height - edgeMargin) {
                 this.viewport.y = Math.min(this.WORLD_HEIGHT - this.canvas.height, this.viewport.y + panSpeed);
-                newCursor = newCursor === 'w-resize' ? 'sw-resize' : (newCursor === 'e-resize' ? 'se-resize' : 's-resize');
+                if (newCursor === 'w-resize') newCursor = 'sw-resize';
+                else if (newCursor === 'e-resize') newCursor = 'se-resize';
+                else newCursor = 's-resize';
             }
 
             this.canvas.style.cursor = newCursor;
+            CursorManager.loadCursors(this.canvas, newCursor);
+        }, intervalTime);
+    }
+
+    stopPanInterval() {
+        // Clear the interval to stop the continuous panning
+        if (this.panInterval) {
+            clearInterval(this.panInterval);
+            this.panInterval = null;
+            this.canvas.style.cursor = 'default';
+        }
+    }
+
+    onCanvasMouseMove(event) {
+        try {
+            const rect = this.canvas.getBoundingClientRect();
+            const mouseX = event.clientX - rect.left;
+            const mouseY = event.clientY - rect.top;
+            
+            this.mousePosition = { x: mouseX, y: mouseY };
+
+            const canvasWidth = rect.width;
+            const canvasHeight = rect.height;
+            const edgeMargin = 100;
+
+            const inHorizontalEdge = mouseX < edgeMargin || mouseX > canvasWidth - edgeMargin;
+            const inVerticalEdge = mouseY < edgeMargin || mouseY > canvasHeight - edgeMargin;
+
+            // If the mouse is on an edge, start the continuous panning interval
+            if (inHorizontalEdge || inVerticalEdge) {
+                this.startPanInterval();
+            } else {
+                // If the mouse leaves the edge, stop the panning
+                this.stopPanInterval();
+            }
 
             // Building Placement Cursor ---
             this.pendingBuildingCursorPosition = this.getMousePos(event);
@@ -426,16 +477,8 @@ export class GameController {
             // Delayed Hover Logic ---
             const mousePos = this.getMousePos(event);
             const objectUnderMouse = this.getObjectAt(mousePos.x, mousePos.y);
-
-            const rect = this.canvas.getBoundingClientRect();
             const clientX = event.clientX;
             const clientY = event.clientY;
-
-            if (objectUnderMouse) {
-                console.log("Hover: Object detected:", objectUnderMouse.itemData.name);
-            } else {
-                console.log("Hover: No object detected.");
-            }
 
             if (objectUnderMouse !== this.gameState.hoveredObject) {
                 this.gameState.hoveredObject = objectUnderMouse;
@@ -459,6 +502,7 @@ export class GameController {
     // Cursor leave operations: hide popup
     onCanvasMouseLeave() {
         // This is crucial for stopping the timer and hiding the popup
+        this.stopPanInterval(); // This is the new addition
         clearTimeout(this.gameState.hoverTimeoutId);
         this.gameState.hoveredObject = null;
         this.uiController.updateHoverPopup(null, 0, 0); 

@@ -108,6 +108,8 @@ Animation Data:
 
 Terrashift Data: Base Model, Models
 
+Cursor Pack:
+    Viewport Panning: horizontal (arrow), vertical (arrow), diagonal (elder futhark runes)
 
 === IN-PROGRESS ===
 * Mechanics
