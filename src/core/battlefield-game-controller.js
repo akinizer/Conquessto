@@ -652,116 +652,139 @@ export class GameController {
         if (this.viewport.x >= this.WORLD_WIDTH - this.canvas.width) {
             rightIndicator.style.display = 'block';
         }
+
+        this.updateVerticalIndicatorHeight();
+
+        // Add these lines to your function to debug
+        console.log('Current viewport x:', this.viewport.x);
+        console.log('Right edge threshold:', this.WORLD_WIDTH - this.canvas.width);
     }
 
-// Display radar minimap indicators: viewport indicator, hq indicator, building indicator, map canvas borders indicator
-drawMiniMapIndicators() {
-    const miniMapCanvas = document.getElementById('miniMapCanvas');
-    if (!miniMapCanvas) {
-        console.warn("Mini-map canvas element with ID 'miniMapCanvas' not found.");
-        return;
+    // Function to dynamically update the height of the vertical edge indicators
+    updateVerticalIndicatorHeight() {
+        // Get the main elements
+        const mainArea = document.getElementById('main-area');
+        const commandBar = document.getElementById('command-bar');
+        const topIndicator = document.getElementById('top-indicator');
+
+        // Ensure all elements exist before proceeding
+        if (!mainArea || !commandBar || !topIndicator) {
+            console.error("Required elements not found. Check your HTML IDs.");
+            return;
+        }
+
+        // The top and bottom indicators are 5px each.
+        // The total offset for the vertical indicators is 10px.
+        const totalIndicatorOffset = 10;
+
+        // Set the height of the vertical indicators using a CSS custom property.
+        document.documentElement.style.setProperty('--vertical-indicator-height', `calc(100% - ${totalIndicatorOffset}px)`);
     }
-    const miniMapCtx = miniMapCanvas.getContext('2d');
 
-    if (this.WORLD_WIDTH === 0 || this.WORLD_HEIGHT === 0) {
-        return;
-    }
+    // Display radar minimap indicators: viewport indicator, hq indicator, building indicator, map canvas borders indicator
+    drawMiniMapIndicators() {
+        const miniMapCanvas = document.getElementById('miniMapCanvas');
+        if (!miniMapCanvas) {
+            console.warn("Mini-map canvas element with ID 'miniMapCanvas' not found.");
+            return;
+        }
+        const miniMapCtx = miniMapCanvas.getContext('2d');
 
-    miniMapCtx.clearRect(0, 0, miniMapCanvas.width, miniMapCanvas.height);
+        if (this.WORLD_WIDTH === 0 || this.WORLD_HEIGHT === 0) {
+            return;
+        }
 
-    // Calculate a single, uniform scale factor to preserve aspect ratio of the world.
-    const scale = Math.min(
-        miniMapCanvas.width / this.WORLD_WIDTH,
-        miniMapCanvas.height / this.WORLD_HEIGHT
-    );
-    
-    // Calculate offsets to center the scaled world view within the square radar.
-    // This correctly centers the rectangular world map within the square minimap.
-    const offsetX = (miniMapCanvas.width - this.WORLD_WIDTH * scale) / 2;
-    const offsetY = (miniMapCanvas.height - this.WORLD_HEIGHT * scale) / 2;
+        miniMapCtx.clearRect(0, 0, miniMapCanvas.width, miniMapCanvas.height);
 
-    // Draw the green dotted outline for the entire world map.
-    // This outline is now a rectangle with the same proportions as the game world.
-    miniMapCtx.setLineDash([10, 10]);
-    miniMapCtx.strokeStyle = 'rgba(0, 255, 0, 0.4)';
-    miniMapCtx.lineWidth = 2;
-    miniMapCtx.strokeRect(offsetX, offsetY, this.WORLD_WIDTH * scale, this.WORLD_HEIGHT * scale);
-    miniMapCtx.setLineDash([]); // Reset the line dash for other drawings.
+        // Calculate a single, uniform scale factor to preserve aspect ratio of the world.
+        const scale = Math.min(
+            miniMapCanvas.width / this.WORLD_WIDTH,
+            miniMapCanvas.height / this.WORLD_HEIGHT
+        );
+        
+        // Calculate offsets to center the scaled world view within the square radar.
+        // This correctly centers the rectangular world map within the square minimap.
+        const offsetX = (miniMapCanvas.width - this.WORLD_WIDTH * scale) / 2;
+        const offsetY = (miniMapCanvas.height - this.WORLD_HEIGHT * scale) / 2;
 
-    // Define a minimum size for indicators to ensure visibility
-    const MIN_BUILDING_SIZE = 5;
+        // Draw the green dotted outline for the entire world map.
+        // This outline is now a rectangle with the same proportions as the game world.
+        miniMapCtx.setLineDash([10, 10]);
+        miniMapCtx.strokeStyle = 'rgba(0, 255, 0, 0.4)';
+        miniMapCtx.lineWidth = 2;
+        miniMapCtx.strokeRect(offsetX, offsetY, this.WORLD_WIDTH * scale, this.WORLD_HEIGHT * scale);
+        miniMapCtx.setLineDash([]); // Reset the line dash for other drawings.
 
-    // Draw the viewport indicator using the uniform scale.
-    // This will correctly show a rectangle for your viewport on the minimap.
-    const indicatorX = this.viewport.x * scale + offsetX;
-    const indicatorY = this.viewport.y * scale + offsetY;
-    const indicatorWidth = this.canvas.width * scale;
-    const indicatorHeight = this.canvas.height * scale;
+        // Define a minimum size for indicators to ensure visibility
+        const MIN_BUILDING_SIZE = 5;
 
-    miniMapCtx.fillStyle = 'rgba(255, 255, 0, 0.4)';
-    miniMapCtx.fillRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight);
-    
-    miniMapCtx.save();
-    miniMapCtx.shadowColor = 'rgba(255, 255, 0, 1)';
-    miniMapCtx.shadowBlur = 10;
-    miniMapCtx.strokeStyle = 'yellow';
-    miniMapCtx.lineWidth = 2;
-    miniMapCtx.strokeRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight);
-    miniMapCtx.restore();
+        // Draw the viewport indicator using the uniform scale.
+        // This will correctly show a rectangle for your viewport on the minimap.
+        const indicatorX = this.viewport.x * scale + offsetX;
+        const indicatorY = this.viewport.y * scale + offsetY;
+        const indicatorWidth = this.canvas.width * scale;
+        const indicatorHeight = this.canvas.height * scale;
 
-    // Store HQ data to draw its outline later
-    let friendlyHqData = null;
-    let enemyHqData = null;
+        miniMapCtx.fillStyle = 'rgba(255, 255, 0, 0.4)';
+        miniMapCtx.fillRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight);
+        
+        miniMapCtx.save();
+        miniMapCtx.shadowColor = 'rgba(255, 255, 0, 1)';
+        miniMapCtx.shadowBlur = 10;
+        miniMapCtx.strokeStyle = 'yellow';
+        miniMapCtx.lineWidth = 2;
+        miniMapCtx.strokeRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight);
+        miniMapCtx.restore();
 
-    // Draw indicators for all buildings (filled rectangle)
-    for (const id in this.gameState.gameObjects) {
-        const obj = this.gameState.gameObjects[id];
+        // Store HQ data to draw its outline later
+        let friendlyHqData = null;
+        let enemyHqData = null;
 
-        if (obj.itemData && obj.itemData.isStatic) {
-            // Apply the same scaling and offset to all objects
-            const miniMapX = obj.x * scale + offsetX;
-            const miniMapY = obj.y * scale + offsetY;
-            const miniMapWidth = Math.max(obj.itemData.width * scale, MIN_BUILDING_SIZE);
-            const miniMapHeight = Math.max(obj.itemData.height * scale, MIN_BUILDING_SIZE);
-            
-            const color = (obj.team === 'friend') ? 'blue' : 'red';
+        // Draw indicators for all buildings (filled rectangle)
+        for (const id in this.gameState.gameObjects) {
+            const obj = this.gameState.gameObjects[id];
 
-            miniMapCtx.fillStyle = color;
-            miniMapCtx.fillRect(miniMapX - miniMapWidth / 2, miniMapY - miniMapHeight / 2, miniMapWidth, miniMapHeight);
-            
-            // Save the HQ's data to draw the outline later
-            if (obj.itemData.type === 'Command') {
-                if (obj.team === 'friend') {
-                    friendlyHqData = { miniMapX, miniMapY, miniMapWidth, miniMapHeight };
-                } else {
-                    enemyHqData = { miniMapX, miniMapY, miniMapWidth, miniMapHeight };
+            if (obj.itemData && obj.itemData.isStatic) {
+                // Apply the same scaling and offset to all objects
+                const miniMapX = obj.x * scale + offsetX;
+                const miniMapY = obj.y * scale + offsetY;
+                const miniMapWidth = Math.max(obj.itemData.width * scale, MIN_BUILDING_SIZE);
+                const miniMapHeight = Math.max(obj.itemData.height * scale, MIN_BUILDING_SIZE);
+                
+                const color = (obj.team === 'friend') ? 'blue' : 'red';
+
+                miniMapCtx.fillStyle = color;
+                miniMapCtx.fillRect(miniMapX - miniMapWidth / 2, miniMapY - miniMapHeight / 2, miniMapWidth, miniMapHeight);
+                
+                // Save the HQ's data to draw the outline later
+                if (obj.itemData.type === 'Command') {
+                    if (obj.team === 'friend') {
+                        friendlyHqData = { miniMapX, miniMapY, miniMapWidth, miniMapHeight };
+                    } else {
+                        enemyHqData = { miniMapX, miniMapY, miniMapWidth, miniMapHeight };
+                    }
                 }
             }
         }
-    }
-    
-    // Function to draw the HQ outline
-    const drawHqOutline = (hqData) => {
-        if (hqData) {
-            const { miniMapX, miniMapY, miniMapWidth, miniMapHeight } = hqData;
-            miniMapCtx.save();
-            miniMapCtx.shadowColor = 'rgba(255, 255, 0, 1)';
-            miniMapCtx.shadowBlur = 10;
-            miniMapCtx.strokeStyle = 'yellow';
-            miniMapCtx.lineWidth = 1.5;
-            miniMapCtx.strokeRect(miniMapX - miniMapWidth / 2, miniMapY - miniMapHeight / 2, miniMapWidth, miniMapHeight);
-            miniMapCtx.restore();
+        
+        // Function to draw the HQ outline
+        const drawHqOutline = (hqData) => {
+            if (hqData) {
+                const { miniMapX, miniMapY, miniMapWidth, miniMapHeight } = hqData;
+                miniMapCtx.save();
+                miniMapCtx.shadowColor = 'rgba(255, 255, 0, 1)';
+                miniMapCtx.shadowBlur = 10;
+                miniMapCtx.strokeStyle = 'yellow';
+                miniMapCtx.lineWidth = 1.5;
+                miniMapCtx.strokeRect(miniMapX - miniMapWidth / 2, miniMapY - miniMapHeight / 2, miniMapWidth, miniMapHeight);
+                miniMapCtx.restore();
+            }
         }
+
+        // Draw the outlines for both HQs after drawing all buildings
+        drawHqOutline(friendlyHqData);
+        drawHqOutline(enemyHqData);
     }
-
-    // Draw the outlines for both HQs after drawing all buildings
-    drawHqOutline(friendlyHqData);
-    drawHqOutline(enemyHqData);
-}
-
-
-
-
     
     // The main update loop for game logic. Render resources and game objects
     update(deltaTime) {

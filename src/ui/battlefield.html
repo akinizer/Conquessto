@@ -16,7 +16,15 @@
 <body>
     <div id="game-container">
         <div id="main-area">
-            <canvas id="gameCanvas"></canvas>
+            <div id="game-canvas-container">
+                <canvas id="gameCanvas"></canvas>
+                <div id="ui-indicators">
+                    <div id="top-indicator" class="indicator"></div>
+                    <div id="bottom-indicator" class="indicator"></div>
+                    <div id="left-indicator" class="indicator"></div>
+                    <div id="right-indicator" class="indicator"></div>
+                </div>
+            </div>
             <div id="command-bar">
                 <div class="command-group resource-item">
                     ©️
@@ -50,12 +58,6 @@
     </div>
     <div id="setup-menu-container"></div>
     <div id="crosshair"></div>
-    <div id="ui-indicators">
-        <div id="top-indicator" class="indicator"></div>
-        <div id="bottom-indicator" class="indicator"></div>
-        <div id="left-indicator" class="indicator"></div>
-        <div id="right-indicator" class="indicator"></div>
-        </div>
     <script type="module" src="main.js"></script>
 </body>
 </html>

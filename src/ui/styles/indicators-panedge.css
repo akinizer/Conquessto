@@ -28,15 +28,16 @@
 }
 
 #left-indicator {
-    top: 0;
-    left: 0;
+    height: var(--vertical-indicator-height); 
     width: 5px;
-    height: 100%;
+    top: 5px;
+    left: 0;
 }
 
 #right-indicator {
-    top: 0;
-    right: 0;
+    height: var(--vertical-indicator-height); 
     width: 5px;
-    height: 100%;
+    top: 5px;
+    right: 0;
 }
+

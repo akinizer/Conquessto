@@ -10,3 +10,13 @@ canvas {
     width: 100%;
     height: 100%;
 }
+
+#game-canvas-container {
+    flex-grow: 1;
+    position: relative;
+}
+
+#gameCanvas {
+    width: 100%;
+    height: 100%;
+}

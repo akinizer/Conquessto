@@ -98,7 +98,7 @@ Hover Plate:
     Produces: Name, Description, Cost, Train Time
 
 Map Canvas Pan:
-    Indicator when an edge is reached
+    Viewpont Edge Indicators: display a horizontal or vertical bar when an edge is reached
 
 Radar Minimap: Cam Indicator, Enemy HQ Indicator, Ally Enemy Indicator
 
