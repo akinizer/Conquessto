@@ -59,8 +59,6 @@ export class UIController {
             const producesList = selectedObject.itemData.produces || [];
             const itemsToDisplay = allPossibleItems.filter(item => producesList.includes(item.name));
 
-            const currentResources = this.gameController.gameState.resources;
-
             if (itemsToDisplay.length > 0) {
                 itemsToDisplay.forEach(item => {
                     const button = document.createElement('button');
@@ -113,7 +111,6 @@ export class UIController {
                     this.productionGrid.appendChild(button);
                 });
                 this.setStatus(`${selectedObject.itemData.name} produces tab updated.`);
-                this.updateProductionButtons();
             } else {
                 this.productionGrid.innerHTML = '<p>This building produces nothing.</p>';
                 this.setStatus("Nothing to produce.");
@@ -148,19 +145,50 @@ export class UIController {
     // NEW: Method to update the hover popup
     updateHoverPopup(gameObject, clientX, clientY) {
         if (gameObject) {
-            this.hoverPopup.innerHTML = `
-                <strong>${gameObject.itemData.name}</strong><br>
-                Health: ${gameObject.health || 'N/A'}/${gameObject.itemData.maxHealth || 'N/A'}<br>
-                Type: ${gameObject.itemData.type}
+            const shortDescription = gameObject.itemData.description || 'No description available.';
+            const costsHtml = `<span class="cost-group">` +
+                Object.entries(gameObject.itemData.cost || {}).map(([resource, value]) => {
+                    if (value > 0) {
+                        let icon = '';
+                        if (resource === 'credits') { icon = '©'; }
+                        else if (resource === 'energy') { icon = '⚡️'; }
+                        else if (resource === 'substance') { icon = '⚗'; }
+                        return `${icon} ${value}`;
+                    }
+                    return '';
+                }).join(' ') +
+                `</span>`;
+
+            const teamColor = gameObject.teamColor || (gameObject.team === 'friend' ? 'lightblue' : gameObject.team === 'foe' ? 'red' : 'gray');
+            const playerName = gameObject.playerName || 'John Doe';
+
+            this.hoverPopup.style.cssText = `
+                position: absolute;
+                background-color: rgba(30, 30, 30, 0.95);
+                color: white;
+                padding: 10px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+                font-family: 'Inter', sans-serif;
+                font-size: 14px;
+                max-width: 250px;
+                z-index: 1000;
+                display: block;
+                left: ${clientX + 15}px;
+                top: ${clientY + 15}px;
             `;
-            // Position the popup slightly offset from the cursor
-            this.hoverPopup.style.left = `${clientX + 15}px`;
-            this.hoverPopup.style.top = `${clientY + 15}px`;
-            this.hoverPopup.style.display = 'block';
+
+            this.hoverPopup.innerHTML = `
+                <div style="font-size: 16px; font-weight: bold; color: ${teamColor};">${playerName} <span style="font-weight: normal; color: white;">- ${gameObject.itemData.name}</span></div>
+                <div style="font-size: 14px; margin-top: 5px;">${costsHtml}</div>
+                <em style="font-size: 12px; color: #ccc;">${shortDescription}</em>
+            `;
         } else {
             this.hoverPopup.style.display = 'none';
         }
     }
+
 
      updateResourceCountAnimated(resource, finalValue) {
         // Use the correct HTML IDs from your index.html

@@ -135,6 +135,10 @@ Restrictions:
     Map types: team lands, city, desert, mars 
     Fog of war, line of sight (probably at end of plan)
     Buildings can be placed near HQ building, forward base or a captured territory building
+Veterancy:
+    I: Some damage
+    II: Some attack speed
+    Star: Some health, speed and slow autorecovery; special unlock (i.e double barrel)
 * Units
 Unit-Behaviors: 
     Offensive:
@@ -143,6 +147,12 @@ Unit-Behaviors:
     Movement:
         AI Path: Change Direction on Collision
         Terrain: Movement speed, allowed type (water, land)    
+    Adapter Units:
+        - Steal Unit Weapon: Ground and Grounded units; laser, flak, bomb, rifle, gattling, missile, plasma gun, gravity, grinder ...
+        - Steal Turret Weapon
+        - Steal enemy tech via infiltrators: hidden tech unlock
+        - Steal unit ability
+        - Switch Weapon: Stealer, Main Weapon
 * Faction
 Team: Friend, Enemy, Neutral
 * Design
@@ -155,7 +165,14 @@ Capturable (Abandoned Facility, Abandoned Tech Center, Abandoned Generator, Aban
 Production (Metal Mines, Farmlands)
 Units (Huntables, Civilians, Rebel)
 Civilian (Cosmetic, NPC Spawn, Giftbox Spawn)
-Giftboxes (Unit spawn friendly / enemy, unit boost, self-destruct, global / battle currency, all unit heal)
+Giftboxes
+    - Unit Duplicate: spawns a clone of unit
+    - Explosion: instakills the unit
+    - Random Ally Unit (Any faction): spawns a friendly unit
+    - Random Enemy Unit (Any faction): spawns a foe unit
+    - Salvage: gives some credits 
+    - Boost: increases speed, attack speed, damage or armor of unit
+    - Heal: replenishes health of all units in range
 * Researches
 Super Abilities: Nuke, Teleport, Lightning, Earthquake, Shockwave, Orbital Strike, Convert / Doubleagent
 Doctrines: Nanorepair, Passive Income, Armor Boost, Speed Boost, Industrial Discount, Faster Training
