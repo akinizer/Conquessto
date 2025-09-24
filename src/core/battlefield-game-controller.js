@@ -33,7 +33,7 @@ export class GameController {
         this.CursorManager = CursorManager;
 
         // Event listeners for mouse interaction
-        this.canvas.addEventListener('mousedown', (event) => this.handleMouseDown(event));
+        this.canvas.addEventListener('mousedown', (event) => this.onCanvasLeftClick(event));
         this.canvas.addEventListener('contextmenu', (event) => this.onCanvasRightClick(event));
         this.canvas.addEventListener('mousemove', (event) => this.onCanvasMouseMove(event));
         this.canvas.addEventListener('mouseleave', () => this.onCanvasMouseLeave());
@@ -254,7 +254,7 @@ export class GameController {
     // ========================= MOUSE AND KEYBOARD EVENTS ========================= //
     
     // Left mouse click operations: object click, map canvas click, placement indicator click
-    onCanvasClick(event) {
+    onCanvasLeftClick(event) {
         if (event.button !== 0) return;
         
         const mousePos = this.getMousePos(event);
@@ -607,13 +607,6 @@ export class GameController {
         // Destroy action onunit
         if (this.keys['k']) {
             this.destroySelectedPlayerUnit();
-        }
-    }
-
-    // ???
-    handleMouseDown(event) {
-        if (event.button === 0) {
-            this.onCanvasClick(event);
         }
     }
 

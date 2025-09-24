@@ -136,9 +136,13 @@ Restrictions:
     Fog of war, line of sight (probably at end of plan)
     Buildings can be placed near HQ building, forward base or a captured territory building
 * Units
-Unit-Behaviors: Change Direction on Collision, Attack Enemy Units - Shooting Mechanic, Terrain Movement, Garrison, Group Select
-    Filtering by Production Building
-Tags: Ground, Water, Air, Amphibious; Phasing, Solid
+Unit-Behaviors: 
+    Offensive:
+        Shooting: Projectile 
+        Battle Assist: If a unit is hit, all allied unit in range attack moves on the target
+    Movement:
+        AI Path: Change Direction on Collision
+        Terrain: Movement speed, allowed type (water, land)    
 * Faction
 Team: Friend, Enemy, Neutral
 * Design
@@ -211,6 +215,8 @@ Equippables & Slots:
 
 - **Function:** `handleMouseMove`
 - **Code Part:** The entire `handleMouseMove` function is a duplicate of `onCanvasMouseMove` and is never called by any event listener, making it dead code.
+
+=============ADVANCED-MECHANICS=======================
 
 * Unit Mechanics - Move
 
