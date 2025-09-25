@@ -23,33 +23,43 @@ Start Locations: HQ spawns in one of start locations
     Format: 3-1-3, 2-0-1, 3-3-3
 
 * Setup
+Unit Descriptions
+    Unit Costs: {credits, energy, substance}
+Combat Properties: health, damage, speed, attack range, rate of fire
+Unit Tags: Ground, Amphibious, Water, Air; Solid, Phasing
 Setup UI: Player Name, Player Color, Enemy Quantity, Map Size, Map Type
 Building: HQ, Start Units
 Base Resources: Credits, Energy, Metal, Substance
 
 * Units
 Unit List: Infantry, Vehicle, Aircraft, Naval, Terrashift
-    Infantry: Guerilla, Hunter, Heavy Duty, Rocketeer, Tesla, Commando, Hunt Wolf; Fixer, Apothecrist, Tinkerer
+    Infantry (Ground, Air, Amphibious): 
+        Detector: Guerilla, Hunter # new tag will be added 
+            Animal: Hunt Wolf # new tag will be added
+        Terrashift: Rocketeer # new tag will be added        
+        Engineer: Fixer, Apothecrist, Tinkerer # new tag will be added
+        Armored: Heavy Duty, Tesla, Commando # new tag will be added
     
-    Offensive Vehicle: Basic Tank, Medium Tank, Heavy Tank, Panterra
-    Transport Vehicle: IFC, APC, Sea Dragon, Leviathan
-    Support Vehicle: Volatile, Disruptor
-    Entrench Vehicle: Flak Cannon, Baneblade, Sentry, Voyager, Mobile Radar
+    Vehicle (Armored; Ground, Amphibious, Air): 
+        Tank: Basic Tank, Medium Tank, Heavy Tank
+        Terrashift: Panterra 
+        Transport: IFC, APC, Sea Dragon, Leviathan
+        Support: Volatile, Disruptor
+        Entrench: Flak Cannon, Baneblade, Sentry, Voyager, Mobile Radar # new tag will be added
 
-    Drones: Scout Drone, Spotter, Talon, Striker Drone
+    Drones: Striker Drone
+        Detector: Spotter, Talon # new tag will be added
+        Support: Scout Drone
 
-    Aircraft: Interceptor, Bomber, Helix, Kamikaze, Griffon Rider
+    Aircraft: Interceptor, Bomber, Helix, Kamikaze
+        Animal (Detector): Griffon Rider # new tag will be added
 
-    Naval: Submarine, Phantom, Manta, Cannoneer, Missile Platform, Guardian, Navigator
+    Naval: Submarine, Cannoneer, Missile Platform, Guardian
+        Animal (Detector): Phantom # new tag will be added
+        Support: Navigator
+        Terrashift: Manta
 
     Super Unit: Super Commando, Super Tank, Super Airship, Super Cruiser
-
-    Terrashift: Manta, Panterra
-
-Unit Tags: Ground, Amphibious, Water, Air; Solid, Phasing
-Unit Descriptions
-Unit Costs: {credits, energy, substance}
-Combat Properties: health, damage, speed, attack range, rate of fire
 
 * Buildings
 Building List: Barracks, Vehicle Factory, Hangar, Dock, Airbase, Genesis Workshop, HQ, Refinery, Radar,
@@ -139,7 +149,18 @@ Veterancy:
     I: Some damage
     II: Some attack speed
     Star: Some health, speed and slow autorecovery; special unlock (i.e double barrel)
+Unit Groups:    
+    Multi select -> Group Up
+    Group Up Bonus: 
+        Ground Vehicle: Health, Damage, Speed
+        Aircraft: Rate of Fire, Speed, Range
+        Naval Vehicle: 
+        Infantry: Range, Damage, Speed
+        Animal: Autochase Range, RateOfFire, Speed
+        Drone: Autochase Range, Health, Autorecovery
 * Units
+- Unit tags: Detector, Animal, Drone, Terrashift, Engineer, Armored, Support, Entrench
+
 Unit-Behaviors: 
     Offensive:
         Shooting: Projectile 
@@ -153,6 +174,24 @@ Unit-Behaviors:
         - Steal enemy tech via infiltrators: hidden tech unlock
         - Steal unit ability
         - Switch Weapon: Stealer, Main Weapon
+    Bonus Damage:
+        Anti-Infantry
+        Anti-Armored
+        Anti-Aircraft
+        Anti-Naval
+    Proximity:
+        Ranged:
+            Hunter, Rocketeer, Heavy Duty, Tesla, Commando
+            Basic Tank, Medium Tank, Heavy Tank, Panterra
+            IFC, APC, Sea Dragon
+            Flak Cannon, Sentry
+            Striker Drone
+            Interceptor, Bomber, Helix, Kamikaze
+            Submarine, Manta, Cannoneer, Missile Platform, Guardian
+        Melee:
+            Guerilla, Hunt Wolf
+            Fixer, Apothecrist, Tinkerer
+            Baneblade
 * Faction
 Team: Friend, Enemy, Neutral
 * Design
