@@ -1,94 +1,80 @@
-@import url('https://fonts.googleapis.com/css2?family=Electrolize&display=swap');
+/* Styles for the production grid */
+#production-grid {
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+    gap: 15px;
+    padding-top: 10px;
+    overflow-y: auto;
+    justify-content: center;
+    max-width: 600px;
+    scrollbar-width: none;
+}
 
-        body {
-            font-family: 'Electrolize', sans-serif;
-            background-color: #1a1a1a;
-            color: #d1d5db;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 2rem;
-        }
+/* Base style for all buttons in the production grid */
+.produces-button {
+    background: linear-gradient(145deg, #181d22, #0d1217);
+    border: 2px solid #00fffb;
+    border-radius: 4px;
+    color: #f0f0f0;
+    font-family: 'Electrolize', sans-serif;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 13.5px;
+    padding: 10px 15px;
+    margin: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 0 5px rgba(0, 255, 251, 0.4), inset 0 0 5px rgba(0, 255, 251, 0.2);
+    width: 120px;
+    height: 90px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
 
-        /* Styles from your provided CSS */
-        #production-grid {
-            flex-grow: 1;
-            display: grid;
-            grid-template-columns: repeat(2, minmax(120px, 1fr));
-            gap: 15px;
-            padding-top: 10px;
-            overflow-y: auto;
-            justify-content: center;
-            max-width: 600px; /* Optional: limit width on large screens */
-            scrollbar-width: none;
-        }
-        
-        /* Base style for all buttons in the production grid */
-        .produces-button {
-            background: linear-gradient(145deg, #181d22, #0d1217);
-            border: 2px solid #00fffb;
-            border-radius: 4px;
-            color: #f0f0f0;
-            font-family: 'Electrolize', sans-serif;
-            text-transform: uppercase;
-            font-weight: bold;
-            font-size: 13.5px;
-            padding: 10px 15px;
-            margin: 5px;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 0 5px rgba(0, 255, 251, 0.4), inset 0 0 5px rgba(0, 255, 251, 0.2);
-            /* Consistent button sizing */
-            width: 120px;
-            height: 90px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
+/* Hover and active states */
+.produces-button:hover {
+    background: linear-gradient(145deg, #2a343e, #181d22);
+    border-color: #00fffb;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(0, 255, 251, 0.8), inset 0 0 10px rgba(0, 255, 251, 0.6);
+}
 
-        /* Hover and active states are unchanged and work with the new size */
-        .produces-button:hover {
-            background: linear-gradient(145deg, #2a343e, #181d22);
-            border-color: #00fffb;
-            color: #ffffff;
-            transform: translateY(-2px);
-            box-shadow: 0 0 15px rgba(0, 255, 251, 0.8), inset 0 0 10px rgba(0, 255, 251, 0.6);
-        }
+.produces-button:active {
+    transform: translateY(0);
+    box-shadow: 0 0 5px rgba(0, 255, 251, 0.4), inset 0 0 5px rgba(0, 255, 251, 0.2);
+    background: linear-gradient(145deg, #0d1217, #181d22);
+}
 
-        .produces-button:active {
-            transform: translateY(0);
-            box-shadow: 0 0 5px rgba(0, 255, 251, 0.4), inset 0 0 5px rgba(0, 255, 251, 0.2);
-            background: linear-gradient(145deg, #0d1217, #181d22);
-        }
+.produces-button-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: rgb(34, 224, 91);
+}
 
-        .produces-button-name {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: rgb(34, 224, 91);
-        }
+.produces-button-cost {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    font-size: 12px;
+}
 
-        .produces-button-cost {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 5px;
-            font-size: 12px;
-        }
+.cost-item {
+    display: flex;
+    align-items: center;
+}
 
-        .cost-item {
-            display: flex;
-            align-items: center;
-        }
-
-        /* Cost Colors */
-        .affordable-credits { color: #00ff00; }
-        .unaffordable-credits { color: #ff0000; }
-        .affordable-metal { color: #00ff00; }
-        .unaffordable-metal { color: #ff0000; }
-        .affordable-energy { color: #00ff00; }
-        .unaffordable-energy { color: #ff0000; }
-        .affordable-substance { color: #00ff00; }
-        .unaffordable-substance { color: #ff0000; }
+/* Cost Colors */
+.affordable-credits { color: #00ff00; }
+.unaffordable-credits { color: #ff0000; }
+.affordable-metal { color: #00ff00; }
+.unaffordable-metal { color: #ff0000; }
+.affordable-energy { color: #00ff00; }
+.unaffordable-energy { color: #ff0000; }
+.affordable-substance { color: #00ff00; }
+.unaffordable-substance { color: #ff0000; }

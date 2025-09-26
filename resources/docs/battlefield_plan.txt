@@ -122,6 +122,123 @@ Cursor Pack:
     Viewport Panning: horizontal (arrow), vertical (arrow), diagonal (elder futhark runes)
 
 === IN-PROGRESS ===
+* Unit & Building Panels
+    * Information Panel for Units
+        - This panel is all about feedback. It shows the player the real-time status of their selected unit or building. The information is always on display and doesn't require any player interaction.
+        - Icon: A large, clear icon of the selected unit or building. This helps the player immediately identify what they have selected.
+        - Health Bar: A prominent health bar, likely colored green to red, to show the unit's remaining health. It should be easy to read at a glance.
+        - Ability Bar: This is a crucial feature. It's not a button to activate abilities, but a display of the cooldown status for all of the unit's abilities.
+        - The bar would contain a list of ability icons.
+            - A visual overlay (a circular timer or a fading bar) would show the remaining cooldown time. This allows the player to quickly see which abilities are ready to use.
+            - Stats: The unit's core statistics would be displayed, likely to the side of the icon.
+                - Attack Power: The damage the unit deals.
+                - Armor/Defense: How well the unit resists damage.
+                - Rate of Fire: The unit's attack speed.
+                - Speed: The unit's movement speed.
+                - Range: The range of the unit's weapons.
+                - Veterancy Level: A visual indicator of the unit's combat experience.
+    * Information Panel for Buildings
+        - The building UI is a critical component of the game, serving as the command center for your production and economy. While it shares some visual similarities with the unit UI, its purpose and a lot of its content are distinct.
+        - Icon & Name: A clear visual representation of the building, which helps with quick identification.
+        - Health Bar: Essential for showing a building's health and damage state, especially during an attack.
+        - Production Queue: This is the most crucial part of the building UI. It shows the player a list of all units or items currently being produced, along with a progress bar and time remaining for each. The UI would also show the order of production.
+        - Current State: A status label that indicates what the building is doing, such as "Idle," "Producing," or "Under Attack."
+        - Stats: Key building stats would be displayed here, such as:
+        - Power Consumption: How much energy the building uses.
+        - Production Speed: A measure of how quickly the building produces units.
+        - Armor/Defense: How well the building can withstand damage.
+
+     * Commands Panel for Units:
+        - Definition: This will be added as an additional tab or a separat UI panel
+        - Role: This is the control center. Its purpose is to present the player with all the actions they can take with their selected unit or building. The content of this panel would change dynamically depending on what is selected. This panel displays:
+        * Ability Buttons (Toggleable, Click-to-Activate): This is the core of the panel. It would display buttons for each of the unit's active abilities, whether they are toggleable or click-to-activate. Even if you don't use a UI toggle, the button serves as a visual indicator for cooldowns and active states. Each button would have:
+            - An icon representing the ability.
+            - A visual cooldown timer, like a progress overlay on the icon.
+            - A hotkey label so the player can quickly learn the keyboard shortcut.
+        * Combat & Movement Commands: These are standard real-time strategy commands. The buttons would likely be universal for all units.
+            - Priority Action Commands:
+                - Move: A basic "move" command.
+                - Stop: Halts the unit's current action.
+                - Attack: A command to attack a specific target.
+            - Combat Response Commands: 
+                - Hold Position: Keeps the unit in its current location and attacks without moving.
+                - Ceasefire: Unit does not check hostile units in range
+        * Formation Commands: These are crucial for managing groups of units. When a group of units is selected, the panel would display formation options.
+            * When a formation is commanded, units do not go outside group's autochase range indicator, they move to their formation locations within
+            - Default: No formation.
+            - Line: Units form a horizontal line.
+            - Column: Units form a single column.
+            - Wedge: Units form a "V" shape for a focused attack.
+        * Group Commands: These commands are used to manage unit groups.                
+            - Group In: Creates a new control group for the selected units.
+            - Disband Group: Removes the selected units from their current group.
+            - Group All: Selects all units of the same type on the screen.
+        * Special Commands: These are situational commands based on the unit type.
+            - Garrison: The command to move a unit into a garrisonable building, like a bunker or barracks.
+            - Destroy: A self-destruct command for the unit. This would likely require a confirmation pop-up.
+    * Commands Panel for Buildings:
+        - Definition: This panel is the central control hub for a selected building. It is where the player can issue commands, queue up production, and manage upgrades. The content of this panel is dynamic and changes based on the building's type and capabilities.
+        - Role: The panel's primary role is to provide the player with all available actions for the selected building, from production and upgrades to special commands. This separation from the Information Panel's feedback role keeps the UI clean and intuitive. This panel displays:
+        * Autotrain Button: The Autotrain button's purpose is to allow a player to automate a building's production queue. Instead of manually clicking to produce units, the building will continuously produce a selected unit until the player turns the feature off or runs out of resources.
+            - Placement: The button would be a prominent feature in the Commands Panel for a selected building, likely located above or beside the production buttons.
+            - Visual State: The button's visual state is crucial for player feedback.
+                - Inactive: Default. When the feature is off, the button would be a simple, clickable icon (e.g., a play button or a loop symbol).
+                - Active: When Autotrain is enabled, the button would change its appearance to indicate its active state. It could have a glowing effect, a different color, or a pulsing animation. The icon might change to a "stop" symbol. This lets the player know at a glance that the building is in an automated state.
+            - Behavior: The button's logic would be straightforward:
+                - When the player clicks the button, a small menu would pop up, allowing them to select the unit they want the building to continuously produce.
+                - After a unit is selected, the building's production queue would automatically fill with that unit.
+                - The building will attempt to produce the unit in the queue every time it finishes a production cycle.
+                - If the building lacks the resources to produce the unit, the queue will pause, and the button's icon could change to a "warning" state to alert the player. Production would automatically resume once enough resources are available.
+        * Rally Point: This button allows the player to set a rally point for newly produced units. New units will automatically move to this location once they are created. This is crucial for managing army movement.
+            - Definition: This button is a command-panel element that provides a clear and visible way for players to manage the rally point of a selected building. It is a user-friendly alternative to the right-click command and a crucial source of visual feedback.
+            - Role: The button's primary role is to act as a visual prompt and a confirmation tool. Clicking it places the game into "Set Rally Point" mode, making it clear to the player that their next click on the map will determine the new rally point location.
+            - Visuals: The button would feature a distinct, easily recognizable icon, such as a flag or an arrow.  Its appearance would change dynamically to reflect the building's current state.
+            - Default State: When no rally point is set, or a new one needs to be defined, the button is active and displays "Set Rally Point."
+            - Activation: Clicking the button activates a "Set Rally Point" cursor on the game map. A status message would appear, instructing the player to "Click on the map to set a new rally point."
+            - Visual Confirmation: Once a rally point is set (either by clicking the button and then the map, or by the existing right-click method), the button's state would change to "Rally Point Set." A line would be drawn on the map from the building to the new rally point, providing a clear visual representation of where new units will go.
+        * Upgrades: The upgrades section is where players invest resources and time to improve their units, buildings, and technology. This panel would dynamically display available upgrades based on the selected building.
+            - Definition: This section of the Commands Panel is a dynamic list of buttons that trigger research projects. These projects permanently enhance a player's military or economy.
+            - Specification: Building-specific
+                - Definition: These are upgrades that only affect the building where they are researched. They are a way to make a single building more efficient or specialized without affecting the entire army.
+                - Examples: 
+                    * Accelerated Production: Reduces the time it takes for this specific building to train units.
+                    * Increased Power Output: Boosts the energy resource generation rate of this building.
+                    * Reduced Production Cost: Decreases the resource cost of all units trained at this building.
+                - UI Representation: The button for these upgrades would be in the Commands Panel. However, the tooltip for the button would explicitly state, "Only affects this building." The button could remain on the panel even after the upgrade is complete, but it would have a "Researched" or "Active" label to prevent the player from researching the same upgrade again.
+                - Impact: These are tactical decisions. A player might choose to upgrade a single, well-defended factory to make it a high-speed production hub. The decision only affects that one building, so it's a more localized choice.
+            - Role: The role of this panel is twofold:
+                - To visually inform the player about what upgrades are currently available.
+                - To provide a clear and intuitive way to initiate the research process.
+            - Visuals: Each upgrade would be represented by a button with a clear icon. The icon might be a gear for a mechanical upgrade, a plus sign for a stat increase, or a new weapon for a new ability. The button would have a tooltip that shows the upgrade's name, description, cost, and the benefit it provides.
+            - Cost & Availability: The button would be visually "grayed out" if the player does not have the necessary resources. The costs would be displayed on the button itself, similar to how production costs are shown in your script.js file.
+            - Queueing: When a player clicks an available upgrade button, the upgrade is added to the building's production queue. It would have its own progress bar and time indicator, just like a unit being produced.
+            - Permanent Effect: Once an upgrade is complete, a notification would appear, and its benefits are permanently applied to all affected units or buildings. The upgrade button would then be replaced by the next available tier of upgrade, or it would disappear if it was the final tier.
+            - Queue: The upgrade queue would function similarly to the unit production queue but would be visually separate and have its own rules
+                - Separate Queue: The game's data model would need a new array for each building, for example, building.upgradeQueue. This queue can hold a maximum of one upgrade at a time, as you suggested.
+                - Visual Representation: The UI would display this queue in a dedicated section of the Commands Panel. It could be placed right below the main production buttons. This section would show the icon of the upgrade being researched, a progress bar, and the remaining time.
+                - Player Clicks "Upgrade": The player selects a building, and the Commands Panel loads. They click an upgrade button, such as a "Metal Refining" upgrade.
+                - Queue Check: The game logic checks if the building's upgradeQueue is empty.
+                - Add to Queue: If the queue is empty, the upgrade is added. The building's isTraining status would now reflect this, and a timer would start.
+                - UI Updates: The UI's Commands Panel would dynamically update to show the upgrade's icon, a progress bar, and its remaining time. The upgrade button itself would become inactive until the upgrade is complete.
+                - Completion: When the upgrade is finished, the game triggers a upgrade_complete event. The upgrade's effects are applied to the player's economy and units, and the visual queue is cleared, making a new upgrade available.        
+            - Tier Upgrade Button: The purpose of a Tier Upgrade is to fundamentally transform a building, unlocking new production options and improving its overall stats.
+                - Role: This button is the key to advancing the player's technology. Clicking it initiates a research project that, upon completion, upgrades the building to the next tier (e.g., from a Tier 1 Factory to a Tier 2 Factory). This process is costly in both time and resources.
+                - Placement: The button would be placed in the Commands Panel, separate from the unit production buttons, to emphasize its importance. It should be visually distinct, perhaps with a more elaborate icon or a different color, to signal a major change.
+                - Availability: This button would only appear when the building is at its maximum level for the current tier and all prerequisites are met. A tooltip could inform the player, "Upgrade to Tier 2" and list the required resources and time.
+                - Progress: Once clicked, the building would enter a "Tier Upgrading" state. A progress bar would appear in the Information Panel (in the upgrade queue you've already established), showing the time remaining for the upgrade. During this process, the building cannot produce units or other upgrades.
+                - Completion: When the upgrade is complete, the building's appearance could change, and the production buttons in the Commands Panel would be updated to include newly unlocked units and upgrades.
+            - General Unit Upgrade Buttons: These buttons are about improving the effectiveness of the units the building produces. These are often stat-based upgrades that apply to all relevant units.
+                - Role: These upgrades allow players to specialize their army. They can choose to invest in increasing the health of their infantry, the armor of their vehicles, or the rate of fire of their aircraft.
+                - Placement: These buttons would be grouped in a dedicated section of the Commands Panel, separate from the building tier upgrade. This keeps the UI organized and makes it easy for players to find what they're looking for.
+                - Behavior:
+                - Cost & Availability: Similar to other production buttons, these would display their resource cost and become unavailable if the player doesn't have enough resources.
+                - Queueing: When clicked, these upgrades are added to the building's unique upgrade queue. As you've suggested, this queue is separate from unit production, so the building can continue to produce units while an upgrade is in progress.
+                - Permanent Effect: Once completed, the upgrade's benefits are permanent and affect every relevant unit the player controls, both existing and newly produced. For example, a "Heavy Plating" upgrade would increase the armor of all Ground Vehicles.
+        * Special Commands: This panel would also contain buttons for unique building-specific actions, such as:
+            - Repair: A button to initiate the repair of a damaged building.
+
+    Sell/Destroy: A command to sell the building for resources or to self-destruct it. This is a crucial command for adapting to a changing battlefield.
+
 * Mechanics
 Terrashift: it has multiple forms and a base form
 Shortest Path Algorithm: Collided Units
@@ -149,16 +266,144 @@ Veterancy:
     I: Some damage
     II: Some attack speed
     Star: Some health, speed and slow autorecovery; special unlock (i.e double barrel)
-Unit Groups:    
-    Multi select -> Group Up
-    Group Up Bonus: 
-        Ground Vehicle: Health, Damage, Speed
-        Aircraft: Rate of Fire, Speed, Range
-        Naval Vehicle: 
-        Infantry: Range, Damage, Speed
-        Animal: Autochase Range, RateOfFire, Speed
-        Drone: Autochase Range, Health, Autorecovery
-* Units
+Unit Abilities:
+    * Advantages:
+        - Dynamic, no need for toggler switch
+        - Self management
+        - Effect Complexity: multiple effects, individual activation timers
+        - Performance: check conditions only required by ability or unit, unit no needs to check giftbox as gameloop handles it. instead of unit, abilities check required effects
+
+    * General Idea: Subscribe & Unsubscribe abilities on units
+    * Ability Categories: Trait Abilities, Research Abilities, Talent Tree, Production Upgrade Abilities, Veterancy Abilities, Giftbox Abilities
+        * AbilityManager -> Observer and Manager: Checks condition to assign ability. Unit subs Ability, Ability subs Effect
+        * Trait Abilities: These are the most straightforward. They are a unit's inherent, permanent characteristics.
+            * Unit_to_Ability Subscription Trigger: Unit does not subscribe to Ability
+            - When a unit is created
+            - its constructor would simply tell the AbilityManager, "Hey, I have these abilities.
+            -  The manager would then permanently subscribe the unit to those abilities
+            - The manager doesn't need to watch for any conditions
+            - the abilities are just there for that unit's lifetime.
+        * Research Abilities: These are global, permanent buffs granted to all affected units once a technology is researched.
+            * Unit_to_Ability Subscription Trigger: global event: research_complete
+            * Ability Observer Logic: The AbilityManager acts as the observer, listening for the research event. When it receives the event, it applies the new ability to all existing units affected by that research.
+            - The AbilityManager subscribes to a global "research complete" event
+            - When the event fires, it receives the data for the new tech
+            - The manager then iterates through all active units on the map, c
+            - hecks if each unit's type matches the tech's description (e.g., "all infantry units")
+            - and subscribes each of them to the new ability.
+        * Talent Tree Abilities: These are player-driven research abilities that grant unique, permanent traits to specific units
+            * Unit_to_Ability Subscription Trigger: : A global event (talent_unlocked).
+            * Ability Observer Logic: The AbilityManager observes the talent_unlocked event. When the event is triggered by a player's action, the manager applies the new ability to the specific units or buildings designated by the talent.
+            - This works exactly like a research ability, but with a different trigger
+            - The AbilityManager listens for a "talent unlocked" event
+            - Once a player selects a new talent, 
+            - the manager receives a signal, checks the talent's description, 
+            - and then subscribes the appropriate unit to that ability.
+        * Production Upgrade Abilities: These abilities are tied to the upgrades of specific buildings.
+            * Unit_to_Ability Subscription Trigger: : A specific event (building_upgraded).
+            * Ability Observer Logic: The AbilityManager observes this event. When a building is upgraded, the manager applies the new ability to all existing units produced by that building, and updates the building's data so future units are created with the ability.
+            - The AbilityManager can observe a "building upgraded" event
+            - When it's triggered, the manager would check the building's upgrade data to see what abilities it grants
+            - It would then subscribe to two things:
+                - 1.All existing units produced by that building would be given the ability.
+                - 2.The Production building itself is updated, so any new units it produces will automatically be created with the ability.
+        * Veterancy Abilities: These abilities are earned by individual units based on their combat experience.
+            * Unit_to_Ability Subscription Trigger: : A state change on a single unit (crossing an XP threshold).
+            * Ability Observer Logic: The unit itself acts as the observer, watching its own experience points. When its XP reaches a new level, it triggers an internal event (leveled_up), and the ability is applied to the unit.
+            - This is a key use case for the Observer Pattern
+            - The AbilityManager would listen for a "unit leveled up" event from a specific unit
+            - When a unit hits a veterancy milestone (e.g., Level 5), the manager receives the signal
+            - It then subscribes that single unit to the new ability, such as a damage boost or a health regeneration trait.
+        * Giftbox Abilities: These are temporary, location-based abilities that are dynamic and short-lived.
+            * Unit_to_Ability Subscription Trigger: : A continuous condition (a unit's position is within a specific area).
+            * Ability Observer Logic: The unit itself is the observer. During the main game loop, each unit checks its own position. If it is within the range of a gift box, it notifies its abilities to activate. If it leaves the area, it deactivates them.
+            - The AbilityManager runs a check during the game loop
+            - It iterates through all active gift boxes and all active units
+            - If a unit's coordinates are within the range of a gift box, the manager checks to see if the unit has the ability already.
+            - If not, it grants the ability and starts a timer.
+            - If the unit moves out of range or the timer expires,
+            - the manager unsubscribes the unit from the ability.
+        
+    * Abiity Structure:
+        - id (string, unique, identifier): speed_boost, passive_regeneration etc
+        - name (string, human-readable, ui): Speed Boost Aura etc
+        - description (string, bried explanation)
+        - type (String, activation category): Buff, Passive, Toggle etc
+        - duration (number, seconds to last): value / "permanent" / -1
+        - triggerCondition (string / Object, when to activate an ability, observer pattern): { type: "proximity", radius: 100, target: "giftbox"}
+        - effect (Object, core of ability)
+            - statModifier (buff / debuff): { type: "on_level_up", value: 1.5, method: "multiply" } 
+            - action (automated behaviors): { type: "heal_over_time", amount: 10, interval: 1 } 
+        - icon (string, file path or name of ability that has path)
+    
+    * Ability Types by Activation Conditions:
+        * Passive Abilities
+            - Logic: These abilities are always active as long as they are subscribed to the unit.
+            - Implementation: When a unit is first subscribed to a passive ability (e.g., from a trait or research), the ability immediately applies its effects. There are no further triggers, checks, or states. It simply provides its benefits to the unit for the duration of its subscription. This is the simplest type of ability.
+        * Auto-Activated Abilities
+            - Logic: These abilities activate or deactivate automatically based on a real-time condition.
+            - Implementation: This is a perfect use case for the two-tiered observer pattern we discussed. The ability itself would subscribe to an Effect. 
+                - The ability would observe a dynamic condition on the unit, such as "on_taking_damage" (for a temporary shield) or "in_combat" (for a berserker rage effect).
+                - When that condition is met, the ability automatically activates its effects without any player input. 
+                - When the condition is no longer met (e.g., the unit leaves combat), the ability automatically deactivates and its effects are removed.
+        * Toggleable Abilities
+            - Logic: We have no toggle switch on UI. The ability is activated or deactivated by a specific keyboard input.
+            - Implementation:
+                - Hotkey Data: The ability's data structure would include a hotkey property (e.g., 'F', 'G', 'T').
+                - Input Listener: The game's main input handler would listen for these hotkeys.
+                - Unit Notification: When a hotkey is pressed, the unit would check if it has a toggled ability assigned to that key. If so, it would call an on_hotkey_pressed method on that specific ability.
+                - Toggling: The ability's on_hotkey_pressed method would then check its own state. If it is currently active, it would deactivate itself; if it is inactive, it would activate itself and its effects.
+
+        * Click-to-Activate Abilities
+            - Logic:
+            - Implementation: 
+
+    * Two-Tiered Trigger System: Ability Activation, Effect Activation
+    * Tier 1: Unit to Abiity Subscription TriggerTrigger
+    - This is the high-level trigger that determines when a unit gets or loses an ability. The Unit (or the AbilityManager) is the subject, and the Ability is the observer.
+    - Examples:
+        on_unit_created (for Trait Abilities)
+        on_research_complete (for Research Abilities)
+        on_level_up (for Veterancy Abilities)
+        on_enter_giftbox_area (for Giftbox Abilities)
+    
+    * Tier 2: Ability to Effect Subscription Trigger
+    - This is the new, more granular level. Once a unit has an ability, the Ability itself acts as a new subject and the Effect is the new observer. The Ability now watches for specific conditions to trigger its effects.
+    - Examples:
+        on_every_second (for a "Heal Over Time" ability)
+        on_taking_damage (for a "Shield" ability that activates on hit)
+        on_in_combat (for a "Berserker Rage" ability that activates when fighting)
+        on_duration_ends (for any temporary ability)
+
+    * Information Panel and Commands Panel -> Check Unit & Building Informational Panel, Unit & Building Command Panel titles
+
+Unit Groups: 
+    * Group as a Unit: An object in the game world, just like a building or a regular unit. When a player selects one unit within a group, the entire group is automatically selected. This simplifies control and allows for fast commands.
+        * Role: Unit Group is counted as a unit where it commands multiple units. Selection select the group of units with a circular indicator. 
+        * Formation Commands: Your activation triggers are intuitive and align with standard RTS commands.
+            - Group Up (Multi-select): This command is the primary way to form a new group. When a player selects multiple units and presses the "Group Up" hotkey, a new UnitGroup object is created, and all selected units are linked to it.
+            - Group In (Unit select): This command is for adding new units to an existing group. A player could select a single unit and press "Group In" while the target group is active, and the unit would be added to the formation.
+            - Disband Group: A crucial command for breaking up a group, allowing units to return to individual control.
+         * Bonuses: 
+            * Role: These bonuses are an excellent way to reward the player for using a tactical approach. The specific bonuses for each unit type provide clear strategic incentives. These bonuses are a perfect fit for our AbilityManager
+            - Ground Vehicle: Health, Damage, Speed. This makes sense. A group of ground vehicles is a powerful, combined force that is more effective than individual units.
+            - Aircraft: Rate of Fire, Speed, Range. This encourages using air units in coordinated strikes, where concentrated firepower and swiftness are rewarded.
+            - Naval Vehicle: Armor, Sensor Range, and Self-Repair. Naval units are often slow but durable. This encourages grouping them for a tough, forward-scouting force that can withstand heavy damage.
+            - Infantry: Range, Damage, Speed. This makes an infantry squad a deadly force that is more effective together than apart.
+            - Animal: Autochase Range, Rate of Fire, Speed. This turns a pack of animals into a fast, aggressive force. The extended autochase range would make them highly effective at hounding enemies and tying up enemy units.
+            - Drone: Autochase Range, Health, Autorecovery. This rewards using drones as a combined, self-sufficient force that can quickly overwhelm a target and then recover.
+    * Autochase Range Indicator: The circular indicator is a great way to provide visual feedback. It tells the player exactly which units belong to the selected group, making it easy to identify and manage them on the battlefield.
+        * Activation: Settled upon a group is formed. It is large enough so that formation commands do not move units outside the indicator
+        * Role: This is a unique and valuable concept. The "Autochase Range" acts as a formation bounding box, which solves a common problem in strategy games where units can stray too far from their group while in pursuit of a target.
+            - Formation Discipline: When a group is given a move or attack command, this range ensures that no unit leaves the formation. Units at the edge of the formation will only chase targets up to the boundary of the autochase range, then fall back to maintain their position.
+            - Strategic Value: This gives the player more control over their army. Instead of a messy blob, the group maintains its tactical integrity, which is essential for combined arms strategies.This is a unique and valuable concept. The "Autochase Range" acts as a formation bounding box, which solves a common problem in strategy games where units can stray too far from their group while in pursuit of a target.
+            - Formation Discipline: When a group is given a move or attack command, this range ensures that no unit leaves the formation. Units at the edge of the formation will only chase targets up to the boundary of the autochase range, then fall back to maintain their position.
+            - Strategic Value: This gives the player more control over their army. Instead of a messy blob, the group maintains its tactical integrity, which is essential for combined arms strategies.
+        * Implementation: When a group is formed, it triggers a group_created event. The AbilityManager observes this event and, for each unit in the new group, it subscribes a GroupBonusAbility. This ability would:
+            - Read the bonus data for its unit type.
+            - Temporarily modify the unit's stats (e.g., unit.speed *= 1.25).
+            - Be automatically unsubscribed when the group is disbanded, reverting the stats to normal. 
+* Unit Features
 - Unit tags: Detector, Animal, Drone, Terrashift, Engineer, Armored, Support, Entrench
 
 Unit-Behaviors: 

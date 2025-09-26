@@ -1,5 +1,5 @@
 /* styles/base.css */
-
+@import url('https://fonts.googleapis.com/css2?family=Electrolize&display=swap');
 html, body {
     height: 100%;
     margin: 0;
@@ -12,7 +12,10 @@ body {
     background-color: #1a1a1a;
     color: #d1d5db;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 2rem;
 }
 
 #game-container {
