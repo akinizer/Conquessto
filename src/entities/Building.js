@@ -16,6 +16,11 @@ export class Building extends GameObject {
         this.health = this.itemData.health || 1000;
         this.maxHealth = this.itemData.health || 1000;
 
+        // 🚨 4. ADD PERSISTENT PRODUCTION STATE HERE 🚨
+        this.isLocallyProducing = false;      // Flag: Is production currently running?
+        this.localCountdownEnd = 0;           // Time (Date.now() value) when production finishes
+        this.producingItemName = null;        // Stores the name of the item being built
+
         this.ctx = canvas.getContext('2d'); 
     }
     

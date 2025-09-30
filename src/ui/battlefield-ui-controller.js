@@ -5,6 +5,7 @@ export class UIController {
         this.tabButtons = document.querySelectorAll('.tab');
         this.panelStatus = document.getElementById('panel-status');
         this.gameController = null;
+        this.activeLocalTimerId = null;
 
         // NEW: Create and style the hover popup element
         this.hoverPopup = document.createElement('div');
@@ -48,6 +49,11 @@ export class UIController {
 
     fillProducesTab(selectedObject) {
         this.productionGrid.innerHTML = '';
+        // 🚨 CRITICAL: Clean up the previous visual timer when the panel is refreshed
+        if (this.activeLocalTimerId) {
+            clearInterval(this.activeLocalTimerId);
+            this.activeLocalTimerId = null;
+        }
         if (selectedObject && selectedObject.itemData) {
             let allPossibleItems = [];
             const itemType = selectedObject.itemData.type;
@@ -58,6 +64,14 @@ export class UIController {
             }
             const producesList = selectedObject.itemData.produces || [];
             const itemsToDisplay = allPossibleItems.filter(item => producesList.includes(item.name));
+
+             // 🆕 READ STATE: Check if production is ongoing based on the stored time
+            // Using the initialized properties (assumes Step 1 of initialization is done)
+            const isCurrentlyProducing = 
+                selectedObject.isLocallyProducing && 
+                selectedObject.localCountdownEnd > Date.now();
+                
+            const producingItemName = selectedObject.producingItemName; 
 
             if (itemsToDisplay.length > 0) {
                 itemsToDisplay.forEach(item => {
@@ -71,6 +85,11 @@ export class UIController {
 
                     const costDiv = document.createElement('div');
                     costDiv.className = 'produces-button-cost';
+
+                    // 🆕 REDRAW OVERLAY: If this item is the one being built, start the timer again
+                    if (isCurrentlyProducing && item.name === producingItemName) {
+                        this.startLiveProductionOverlay(button, selectedObject, item);
+                    }
                     
                     if (item.cost && Object.keys(item.cost).length > 0) {
                         for (const resource in item.cost) {
@@ -105,7 +124,22 @@ export class UIController {
                     });
 
                     button.onclick = () => {
-                        this.gameController.trainItem(item, button);
+                        const durationMs = 10000; // 10 seconds production time
+
+                        // 1. Check if the building is already busy (reading from the persistent store)
+                        if (selectedObject.isLocallyProducing) {
+                            this.setStatus(`${item.name} is already building...`);
+                            return;
+                        }
+
+                        // 2. 💾 STORE THE STATE ON THE BUILDING OBJECT 💾
+                        // Store the exact future time when the production will finish (Date.now() + 10s).
+                        selectedObject.localCountdownEnd = Date.now() + durationMs;
+                        selectedObject.isLocallyProducing = true;
+                        selectedObject.producingItemName = item.name; // Stores which button the countdown belongs to
+                        
+                        // 3. Start the UI overlay countdown (This method handles all visual changes)
+                        this.startLiveProductionOverlay(button, selectedObject, item);
                     };
                     
                     this.productionGrid.appendChild(button);
@@ -120,7 +154,67 @@ export class UIController {
         }
     }
 
-    // UPDATED: Method to show the hover popup with description, cost, and time
+    startLiveProductionOverlay(button, productionBuilding, item) {
+        // 1. Clear any old timer (crucial when re-selecting the panel)
+        if (this.activeLocalTimerId) {
+            clearInterval(this.activeLocalTimerId);
+            this.activeLocalTimerId = null;
+        }
+
+        // Apply visual state (disabled button)
+        button.classList.add('in-cooldown');
+        button.style.pointerEvents = 'none';
+
+        // Create and style the overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'local-cooldown-overlay';
+        overlay.style.cssText = `
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.8); color: white;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 24px; font-weight: bold; z-index: 10;
+            border-radius: inherit;
+        `;
+        button.style.position = 'relative';
+        button.appendChild(overlay);
+
+        this.setStatus(`Production of ${item.name} in progress...`);
+
+        // 2. Start the timer loop reading from the stored time
+        const intervalId = setInterval(() => {
+            // Read the end time from the persistent store and calculate remaining time
+            const remainingMs = productionBuilding.localCountdownEnd - Date.now();
+            const countdown = Math.ceil(remainingMs / 1000);
+            
+            // Update the UI text
+            overlay.textContent = Math.max(0, countdown);
+
+            if (remainingMs <= 0) {
+                clearInterval(intervalId);
+                this.activeLocalTimerId = null;
+                
+                // 3. Trigger Game Logic
+                this.gameController.trainItem(item, button); 
+                
+                // 4. Reset state on the building (Cleanup the store)
+                productionBuilding.isLocallyProducing = false;
+                productionBuilding.producingItemName = null;
+                
+                // 5. Cleanup UI
+                if (button.contains(overlay)) {
+                    button.removeChild(overlay);
+                }
+                button.classList.remove('in-cooldown');
+                button.style.pointerEvents = 'auto';
+
+                this.setStatus(`${item.name} is ready!`);
+            }
+        }, 100); // Ticks every 100ms for smoother visual update
+
+        this.activeLocalTimerId = intervalId;
+    }
+
+    // Method to show the hover popup with description, cost, and time
    showProductionPopup(item, clientX, clientY) {
         // Build the cost string from the cost object
         const costItems = Object.entries(item.cost).filter(([key, value]) => value > 0);
@@ -137,12 +231,12 @@ export class UIController {
         this.hoverPopup.style.display = 'block';
     }
 
-    // NEW: Method to hide the hover popup
+    // Method to hide the hover popup
     hideProductionPopup() {
         this.hoverPopup.style.display = 'none';
     }
 
-    // NEW: Method to update the hover popup
+    // Method to update the hover popup
     updateHoverPopup(gameObject, clientX, clientY) {
         if (gameObject) {
             const shortDescription = gameObject.itemData.description || 'No description available.';

@@ -7,7 +7,8 @@ Produces item popup: Cost display logic. It assumes data has a cost value. It ha
 
 * Mechanics
 Command Bar: Resources
-Production Panel:  Produces Tab (Train Building, Train Unit), list filtered by building
+Production Panel:  Produces Tab (Train Building, Train Unit), list of items assigned to selected building, training overlay (stored and reloaded on reselect)
+
 Map Canvas: Place Building, Select Building, Select Unit, Move Unit, Set Rally Point / Waypoint
     Placement Indicator: Placeable, Not Placeable
     Map Panning: WASD / Arrow Key, Screen Edge Cursor Push 
@@ -73,7 +74,7 @@ Building Types: Production, Economic, Command, Other
     Command: trains and places Buildings
     Other: -
 Building Tags: Solid
-Produces: units producable for production buildings, buildings producable for command buildings
+Produces: units trainable by production buildings, buildings trainable by command buildings
     Barracks: Infantry units
     Vehicle Factory: Offensive Vehicles, Transport Vehicles, Entrench Vehicles, Support Vehicles
     Hangar: Aircraft
