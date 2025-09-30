@@ -1,3 +1,6 @@
+- EMERGENT -
+Produces item popup: Cost display logic. It assumes data has a cost value. It has cost array instead. Extract, concat, add icons, put into span
+
 === IMPLEMENTED ===
 1.Battlefield
 * This content is now a page
@@ -447,6 +450,12 @@ Map Generation: Base Locations, Enemy Generation, Giftboxes
 * Neutral
 Capturable (Abandoned Facility, Abandoned Tech Center, Abandoned Generator, Abandoned Hangar, Abandoned Airbase, Huntables)
 Production (Metal Mines, Farmlands)
+Zone:
+    * Defense Covers (Mud): 
+        - Area Effects: Def Up, Speed-
+    * Speed Covers (Ice):
+        - Area Effects: Damage-, Speed+
+    * Offense Covers ()
 Units (Huntables, Civilians, Rebel)
 Civilian (Cosmetic, NPC Spawn, Giftbox Spawn)
 Giftboxes
@@ -517,6 +526,41 @@ Equippables & Slots:
 - **Function:** `handleMouseMove`
 - **Code Part:** The entire `handleMouseMove` function is a duplicate of `onCanvasMouseMove` and is never called by any event listener, making it dead code.
 
+=============ADVANCED-CONTENTS=======================
+Game Modes: 
+    + Battlefield
+    - Tower Challenge: Choose Elite Units and have 1v1 group battle, each stage has 1 min timer, small 20x20 area, no buildings, rewards (elite unit xp, elite unit lvl, elit unit lvl bonuses)
+    - Conquest: Planets -> Zones -> Medals
+    - Production Fields: Construct and upgrade buildings for idle content
+    - Bazaar: Shopping district for equippables, materials, pilots
+    - Command Bunker: 
+        - General Information of Player: Name, Command Rank, Command XP ...
+        - Statistic Information of Player: Units / Buildings Destroyed, Units / Buildings Lost, Wins / Losses, Conquered Zones, Conquered Planets, Currency Spent, Command Rank, ...
+        - Achiemevents: Unlocked / Unseed, Achievement Categories, Achievements Rewards (XP, Equippables, Materials, Medals, ...)
+        - Medals: Unlocks features and game mods
+        - General Information of Zones Conquered
+        - Relics
+        - Elite Unit Equipments, Evolutions (Unit, Weapons, Specials)
+    - Command Upgrades:
+        - Talent Tree: 
+            - Talent Ability Unlocks (abilities trainable by buildings)
+            - Production Ability Unlocks (abilities trainable by buildings)
+            - Advanced Unit Unlocks
+            - Advanced Building Unlocks
+            - Uses: Medals
+            - Time: Instant
+            - Hierarchy: Reverse Tree
+        - Researches: 
+            - Research Time: 
+            - Uses: Metals
+            - Time: Varies, Increases
+            - Hierarchy: Linear, Multiple
+                - Core: Base stat improvements (unit / building), Base production improvements (faster mining, more gain, critical gain chance) ...
+                - Production: Training improvements (time, multi-queue) ...
+                - Projectile: Speed, damage, bonus damage, critical damage, multi-shot, penetration ...
+    - Gacha:
+        - Check-in (Number of Days): Metal, Weekly Reward, Monthly Reward
+        - Reward Dice (Roll Animation, Reward Slot Type [Item], Item is randomly chosen): Equippables, Metal, Medal 
 =============ADVANCED-MECHANICS=======================
 
 * Unit Mechanics - Move
