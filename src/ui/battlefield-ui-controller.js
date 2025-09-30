@@ -124,7 +124,12 @@ export class UIController {
                     });
 
                     button.onclick = () => {
-                        const durationMs = 10000; // 10 seconds production time
+                         // 🆕 GET TIME DYNAMICALLY AND CONVERT TO MS 🆕
+                        // 1. Get the time in seconds from item.time (default to 10 seconds for safety if missing)
+                        const durationSeconds = item.time || 10; 
+                        
+                        // 2. Convert seconds to milliseconds (1000 ms per second)
+                        const durationMs = durationSeconds * 1000; 
 
                         // 1. Check if the building is already busy (reading from the persistent store)
                         if (selectedObject.isLocallyProducing) {
