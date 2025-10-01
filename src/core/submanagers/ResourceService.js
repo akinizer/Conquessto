@@ -1,14 +1,13 @@
 export class ResourceService {
-    /**
-     * The ResourceService takes the GameController as a dependency so its methods 
-     * can access the shared state (gameState) and the UI controller for updates.
-     * @param {GameController} gameController 
-     */
     constructor(gameController) {
         this.gameController = gameController;
-        // Exposing these directly for cleaner access within the service's methods
         this.gameState = gameController.gameState;
         this.uiController = gameController.uiController;
+
+        this.gameState.resources = { credits: 1000, energy: 0, metal: 0, substance: 0 };
+        
+        // assign base resources
+        Object.keys(this.gameState.resources).forEach(resource => this.uiController.updateResourceCountAnimated(resource, this.gameState.resources[resource]));
     }
 
     isAffordable(cost) {

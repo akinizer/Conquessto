@@ -12,14 +12,6 @@ export class GameState {
         // Hover Label
         this.hoveredObject = null;
         this.hoverTimeoutId = null; 
-
-        // Resources
-        this.resources = {
-            credits: 1000,
-            metal: 500,
-            energy: 200
-        };
-
     }
 
     getNextId() {
