@@ -7,7 +7,7 @@ Produces item popup: Cost display logic. It assumes data has a cost value. It ha
 
 * Mechanics
 Command Bar: Resources
-Production Panel:  Produces Tab (Train Building, Train Unit), list of items assigned to selected building, training overlay (stored and reloaded on reselect)
+Production Panel:  Produces Tab (Train Building, Train Unit), list of items assigned to selected building, training overlay (stored and reloaded on reselect), disabled overlay (non-training units are temporarily uninteractable)
 
 Map Canvas: Place Building, Select Building, Select Unit, Move Unit, Set Rally Point / Waypoint
     Placement Indicator: Placeable, Not Placeable
@@ -541,7 +541,28 @@ Game Modes:
         - Medals: Unlocks features and game mods
         - General Information of Zones Conquered
         - Relics
-        - Elite Unit Equipments, Evolutions (Unit, Weapons, Specials)
+        - Elite Units UI:
+            - Roster of Elite Units (bottom half of screen)
+            - Deployed Elite Units (top half of screen)
+                - 5 slots, by default 1 unlocked 2,3,4 locked
+                - 8 equippable slots (it will update slots as a unit upon clicking a deployed unit )
+                - Deploy Bonus Info Panel: It will list all bonuses of selected units in one place
+        - Commander UI:
+            - Roster
+            - Deployed Commander: it will have a bonus effect to battlefield dedicated to specific game objects 
+                - all stat bonus to units
+                    - mastermind: all infantry
+                    - crusher: all armored
+                    - eagleclaw: all aircraft
+                    - barbarossa: all naval
+                - training speed bonus to buildings
+                    - architect
+                - currency generation bonus to buildings
+                    - economist
+                - all buildings self repair
+                    - enginseer
+                - all units self heal
+                    - professor
     - Command Upgrades:
         - Talent Tree: 
             - Talent Ability Unlocks (abilities trainable by buildings)

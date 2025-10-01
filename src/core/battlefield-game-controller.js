@@ -5,7 +5,7 @@ import { CommandBuilding } from '../entities/CommandBuilding.js';
 import { EconomicBuilding } from '../entities/EconomicBuilding.js';
 import { OtherBuilding } from '../entities/OtherBuilding.js';
 import { DataManager } from './battlefield-data-manager.js';
-import { CursorManager } from './CursorManager.js'; 
+import { CursorManager } from './CursorManager.js';
 
 export class GameController {
     constructor(canvas, uiController) {
@@ -18,7 +18,7 @@ export class GameController {
             credits: 10000, // Initialize credits here
             energy: 0,
             metal: 0,
-            substance: 0 
+            substance: 0
         };
         this.lastTime = performance.now(); // For delta time calculation
 
@@ -42,10 +42,10 @@ export class GameController {
         this.keys = {};
         document.addEventListener('keydown', (event) => { this.keys[event.key] = true; });
         document.addEventListener('keyup', (event) => { this.keys[event.key] = false; });
-        
+
         this.uiController.gameController = this;
         this.uiController.initializeUI();
-        
+
         this.pendingBuildingCursorPosition = { x: 0, y: 0 };
         this.canPlaceBuilding = true;
 
@@ -54,9 +54,9 @@ export class GameController {
         this.WORLD_HEIGHT = this.canvas.height * 4;
 
         // Initialize the viewport (camera)
-        this.viewport = {x: 0,y: 0};
+        this.viewport = { x: 0, y: 0 };
         this.panInterval = null;
-        this.mousePosition =  {x:0, y:0};        
+        this.mousePosition = { x: 0, y: 0 };
 
         this.gameLoop();
     }
@@ -78,7 +78,7 @@ export class GameController {
             // Default to the specific OtherBuilding class for other types.
             building = new OtherBuilding(id, team, x, y, this.canvas, this, itemData);
         }
-        
+
         // Set the initial production time for economic buildings.
         if (building instanceof EconomicBuilding) {
             building.lastProductionTime = performance.now();
@@ -98,23 +98,23 @@ export class GameController {
         this.gameState.addObject(unit);
         return unit;
     }
-    
+
     // 🛠️ Places the building at a location triggered by placement indicator. This is called from main.js to place the starting HQ.
     placeBuilding(itemData, team, x, y) {
         // Build the building and add it to the game state.
         const newBuilding = this.buildBuilding(team, x, y, itemData);
-        
+
         // Deselect any previous building to avoid conflicts.
         if (this.gameState.productionBuilding) {
             this.gameState.productionBuilding.deselect();
         }
-        
+
         // Make the newly placed building the primary production building.
         this.gameState.productionBuilding = newBuilding;
-        
+
         // Select the new building so the UI immediately reflects its production options.
         this.gameState.productionBuilding.select();
-        
+
         this.uiController.setStatus(`${itemData.name} placed successfully.`);
         return newBuilding;
     }
@@ -137,7 +137,7 @@ export class GameController {
                 this.uiController.setStatus(`Not enough resources to train ${itemToQueue.name}.`);
                 return;
             }
-            
+
             this.deductCost(itemToQueue.cost);
 
             this.gameState.productionBuilding.productionQueue.push({ item: itemToQueue, button: button });
@@ -147,7 +147,7 @@ export class GameController {
 
         // ✅ check if it's a building
         if (buildings.some(b => b.name === item.name)) {
-             if (!this.isAffordable(item.cost)) {
+            if (!this.isAffordable(item.cost)) {
                 this.uiController.setStatus(`Not enough resources to build ${item.name}.`);
                 return;
             }
@@ -159,6 +159,25 @@ export class GameController {
 
         // ❌ fallback
         this.uiController.setStatus("Unknown item type.");
+    }
+
+    // You'll likely call this from your main game loop (e.g., inside GameController.update(deltaTime))
+    checkCompletedProduction() {
+        const producingBuildings = Object.values(this.gameState.gameObjects).filter(
+            // Filter for any object that is currently tracked for production
+            obj => obj.type === 'Building' && (obj.isLocallyProducing || obj.localCountdownEnd > 0)
+        );
+
+        producingBuildings.forEach(building => {
+            // Condition: Production has finished AND the building is still marked as actively producing
+            if (building.isLocallyProducing && building.localCountdownEnd > 0 && Date.now() >= building.localCountdownEnd) {
+                // 1. Transition to the persistent 'Ready' state
+                building.isLocallyProducing = false;
+
+                // 2. 🔥 NOTIFY THE UI CONTROLLER IMMEDIATELY. Tell the UI that this specific building is now ready for collection.
+                this.uiController.onProductionReady(building);
+            }
+        });
     }
 
     // ========================= BUILDING PLACEMENT ========================= //
@@ -207,7 +226,7 @@ export class GameController {
             height: dimensions.height
         };
         const unitRadius = tempUnit.width / 2;
-        
+
         for (const objId in this.gameState.gameObjects) {
             const otherObj = this.gameState.gameObjects[objId];
             console.log(otherObj)
@@ -252,23 +271,23 @@ export class GameController {
     }
 
     // ========================= MOUSE AND KEYBOARD EVENTS ========================= //
-    
+
     // Left mouse click operations: object click, map canvas click, placement indicator click
     onCanvasLeftClick(event) {
         if (event.button !== 0) return;
-        
+
         const mousePos = this.getMousePos(event);
         const mouseX = mousePos.x;
         const mouseY = mousePos.y;
-        
-        const clickedObject = this.getObjectAt(mouseX, mouseY);        
-        
+
+        const clickedObject = this.getObjectAt(mouseX, mouseY);
+
         if (this.gameState.pendingBuilding) {
-            const { width: buildingWidth, height: buildingHeight , cost: buildingCost} = this.gameState.pendingBuilding;
+            const { width: buildingWidth, height: buildingHeight, cost: buildingCost } = this.gameState.pendingBuilding;
 
             const isLocationClear = this._isAreaClear(mouseX, mouseY, buildingWidth, buildingHeight
             );
-            
+
             // Correctly check if the building can be placed within the current viewport.
             const isWithinViewport = (
                 mouseX - buildingWidth / 2 >= this.viewport.x &&
@@ -321,6 +340,7 @@ export class GameController {
 
         if (object && object.itemData) {
             console.log(`Selected object data:`, object);
+            this.uiController.selectedObject = object;
 
             switch (object.itemData.type) {
                 case "Production":
@@ -330,6 +350,23 @@ export class GameController {
                         this.uiController.setStatus(`${object.itemData.name} selected as primary.`);
                         if (!this.gameState.productionBuilding.rallyPoint) {
                             this.gameState.productionBuilding.rallyPoint = { x: object.x, y: object.y };
+                        }
+                    }
+                    const isReadyForCollection =
+                        !object.isLocallyProducing &&
+                        object.localCountdownEnd > 0 &&
+                        object.localCountdownEnd <= Date.now();
+
+                    if (isReadyForCollection && !object.producingItemName) {
+                        // If the building is ready but the name got wiped, try to find the item
+                        // in the produces list and set the name for the UI draw.
+                        // THIS IS THE LAST RESORT AGAINST DATA CORRUPTION.
+                        // For example, assume the first producible item is the one that finished. 
+                        // This is a defensive coding measure.
+                        const producesList = object.itemData.produces || [];
+                        if (producesList.length > 0) {
+                            object.producingItemName = producesList[0];
+                            console.warn(`[DEFENSE] producingItemName was missing for READY building. Set to: ${object.producingItemName}`);
                         }
                     }
                     this.uiController.fillProducesTab(object);
@@ -359,6 +396,7 @@ export class GameController {
             }
         } else {
             console.log('Nothing selected. All objects deselected.');
+            this.uiController.selectedObject = null;
             this.uiController.setStatus("Ready.");
             this.uiController.fillProducesTab(null);
         }
@@ -368,7 +406,7 @@ export class GameController {
     onCanvasRightClick(event) {
         event.preventDefault();
         if (event.button !== 2) return;
-        
+
         const mousePos = this.getMousePos(event);
         const mouseX = mousePos.x;
         const mouseY = mousePos.y;
@@ -386,8 +424,8 @@ export class GameController {
             });
             this.uiController.setStatus("Unit(s) moving.");
             return; // ✅ Crucial: Exit the function after handling unit movement.
-        } 
-        
+        }
+
         // Only if no units are selected, check for a production building to set a rally point.
         if (this.gameState.productionBuilding) {
             this.gameState.productionBuilding.rallyPoint.x = mouseX;
@@ -453,7 +491,7 @@ export class GameController {
             const rect = this.canvas.getBoundingClientRect();
             const mouseX = event.clientX - rect.left;
             const mouseY = event.clientY - rect.top;
-            
+
             this.mousePosition = { x: mouseX, y: mouseY };
 
             const canvasWidth = rect.width;
@@ -505,7 +543,7 @@ export class GameController {
         this.stopPanInterval(); // This is the new addition
         clearTimeout(this.gameState.hoverTimeoutId);
         this.gameState.hoveredObject = null;
-        this.uiController.updateHoverPopup(null, 0, 0); 
+        this.uiController.updateHoverPopup(null, 0, 0);
         this.canvas.style.cursor = 'default';
     }
 
@@ -514,7 +552,7 @@ export class GameController {
         const rect = this.canvas.getBoundingClientRect();
         const mouseX = (event.clientX - rect.left);
         const mouseY = (event.clientY - rect.top);
-        
+
         return { x: mouseX + this.viewport.x, y: mouseY + this.viewport.y };
     }
 
@@ -543,7 +581,7 @@ export class GameController {
                 return obj;
             }
         }
-        
+
         // No object was found at the given coordinates
         return null;
     }
@@ -570,7 +608,7 @@ export class GameController {
             const hq = Object.values(this.gameState.gameObjects).find(obj =>
                 obj.team === 'friend' && obj.itemData.type === 'Command'
             );
-            
+
             if (hq) {
                 // Calculate potential viewport coordinates to center on the HQ
                 let newViewportX = hq.x - this.canvas.width / 2;
@@ -582,11 +620,11 @@ export class GameController {
 
                 this.uiController.setStatus("Camera moved to HQ.");
             }
-        }        
+        }
 
         // Focus on next HQ when 't' key is pressed --- 
         if (this.keys['t']) {
-            const hqs = Object.values(this.gameState.gameObjects).filter(obj => 
+            const hqs = Object.values(this.gameState.gameObjects).filter(obj =>
                 obj.itemData && obj.itemData.type === 'Command'
             );
 
@@ -602,7 +640,7 @@ export class GameController {
             }
 
             this.keys['t'] = false; // Reset the key state to prevent continuous jumping
-        } 
+        }
 
         // Destroy action onunit
         if (this.keys['k']) {
@@ -612,7 +650,7 @@ export class GameController {
 
     // ========================= MAP CANVAS AND RADAR MINIMAP ========================= //
 
-     // A method to correctly center the viewport on a given object
+    // A method to correctly center the viewport on a given object
     focusCameraOnObject(object) {
         if (!object) return;
 
@@ -701,7 +739,7 @@ export class GameController {
             miniMapCanvas.width / this.WORLD_WIDTH,
             miniMapCanvas.height / this.WORLD_HEIGHT
         );
-        
+
         // Calculate offsets to center the scaled world view within the square radar.
         // This correctly centers the rectangular world map within the square minimap.
         const offsetX = (miniMapCanvas.width - this.WORLD_WIDTH * scale) / 2;
@@ -727,7 +765,7 @@ export class GameController {
 
         miniMapCtx.fillStyle = 'rgba(255, 255, 0, 0.4)';
         miniMapCtx.fillRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight);
-        
+
         miniMapCtx.save();
         miniMapCtx.shadowColor = 'rgba(255, 255, 0, 1)';
         miniMapCtx.shadowBlur = 10;
@@ -750,12 +788,12 @@ export class GameController {
                 const miniMapY = obj.y * scale + offsetY;
                 const miniMapWidth = Math.max(obj.itemData.width * scale, MIN_BUILDING_SIZE);
                 const miniMapHeight = Math.max(obj.itemData.height * scale, MIN_BUILDING_SIZE);
-                
+
                 const color = (obj.team === 'friend') ? 'blue' : 'red';
 
                 miniMapCtx.fillStyle = color;
                 miniMapCtx.fillRect(miniMapX - miniMapWidth / 2, miniMapY - miniMapHeight / 2, miniMapWidth, miniMapHeight);
-                
+
                 // Save the HQ's data to draw the outline later
                 if (obj.itemData.type === 'Command') {
                     if (obj.team === 'friend') {
@@ -766,7 +804,7 @@ export class GameController {
                 }
             }
         }
-        
+
         // Function to draw the HQ outline
         const drawHqOutline = (hqData) => {
             if (hqData) {
@@ -785,8 +823,8 @@ export class GameController {
         drawHqOutline(friendlyHqData);
         drawHqOutline(enemyHqData);
     }
-    
-    // The main update loop for game logic. Render resources and game objects
+
+    // The main update loop for game logic. Render game objects. Dynamically update resources, training timers
     update(deltaTime) {
         // Update all game objects
         for (const id in this.gameState.gameObjects) {
@@ -796,7 +834,10 @@ export class GameController {
                 obj.update(deltaTime);
             }
         }
-        
+
+        // 🚨 CRITICAL: Check for completed production every frame 🚨
+        this.checkCompletedProduction();
+
         // Handle resource updates separately
         this._updateResources();
     }
@@ -807,7 +848,7 @@ export class GameController {
 
         for (const id in this.gameState.gameObjects) {
             const obj = this.gameState.gameObjects[id];
-            
+
             if (obj.itemData && obj.itemData.type === 'Economic') {
                 const timeSinceLastProduction = currentTime - obj.lastProductionTime;
                 // The production interval should be read from the itemData
@@ -816,15 +857,15 @@ export class GameController {
                 if (timeSinceLastProduction >= interval) {
                     // Get the resources this building produces
                     const resourcesProduced = obj.itemData.produces;
-                    
+
                     if (resourcesProduced) {
                         // Iterate over each resource and update it
                         for (const resource in resourcesProduced) {
                             const amount = resourcesProduced[resource];
-                            
+
                             // Add the amount to the current resource total
                             this.gameState.resources[resource] += amount;
-                            
+
                             // Call the animated UI update for this specific resource
                             this.uiController.updateResourceCountAnimated(resource, this.gameState.resources[resource]);
                         }
@@ -871,7 +912,7 @@ export class GameController {
             if (this.gameState.resources.hasOwnProperty(resource)) {
                 // Add the new resources to the game state
                 this.gameState.resources[resource] += amount[resource];
-                
+
                 // Trigger the same animation with the new, final value
                 this.uiController.updateResourceCountAnimated(resource, this.gameState.resources[resource]);
             }
@@ -884,7 +925,7 @@ export class GameController {
         if (this.gameState.selectedUnits.length > 0) {
             // Get the first selected unit (or all of them in a loop for multi-selection)
             const unitToDestroy = this.gameState.selectedUnits[0];
-            
+
             // Check if it belongs to the player's team
             if (unitToDestroy.team === 'friend') {
                 console.log(`Destroying selected player unit with ID: ${unitToDestroy.id}`);
@@ -919,10 +960,10 @@ export class GameController {
         this.lastTime = time;
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        
+
         this.handleKeyboardInput();
         this.update(deltaTime); // Call the new update method
-                
+
         // Map edge indicators
         this.checkAndDisplayEdgeIndicators();
         this.drawMiniMapIndicators();
