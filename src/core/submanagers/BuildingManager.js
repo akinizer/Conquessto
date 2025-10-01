@@ -25,8 +25,8 @@ export class BuildingManager {
         // Alias GameController methods directly to the manager instance ('this')
         // This allows methods like 'trainItem' to use 'this.isAffordable' 
         // and 'this.deductCost' without needing 'this.gameController.' prefix.
-        this.isAffordable = gameController.isAffordable.bind(gameController);
-        this.deductCost = gameController.deductCost.bind(gameController);
+        this.isAffordable = gameController.resourceService.isAffordable.bind(gameController);
+        this.deductCost = gameController.resourceService.deductCost.bind(gameController);
     }
 
     // ========================= GAME MECHANISMS ========================= //

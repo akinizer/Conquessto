@@ -5,6 +5,7 @@ import { DataManager } from './battlefield-data-manager.js';
 import { BuildingManager } from './submanagers/BuildingManager.js';
 import { InputManager } from './submanagers/InputManager.js';
 import { CanvasManager } from './submanagers/CanvasManager.js';
+import { ResourceService } from './submanagers/ResourceService.js';
 
 export class GameController {
     constructor(canvas, uiController) {
@@ -31,6 +32,8 @@ export class GameController {
 
         this.inputManager = new InputManager(this);
         this.canvasManager = new CanvasManager(this);
+        this.resourceService = new ResourceService(this);
+
 
         // Event listeners for mouse interaction
         this.canvas.addEventListener('mousedown', (event) => this.inputManager.onCanvasLeftClick(event));
@@ -62,47 +65,5 @@ export class GameController {
         this.buildingManager = new BuildingManager(this);        
 
         this.canvasManager.gameLoop();
-    }
-
-    isAffordable(cost) {
-        if (!cost) {
-            return true;
-        }
-        for (const resource in cost) {
-            if (!this.gameState.resources.hasOwnProperty(resource) || this.gameState.resources[resource] < cost[resource]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    deductCost(cost) {
-        if (!cost) {
-            return;
-        }
-        for (const resource in cost) {
-            if (this.gameState.resources.hasOwnProperty(resource)) {
-                // Deduct the cost from the game state
-                this.gameState.resources[resource] -= cost[resource];
-
-                // NEW: Trigger the digit change animation with the final value
-                this.uiController.updateResourceCountAnimated(resource, this.gameState.resources[resource]);
-            }
-        }
-    }
-
-    earnResources(amount) {
-        if (!amount) {
-            return;
-        }
-        for (const resource in amount) {
-            if (this.gameState.resources.hasOwnProperty(resource)) {
-                // Add the new resources to the game state
-                this.gameState.resources[resource] += amount[resource];
-
-                // Trigger the same animation with the new, final value
-                this.uiController.updateResourceCountAnimated(resource, this.gameState.resources[resource]);
-            }
-        }
     }
 }

@@ -33,7 +33,7 @@ export class InputManager {
 
             if (isLocationClear && isWithinViewport) {
                 //deduct cost
-                this.gameController.deductCost(buildingCost);
+                this.gameController.resourceService.deductCost(buildingCost);
 
                 const newBuilding = this.gameController.buildingManager.buildBuilding("friend", mouseX, mouseY, this.gameController.gameState.pendingBuilding);
                 this._selectObject(newBuilding);
