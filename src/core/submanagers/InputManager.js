@@ -2,7 +2,8 @@ import { CursorManager } from './CursorManager.js';
 export class InputManager {
     constructor(gameController) {
         this.gameController = gameController;
-        this.CursorManager = CursorManager;
+        this.CursorManager = CursorManager;        
+        this.canvasManager = gameController.canvasManager;
     }
 
     // ========================= MOUSE AND KEYBOARD EVENTS ========================= //
@@ -369,7 +370,7 @@ export class InputManager {
                 this.gameController.gameState.focusedHqIndex = nextIndex;
 
                 const nextHq = hqs[nextIndex];
-                this.gameController.focusCameraOnObject(nextHq);
+                this.gameController.canvasManager.focusCameraOnObject(nextHq);
                 this.gameController.uiController.setStatus(`Camera moved to ${nextHq.team}'s HQ.`);
             }
 
@@ -378,7 +379,7 @@ export class InputManager {
 
         // Destroy action onunit
         if (this.gameController.keys['k']) {
-            this.gameController.destroySelectedPlayerUnit();
+            this.gameController.canvasManager.destroySelectedPlayerUnit();
         }
     }
 }
