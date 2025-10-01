@@ -133,9 +133,9 @@ function setupPlayerOperations(gameController, productionItems, playerSpawnLocat
     // Loop through the list and place each object
     for (const spawn of playerSpawns) {
         if (spawn.item.type === "Command") { // This should be the HQ
-            gameController.placeBuilding(spawn.item, team, spawn.x, spawn.y);
+            gameController.buildingManager.placeBuilding(spawn.item, team, spawn.x, spawn.y);
         } else {
-            gameController.spawnUnit(team, spawn.x, spawn.y, spawn.item);
+            gameController.buildingManager.spawnUnit(team, spawn.x, spawn.y, spawn.item);
         }
     }
 
@@ -166,9 +166,9 @@ function setupEnemyOperations(gameController, productionItems, enemySpawnLocatio
     // Loop through the list and place each object
     for (const spawn of enemySpawns) {
         if (spawn.item.type === "Command") { // This should be the HQ
-            gameController.placeBuilding(spawn.item, team, spawn.x, spawn.y);
+            gameController.buildingManager.placeBuilding(spawn.item, team, spawn.x, spawn.y);
         } else {
-            gameController.spawnUnit(team, spawn.x, spawn.y, spawn.item);
+            gameController.buildingManager.spawnUnit(team, spawn.x, spawn.y, spawn.item);
         }
     }
 

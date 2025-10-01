@@ -214,7 +214,7 @@ export class UIController {
                             // 1. PRODUCTION IS COMPLETE AND AWAITING COLLECTION
                             
                             // Call the game controller logic for final placement
-                            this.gameController.trainItem(item, selectedObject); 
+                            this.gameController.buildingManager.trainItem(item, selectedObject); 
                             
                             // 2. Clear the state on the building (The Store)
                             selectedObject.isLocallyProducing = false;

@@ -148,13 +148,13 @@ export class ProductionBuilding extends Building {
 
         const spawnPoint = this._getClosestPointOnPerimeter(this.rallyPoint.x, this.rallyPoint.y, unitWidth, unitHeight);
 
-        if (this.gameController.isLocationClear(spawnPoint.x, spawnPoint.y, { width: unitWidth, height: unitHeight }, this)) {
+        if (this.gameController.buildingManager.isLocationClear(spawnPoint.x, spawnPoint.y, { width: unitWidth, height: unitHeight }, this)) {
             this.productionTime++;
             if (this.productionTime >= itemToProduce.item.time) {
                 
                 // Log successful spawn
                 console.log("Unit spawned successfully!");
-                const newUnit = this.gameController.spawnUnit(this.team, spawnPoint.x, spawnPoint.y, itemToProduce.item);
+                const newUnit = this.gameController.buildingManager.spawnUnit(this.team, spawnPoint.x, spawnPoint.y, itemToProduce.item);
                 newUnit.moveTo(this.rallyPoint.x, this.rallyPoint.y);
                 
                 this.productionQueue.shift();

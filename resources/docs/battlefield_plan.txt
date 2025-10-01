@@ -244,6 +244,13 @@ Cursor Pack:
     Sell/Destroy: A command to sell the building for resources or to self-destruct it. This is a crucial command for adapting to a changing battlefield.
 
 * Mechanics
+Settings
+    Game Speed: 1,2,4
+    Volume
+    Music
+    Keybindings
+    Window Settings
+
 Terrashift: it has multiple forms and a base form
 Shortest Path Algorithm: Collided Units
 Game Setup: Functionality
