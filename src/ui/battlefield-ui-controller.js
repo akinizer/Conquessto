@@ -71,11 +71,9 @@ export class UIController {
             const producingItemName = selectedObject.producingItemName; 
 
             const isCurrentlyCountingDown = 
-                selectedObject.isLocallyProducing && 
                 selectedObject.localCountdownEnd > Date.now();
-                
+            
             const isFinishedAndAwaitingCollection = 
-                !selectedObject.isLocallyProducing && 
                 selectedObject.localCountdownEnd > 0 && 
                 selectedObject.localCountdownEnd <= Date.now();
 
@@ -157,10 +155,6 @@ export class UIController {
                         button.style.pointerEvents = 'auto'; // ENABLE CLICK
                         // Remove the generic busy overlay to show the button content/ready style
                         button.querySelectorAll('.local-cooldown-overlay').forEach(el => el.remove()); 
-
-                        // Change the button text to prompt collection
-                        nameDiv.textContent = `COLLECT ${item.name}`;
-                        costDiv.innerHTML = 'READY'; 
                     } 
                     
                     // State 2: LIVE COUNTDOWN (Second Priority: Use the existing live timer logic)
@@ -228,10 +222,11 @@ export class UIController {
                         } 
                         
                         // 4. Check if the building is actively busy (counting down)
-                        if (selectedObject.isLocallyProducing) {
-                            this.setStatus(`${selectedObject.producingItemName} is actively building...`);
-                            return;
-                        }
+                        const isStillCounting = selectedObject.localCountdownEnd > Date.now();
+                        if (isStillCounting) {
+                            this.setStatus(`${selectedObject.producingItemName} is actively building...`);
+                            return;
+                        }
                         
                         // ⭐ AFFORDABILITY CHECK BEFORE STARTING PRODUCTION
                         if (!this.gameController.resourceService.isAffordable(item.cost)) {
@@ -302,11 +297,7 @@ export class UIController {
             if (remainingMs <= 0) {
                 clearInterval(intervalId);
                 this.activeLocalTimerId = null;
-
-                // 1. Remove the old live countdown overlay from the producing button
-                button.querySelectorAll('.local-cooldown-overlay').forEach(el => el.remove()); 
-                button.style.pointerEvents = 'auto'; 
-                button.classList.remove('in-cooldown');
+                this.onProductionReady(productionBuilding);
             }
         }, 100);
 
