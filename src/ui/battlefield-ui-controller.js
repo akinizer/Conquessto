@@ -232,6 +232,12 @@ export class UIController {
                             this.setStatus(`${selectedObject.producingItemName} is actively building...`);
                             return;
                         }
+                        
+                        // ⭐ AFFORDABILITY CHECK BEFORE STARTING PRODUCTION
+                        if (!this.gameController.resourceService.isAffordable(item.cost)) {
+                            this.setStatus(`Insufficient resources to start production of ${item.name}.`);
+                            return; // Block production if the cost isn't affordable
+                        }
 
                         // 5. START NEW PRODUCTION
                         const durationSeconds = item.time || 10;

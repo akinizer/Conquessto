@@ -505,15 +505,17 @@ Equippables & Slots:
 * Player Data (Name, Level, XP, Currencies, Achievements, Profile, Command Rank - Rookie to Grand Marshall), Autosave (Settings, Battle Results, Production Field States) ...
 
 =============BUGFIX-PLAN=======================
+<KNOWN BUGS>
 
-*PRIORITY:
-
+*BattlefieldController
+1. training overlay persists but ready overlay disappears on deselect
+2. collision and pathfinding 
 - collision distance unit vs building
 - pathfinding unit vs solid
 - pathfinding unit vs terrain
 - move to attack should override click to move
 
-*GameController.js
+*GameController
 
 ### **Flawed Selection Logic**
 - **Function:** `_selectObject`
