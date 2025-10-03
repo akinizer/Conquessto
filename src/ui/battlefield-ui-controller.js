@@ -71,12 +71,15 @@ export class UIController {
 
             const producingItemName = selectedObject.producingItemName;
 
+            // ⬅️ GLOBAL TIMER: Check if the end time is in the future (still counting)
             const isCurrentlyCountingDown =
                 selectedObject.localCountdownEnd > Date.now();
 
+            // ⬅️ GLOBAL TIMER: Check if the end time has passed (ready for collection/spawn)
             const isFinishedAndAwaitingCollection =
                 selectedObject.localCountdownEnd > 0 &&
                 selectedObject.localCountdownEnd <= Date.now();
+                
 
             if (isFinishedAndAwaitingCollection && selectedObject.producingItemName) {
                 const item = this.findItemByName(selectedObject.producingItemName);
@@ -224,7 +227,7 @@ export class UIController {
 
                             // 2. Clear the state on the building (The Store)
                             selectedObject.isLocallyProducing = false;
-                            selectedObject.localCountdownEnd = 0;
+                            selectedObject.localCountdownEnd = 0; // ⬅️ GLOBAL TIMER: Reset
                             selectedObject.producingItemName = null;
 
                             // 3. Force a panel redraw to remove the "READY" overlay and re-enable all buttons
@@ -234,7 +237,7 @@ export class UIController {
                         }
 
                         // 4. Check if the building is actively busy (counting down)
-                        const isStillCounting = selectedObject.localCountdownEnd > Date.now();
+                        const isStillCounting = selectedObject.localCountdownEnd > Date.now(); // ⬅️ GLOBAL TIMER: Check
                         if (isStillCounting) {
                             this.setStatus(`${selectedObject.producingItemName} is actively building...`);
                             return;
@@ -251,7 +254,7 @@ export class UIController {
                         const durationMs = durationSeconds * 1000;
 
                         // STORE THE STATE
-                        selectedObject.localCountdownEnd = Date.now() + durationMs;
+                        selectedObject.localCountdownEnd = Date.now() + durationMs; // ⬅️ GLOBAL TIMER: Set End Time
                         selectedObject.isLocallyProducing = true;
                         selectedObject.producingItemName = item.name;
 
@@ -271,7 +274,7 @@ export class UIController {
     }
 
     startLiveProductionOverlay(button, productionBuilding, item) {
-        // 1. Clear any old timer (crucial when re-selecting the panel)
+        // 1. Clear any old timer (crucial when re-selecting the panel). LOCAL TIMER: ID for the visual
         if (this.activeLocalTimerId) {
             clearInterval(this.activeLocalTimerId);
             this.activeLocalTimerId = null;
@@ -299,9 +302,9 @@ export class UIController {
 
         this.setStatus(`Production of ${item.name} in progress...`);
 
-        // 2. Start the timer loop reading from the stored time
+        // 2. Start the visual timer loop (LOCAL TIMER) reading from the stored GLOBAL TIMER state. Method to start or update the visual countdown overlay
         const intervalId = setInterval(() => {
-            const remainingMs = productionBuilding.localCountdownEnd - Date.now();
+            const remainingMs = productionBuilding.localCountdownEnd - Date.now(); // ⬅️ GLOBAL TIMER: Read
             const countdown = Math.ceil(remainingMs / 1000);
 
             overlay.textContent = Math.max(0, countdown);
@@ -503,15 +506,17 @@ export class UIController {
         }, 1000); // Check every second
     }
 
+    // Helper function to locate the item object from the productionItems list
     findItemByName(itemName) {
-        // Helper function to locate the item object from the productionItems list
         const allItems = [...this.productionItems.units, ...this.productionItems.buildings];
         return allItems.find(item => item.name === itemName);
     }
 
+    // Handles post-production processing, primarily called by the UI observer or Game Controller (for building items)
     onProductionReady(readyBuilding) {
         const item = this.findItemByName(readyBuilding.producingItemName);
 
+        // Differentiates between building (needs click) and unit (auto-spawn) logic
         if (ITEM_TYPES_MAP.building.includes(item.type)) {
             this.onProductionReadyBuildingItem(readyBuilding);
         }
@@ -519,20 +524,24 @@ export class UIController {
             this.onProductionReadyUnitItem(readyBuilding);
         }
     }
+
+    // Triggers UI refresh when a Building Item is ready for collection
     onProductionReadyBuildingItem(readyBuilding) {
+
         // Check if the ready building is the one currently selected by the player
         if (this.selectedObject === readyBuilding) {
 
-            // The new observer will usually catch this, but this serves as a guaranteed immediate refresh
+            // Forces immediate panel refresh to show the READY state
             this.fillProducesTab(readyBuilding);
             this.setStatus(`Production of ${readyBuilding.producingItemName} is READY!`);
 
         } else {
-            // 🔥 If the ready building is NOT selected, update the global status
+            // Updates global status if the ready building is NOT selected
             this.setStatus(`${readyBuilding.itemData.name} is READY for collection!`);
         }
     }
 
+    // Executes immediate unit spawning and production slot clearing
     onProductionReadyUnitItem(readyBuilding) {
         const itemName = readyBuilding.producingItemName;
         const item = this.findItemByName(itemName);
@@ -542,21 +551,21 @@ export class UIController {
             return;
         }
 
-        // 🚨 ACTION: Call the game controller logic for final placement/spawning. This is the trainItem call that was previously click-activated.
+        // Executes the unit auto-spawn action
         this.gameController.buildingManager.trainItem(item, readyBuilding);
 
-        // 2. Clear the state on the building (The Store)
+        // Clears the production state in the building
         readyBuilding.isLocallyProducing = false;
         readyBuilding.localCountdownEnd = 0;
         readyBuilding.producingItemName = null;
 
-        // 3. Update the UI state and status
+        // Updates the UI state and status
         if (this.selectedObject === readyBuilding) {
             this.setStatus(`Auto-collected and spawned ${item.name}!`);
             // Force a panel redraw to remove the "READY" overlay and re-enable all buttons
             this.fillProducesTab(readyBuilding);
         } else {
-            // If the ready building is NOT selected, update the global status
+           // Updates global status if the finished building is NOT selected
             this.setStatus(`${readyBuilding.itemData.name} finished ${item.name}!`);
         }
     }
