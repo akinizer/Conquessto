@@ -25,3 +25,8 @@ export const BUFF_PROPERTIES = {
     DAMAGE: 'damage',
     SPEED: 'speed',
 };
+
+export const ITEM_TYPES_MAP = {
+    building: ["Production", "Command", "Economic", "Defense", "Resource", "Other"],
+    unit: ["Infantry", "Offensive Vehicle", "Transport Vehicle", "Support Vehicle", "Entrench Vehicle", "Aircraft", "Naval", "Super Unit"]
+};

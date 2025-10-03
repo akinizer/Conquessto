@@ -1,3 +1,4 @@
+import { ITEM_TYPES_MAP } from '../core/constants/battlefield_constants.js'; 
 export class UIController {
     constructor(productionItems) {
         this.productionItems = productionItems;
@@ -80,10 +81,7 @@ export class UIController {
             if (isFinishedAndAwaitingCollection && selectedObject.producingItemName) {
                 const item = this.findItemByName(selectedObject.producingItemName);
 
-                // This array check is based on the list in your old onProductionReady method
-                const unitTypes = ["Infantry", "Offensive Vehicle", "Transport Vehicle", "Support Vehicle", "Entrench Vehicle", "Aircraft", "Naval", "Super Unit"];
-
-                if (item && unitTypes.includes(item.type)) {
+                if (item && ITEM_TYPES_MAP.unit.includes(item.type)) {
                     // Found a finished UNIT while filling the panel (due to reselect).  We force the auto-spawn/cleanup now.
                     this.onProductionReadyUnitItem(selectedObject);
                     // After this call, the building state is reset, and fillProducesTab will naturally redraw to show the IDLE state. We must return to prevent the rest of fillProducesTab from continuing with the old, finished state.
@@ -514,20 +512,12 @@ export class UIController {
     onProductionReady(readyBuilding) {
         const item = this.findItemByName(readyBuilding.producingItemName);
 
-        const itemTypes = {
-            building: ["Production", "Command", "Economic", "Defense", "Resource", "Other"],
-            unit: ["Infantry", "Offensive Vehicle", "Transport Vehicle", "Support Vehicle", "Entrench Vehicle", "Aircraft", "Naval", "Super Unit"]
-        }
-
-        if (itemTypes.building.includes(item.type)) {
+        if (ITEM_TYPES_MAP.building.includes(item.type)) {
             this.onProductionReadyBuildingItem(readyBuilding);
         }
-        else if (itemTypes.unit.includes(item.type)) {
+        else if (ITEM_TYPES_MAP.unit.includes(item.type)) {
             this.onProductionReadyUnitItem(readyBuilding);
         }
-
-
-
     }
     onProductionReadyBuildingItem(readyBuilding) {
         // Check if the ready building is the one currently selected by the player
