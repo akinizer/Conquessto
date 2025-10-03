@@ -7,7 +7,7 @@ Produces item popup: Cost display logic. It assumes data has a cost value. It ha
 
 * Mechanics
 Command Bar: Resources
-Production Panel:  Produces Tab (Train Building, Train Unit), list of items assigned to selected building, training overlay (stored and reloaded on reselect), disabled overlay (non-training units are temporarily uninteractable)
+Production Panel:  Produces Tab (Train Building, Train Unit), list of items assigned to selected building, training overlay (stored and reloaded on reselect), disabled overlay (non-training units are temporarily uninteractable), training (click & autospawn)
 
 Map Canvas: Place Building, Select Building, Select Unit, Move Unit, Set Rally Point / Waypoint
     Placement Indicator: Placeable, Not Placeable
