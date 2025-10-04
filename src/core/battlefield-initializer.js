@@ -16,6 +16,9 @@ export function initializeGame({ canvas, uiController, productionItems, settings
     const gameController = new GameController(canvas, uiController, productionItems);
     uiController.gameController = gameController;
     uiController.initializeUI();
+
+    // Store player color in  the GameController's game state
+    gameController.gameState.playerColor = settings.playerColor;
     
     // Select a random map for the entire game session.
     const selectedMap = mapData[Math.floor(Math.random() * mapData.length)];
@@ -113,11 +116,15 @@ const mapData = [
  * @param {GameController} gameController - The game controller instance.
  * @param {Array<Object>} productionItems - List of available production items.
  * @param {Object} playerSpawnLocation - The pre-selected spawn location for the player.
+ * @param {Object} settings - Game settings. ⬅️ ADDED SETTINGS HERE
  */
 function setupPlayerOperations(gameController, productionItems, playerSpawnLocation) {
-    const hqItem = productionItems.find(item => item.name === "HQ");
-    const hunterItem = productionItems.find(item => item.name === "Hunter");
-    const lightTankItem = productionItems.find(item => item.name === "Light Tank");
+    const initialItems = {
+        hq: productionItems.find(item => item.name === "HQ"),
+        hunter: productionItems.find(item => item.name === "Hunter"),
+        lightTank: productionItems.find(item => item.name === "Light Tank")
+    };
+
     const team = "friend";
 
     const mapWidth = gameController.WORLD_WIDTH;
@@ -125,10 +132,12 @@ function setupPlayerOperations(gameController, productionItems, playerSpawnLocat
     const spawnX = mapWidth * playerSpawnLocation.x;
     const spawnY = mapHeight * playerSpawnLocation.y;
 
+    const spawnDirection = getSpawnDirection(playerSpawnLocation);
+
     console.log(`Spawning player HQ at: ${playerSpawnLocation.name}`);
 
     // Create the list of initial units to spawn for the player
-    const playerSpawns = createInitialUnitSpawns(hqItem, hunterItem, lightTankItem, spawnX, spawnY, "right");
+    const playerSpawns = createInitialUnitSpawns(initialItems, spawnX, spawnY, spawnDirection);
 
     // Loop through the list and place each object
     for (const spawn of playerSpawns) {
@@ -149,8 +158,11 @@ function setupPlayerOperations(gameController, productionItems, playerSpawnLocat
  * @param {Object} enemySpawnLocation - The pre-selected spawn location for the enemy.
  */
 function setupEnemyOperations(gameController, productionItems, enemySpawnLocation) {
-    const hqItem = productionItems.find(item => item.name === "HQ");
-    const hunterItem = productionItems.find(item => item.name === "Hunter");
+    const initialItems = {
+        hq: productionItems.find(item => item.name === "HQ"),
+        hunter: productionItems.find(item => item.name === "Hunter"),
+        lightTank: null // disabled spawn
+    };
     const team = "foe";
 
     const mapWidth = gameController.WORLD_WIDTH;
@@ -158,10 +170,11 @@ function setupEnemyOperations(gameController, productionItems, enemySpawnLocatio
     const spawnX = mapWidth * enemySpawnLocation.x;
     const spawnY = mapHeight * enemySpawnLocation.y;
 
+    const enemyDirection = getSpawnDirection(enemySpawnLocation); 
     console.log(`Spawning enemy HQ at: ${enemySpawnLocation.name}`);
 
     // Create the list of initial units to spawn for the enemy
-    const enemySpawns = createInitialUnitSpawns(hqItem, hunterItem, null, spawnX, spawnY, "left");
+    const enemySpawns = createInitialUnitSpawns(initialItems, spawnX, spawnY, enemyDirection);
 
     // Loop through the list and place each object
     for (const spawn of enemySpawns) {
@@ -194,26 +207,88 @@ function setupNaturalOperations(gameController) {
  * @param {string} direction - "left" or "right" to offset units.
  * @returns {Array<Object>} An array of objects to be spawned, with their item data and positions.
  */
-function createInitialUnitSpawns(hqItem, hunterItem, lightTankItem, spawnX, spawnY, direction) {
+function createInitialUnitSpawns(initialItems, spawnX, spawnY, direction) {
     const spawns = [];
-    const offset = direction === "right" ? 100 : -100;
-    const tankOffset = direction === "right" ? 150 : -150;
+
+    // Determine offsets based on direction in a clean integration
+    const {
+        offsetX, offsetY, 
+        staggerX, staggerY, 
+        tankOffsetX, tankOffsetY 
+    } = calculateSpawnOffsets(direction);
+
+    const hqItem = initialItems.hq;
+    const hunterItem = initialItems.hunter;
+    const lightTankItem = initialItems.lightTank;
 
     // Place the HQ first
     if (hqItem) {
         spawns.push({ item: hqItem, x: spawnX, y: spawnY });
     }
 
-    // Place the units with staggered offsets
+    // --- Place Units --- //
+
+    // Hunter Units
     if (hunterItem) {
-        spawns.push({ item: hunterItem, x: spawnX + offset, y: spawnY });
-        spawns.push({ item: hunterItem, x: spawnX + offset, y: spawnY + 40 });
-        spawns.push({ item: hunterItem, x: spawnX + offset, y: spawnY - 40 });
+        // Hunter 1 (Primary offset)
+        spawns.push({item: hunterItem, x: spawnX + offsetX, y: spawnY + offsetY});
+        
+        // Hunter 2 (Staggered positive)
+        spawns.push({item: hunterItem, x: spawnX + offsetX + staggerX, y: spawnY + offsetY + staggerY});
+        
+        // Hunter 3 (Staggered negative)
+        spawns.push({item: hunterItem, x: spawnX + offsetX - staggerX, y: spawnY + offsetY - staggerY});
     }
 
+    // Light Tank Unit
     if (lightTankItem) {
-        spawns.push({ item: lightTankItem, x: spawnX + tankOffset, y: spawnY });
+        spawns.push({item: lightTankItem, x: spawnX + tankOffsetX, y: spawnY + tankOffsetY});
     }
 
     return spawns;
+}
+
+function calculateSpawnOffsets(direction) {
+    let offsetX = 0; // Primary horizontal offset
+    let offsetY = 0; // Primary vertical offset
+    let staggerX = 0; // Horizontal staggering for units
+    let staggerY = 0; // Vertical staggering for units
+
+    // Set primary offsets based on direction
+    if (direction === "right") {
+        offsetX = 100;
+        staggerY = 40; // Stagger units vertically when moving right
+    } else if (direction === "left") {
+        offsetX = -100;
+        staggerY = 40; // Stagger units vertically when moving left
+    } else if (direction === "down") {
+        offsetY = 100;
+        staggerX = 40; // Stagger units horizontally when moving down
+    } else if (direction === "up") {
+        offsetY = -100;
+        staggerX = 40; // Stagger units horizontally when moving up
+    }
+    
+    // Calculate larger offsets for the tank (1.5x the primary offset)
+    const tankOffsetX = offsetX * 1.5;
+    const tankOffsetY = offsetY * 1.5;
+
+    return { offsetX, offsetY, staggerX, staggerY, tankOffsetX, tankOffsetY };
+}
+
+function getSpawnDirection(spawnLocation) {
+    // 1. Define the four possible cardinal directions
+    const cardinalDirections = ["left", "right", "up", "down"];
+    
+    // 2. Determine the optimal direction based on location (Center-seeking)
+        
+    // Determine direction based on spawn location. True picks a random direction.
+    if (spawnLocation.x < 0.5) { return "right"; } 
+    else if (spawnLocation.x > 0.5) { return "left"; } 
+    else if (spawnLocation.y < 0.5) { return "down"; } 
+    else if (spawnLocation.y > 0.5) { return "up"; } 
+    else {
+        const randomIndex = Math.floor(Math.random() * cardinalDirections.length);
+        return cardinalDirections[randomIndex];
+    }
 }

@@ -1,12 +1,12 @@
 export class GameSetupUI {
-    constructor(onStartGame) {
+    constructor(setupPropsCallback) {
         this.config = {
             colors: ['#1e90ff', '#32cd32', '#ff4500', '#ffd700'],
             mapSizes: ['small', 'medium', 'large'],
             mapTypes: ['desert', 'islands', 'volcano', 'forest']
         };
 
-        this.onStartGame = onStartGame;
+        this.setupProps = setupPropsCallback;
         this.elements = {};
         this.selectedColor = this.config.colors[0];
         this.selectedMapSize = this.config.mapSizes[1]; // Default to 'medium'
@@ -50,7 +50,7 @@ export class GameSetupUI {
             e.preventDefault();
             this.hide();
             const settings = this.getSettings();
-            this.onStartGame(settings);
+            this.setupProps(settings);
         });
 
         this.elements.playerColorPicker.addEventListener('click', (e) => {
@@ -118,7 +118,7 @@ export class GameSetupUI {
             playerColor: this.selectedColor,
             enemyQuantity: parseInt(this.elements.enemyQuantitySlider.value, 10),
             mapSize: this.selectedMapSize,
-            mapType: this.selectMapType
+            mapType: this.selectedMapType
 
         };
     }

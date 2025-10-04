@@ -10,6 +10,7 @@ export class BattlefieldManager {
         this.dataManager = new DataManager();
         this.productionData = null;
         this.productionItems = null;
+        this.settings = null;
     }
 
     async run() {
@@ -25,12 +26,8 @@ export class BattlefieldManager {
         this.uiController = new UIController(this.productionData);
 
         const setupProps = (settings) => {
-            initializeGame({
-                canvas: this.canvas,
-                uiController: this.uiController,
-                productionItems: this.productionItems,
-                settings
-            });
+            this.settings = settings; 
+            initializeGame({canvas: this.canvas, uiController: this.uiController, productionItems: this.productionItems, settings: this.settings});
         };
         const gameSetup = new GameSetupUI(setupProps);
 

@@ -301,7 +301,11 @@ export class CanvasManager {
             );
 
             this.gameController.canPlaceBuilding = isLocationClear && isWithinViewport;
-            const silhouetteColor = this.gameController.canPlaceBuilding ? 'rgba(0,255,0,0.4)' : 'rgba(255,0,0,0.4)';
+
+            const playerColor = this.gameController.gameState.playerColor || 'rgba(0,255,0,0.4)'; // Default to green if not set
+            const transparentPlayerColor = rgbaFromColor(playerColor, 0.4); 
+
+            const silhouetteColor = this.gameController.canPlaceBuilding ? transparentPlayerColor : 'rgba(255,0,0,0.4)';
 
             // FIX: Translate the context to draw the silhouette correctly relative to the viewport.
             this.gameController.ctx.save();
@@ -327,4 +331,17 @@ export class CanvasManager {
 
         requestAnimationFrame((time) => this.gameLoop(time));
     }
+}
+
+function rgbaFromColor(color, alpha) {
+    // Basic example: only handles 6-digit hex codes for simplicity
+    if (color.startsWith('#') && color.length === 7) {
+        const r = parseInt(color.slice(1, 3), 16);
+        const g = parseInt(color.slice(3, 5), 16);
+        const b = parseInt(color.slice(5, 7), 16);
+        return `rgba(${r},${g},${b},${alpha})`;
+    }
+    
+    // Fallback/Error case for safety
+    return `rgba(0,0,255,${alpha})`; // Default to transparent blue
 }
